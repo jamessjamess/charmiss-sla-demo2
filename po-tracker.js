@@ -24,6 +24,31 @@ function getSLAStatus(startTs,status){
 
 // ─── STATE ───
 var STAGE_REMARKS = {};  // key: ticketId+'_'+stageKey → {text, images:[...]}
+// ── Sample remarks for overdue stages ──
+(function(){
+  function sr(tid,sk,txt){ STAGE_REMARKS[tid+'_'+sk]={text:txt,images:[]}; }
+  // Ticket 3 Eveandboy stuck approve_po
+  sr(3,'approve_po','⚠️ รอ Approve จาก Manager นาน 26 ชม. — ผู้อนุมัติอยู่ต่างจังหวัด — ประสานแล้ว Approve เสร็จ 12/03 11:00 น.');
+  // Ticket 10 Beautrium approve_so overdue
+  sr(10,'approve_so','‼️ Invoice ราคาไม่ตรง PO ต้นฉบับ 2 รายการ — แก้ไขแล้วส่ง Invoice ใหม่ให้คลัง 10:45 น. 12/03 — เกิน SLA 1 ชม.');
+  // Ticket 13 CJ doc_wh overdue  
+  sr(13,'doc_wh','📦 ส่งเอกสารล่าช้า 6 ชม. — ERP ออก Invoice ไม่ได้ — IT แก้ไข เสร็จ 20:00 น. ส่งเอกสารทันที');
+  // Ticket 22 Watsons approve_po overdue
+  sr(22,'approve_po','ℹ️ เกิน SLA 2 ชม. — มีสินค้าใหม่ต้องตรวจ Stock ก่อน — Approve เสร็จ 09:15 น.');
+  // Ticket 15 Eveandboy delivery done overdue
+  sr(15,'delivery','🚚 ส่งสำเร็จ — ล่าช้า 3 ชม. รถติดทางด่วน 07:00-10:00 น. — ถึง Terminal 21 Korat 11:30 น. Vendor ยืนยันรับแล้ว');
+  // Mockup MT tickets
+  sr(102,'approve_po','✍️ รอผู้มีอำนาจอนุมัติ PO — ผู้อนุมัติลาออกนอก ไม่มีการ Delegate งาน ค้างอยู่นาน 52 ชั่วโมง');
+  sr(103,'open_so','📋 ระบบ ERP มีปัญหา ไม่สามารถสร้าง SO ได้ — ทีม IT กำลังแก้ไข รอ Resolve มาแล้ว 2 วัน');
+  sr(104,'approve_so','🧾 ราคาสินค้าใน SO ไม่ตรงกับ PO ต้นฉบับ — ต้องแก้ไข Invoice ก่อน Approve ติดค้าง 72 ชั่วโมง');
+  sr(105,'doc_wh','📦 เอกสารถูกส่งอีเมลไปแล้ว แต่คลังไม่ได้รับ — อาจติด Spam Filter หรือ Email ผิด ต้องส่งซ้ำ');
+  sr(106,'delivery','🚚 Logistic Partner แจ้งว่าสินค้าไม่พร้อมส่ง — รอ Stock เติมจาก Supplier ใช้เวลา 3-5 วัน');
+  sr(107,'delivered','🎉 สินค้าถูกส่งถึงแล้ว แต่ Vendor ยังไม่ยืนยันรับของใน Portal — รอ Sign-off มาแล้ว 40 ชั่วโมง');
+  // Mockup TT tickets
+  sr(120,'approve_po','✍️ Order รอ Approve จาก Sales Manager — Manager ลาป่วย ยังไม่มีคน Delegate ค้างอยู่ 28 ชั่วโมง');
+  sr(121,'open_so','📋 Approved แล้ว แต่ ERP ยังไม่ได้เปิด SO — ติดต่อทีม Ops แล้ว รอดำเนินการ 18 ชั่วโมง');
+  sr(122,'delivery','🚚 สินค้าพร้อมส่งแล้ว แต่ Logistics ยังไม่มารับ — รถขนส่งเต็ม ต้องรอรอบถัดไป 2 วัน');
+})();
 var REMARK_OPEN = {};    // key: ticketId+'_'+stageKey → bool (expanded?)
 var STAGE_ACTIONS = {
   po:        { label:'กดรับงาน PO',     icon:'📥', url:'#confirm-po' },
@@ -35,6 +60,63 @@ var STAGE_ACTIONS = {
 };
 let curJourneyDays=0;
 let curPOFilter='all',curPOVendor='',curDateFilter=0,cancelPendingId=null,curNotifTab='all',curSLAFilter='all';
+let curPOMainTab='inbox';
+
+var PO_SUB_TABS={
+  inbox:  [{f:'all_inbox',lbl:'ทั้งหมด'},{f:'pending_att',lbl:'📎 รอแนบไฟล์'},{f:'received',lbl:'📥 รอรับงาน'}],
+  approve:[{f:'all_approve',lbl:'ทั้งหมด'},{f:'verified',lbl:'🔍 รอ Approve'},{f:'approved',lbl:'✅ Approved แล้ว'}],
+  done:   [{f:'all_done',lbl:'ทั้งหมด'},{f:'confirmed',lbl:'☑️ Confirmed'},{f:'rejected',lbl:'🚫 ยกเลิก'}],
+};
+
+function setPOMainTab(tab,el){
+  curPOMainTab=tab;
+  document.querySelectorAll('.po-main-tab').forEach(function(b){
+    var isAct=b.id===('potab-main-'+tab);
+    b.style.color=isAct?'var(--pink)':'var(--text2)';
+    b.style.borderBottom=isAct?'3px solid var(--pink)':'3px solid transparent';
+  });
+  curPOFilter='all_'+tab;
+  renderPOSubTabs();
+  renderTickets();
+}
+
+function renderPOSubTabs(){
+  var tabEl=document.getElementById('po-status-tabs');
+  if(!tabEl) return;
+  var defs=PO_SUB_TABS[curPOMainTab]||[];
+  var html="";
+  for(var di=0;di<defs.length;di++){
+    var d=defs[di];
+    var ac=curPOFilter===d.f?" active":"";
+    html+='<button class="potab'+ac+'" data-filter="'+d.f+'" onclick="setPOFilter(this.dataset.filter,this)">'+d.lbl+'</button>';
+  }
+  tabEl.innerHTML=html;
+}
+
+function updatePOMainTabCounts(){
+  var inbox=TICKETS.filter(function(t){return t.procStatus==='pending_att'||t.procStatus==='received'||t.procStatus==='escalated';}).length;
+  var approve=TICKETS.filter(function(t){return t.procStatus==='verified'||t.procStatus==='approved';}).length;
+  var done=TICKETS.filter(function(t){return t.status==='confirmed'||t.status==='canceled';}).length;
+  var ei=document.getElementById('cnt-main-inbox');
+  var ea=document.getElementById('cnt-main-approve');
+  var ed=document.getElementById('cnt-main-done');
+  if(ei) ei.textContent=inbox;
+  if(ea) ea.textContent=approve;
+  if(ed) ed.textContent=done;
+}
+
+function goToPOTab(mainTab,subFilter){
+  gotoView('po-tickets');
+  curPOMainTab=mainTab;
+  curPOFilter=subFilter||('all_'+mainTab);
+  document.querySelectorAll('.po-main-tab').forEach(function(b){
+    var isAct=b.id===('potab-main-'+mainTab);
+    b.style.color=isAct?'var(--pink)':'var(--text2)';
+    b.style.borderBottom=isAct?'3px solid var(--pink)':'3px solid transparent';
+  });
+  renderPOSubTabs();
+  renderTickets();
+}
 let curPOCaseFilter='all',curPOProcFilter='all',curChannelFilter='all';
 let vendorRules=[...Object.entries(VENDORS).map(([name,v])=>({name,email:v.email,subject:v.subject,slaNote:v.slaNote,deliveryNote:v.deliveryNote,portal:v.portal,active:true}))];
 
@@ -45,7 +127,7 @@ function renderDashPie(){
   var total=TICKETS.filter(function(t){return !t._isMockup;}).length;
   var counts={
     pending_att: TICKETS.filter(function(t){return !t._isMockup&&t.procStatus==='pending_att';}).length,
-    received:    TICKETS.filter(function(t){return !t._isMockup&&t.procStatus==='received';}).length,
+    received:    TICKETS.filter(function(t){return !t._isMockup&&(t.procStatus==='received'||t.procStatus==='escalated');}).length,
     verified:    TICKETS.filter(function(t){return !t._isMockup&&t.procStatus==='verified';}).length,
     approved:    TICKETS.filter(function(t){return !t._isMockup&&t.procStatus==='approved';}).length,
     rejected:    TICKETS.filter(function(t){return !t._isMockup&&(t.procStatus==='rejected'||t.status==='canceled');}).length,
@@ -96,13 +178,103 @@ function renderDashPie(){
   legEl.innerHTML=legHtml;
 }
 
+// ─── DASHBOARD PIPELINE (7 stages, dynamic from TICKETS) ───
+function renderDashPipeline(){
+  var el=document.getElementById('dashPipeline');
+  if(!el) return;
+  var real=TICKETS.filter(function(t){return !t._isMockup && t.status!=='canceled';});
+  var stageConfig=[
+    {key:'po',        label:'เปิด PO/<br>Order',   bg:'#F0FDF4', color:'#16A34A'},
+    {key:'approve_po',label:'Appv PO/<br>Order',   bg:'#EDE9FE', color:'#7C3AED'},
+    {key:'open_so',   label:'เปิด SO',              bg:'#DBEAFE', color:'#1D4ED8'},
+    {key:'approve_so',label:'Appv SO/<br>Invoice',  bg:'#FEF3C7', color:'#B45309'},
+    {key:'doc_wh',    label:'ส่งเอกสาร<br>ให้คลัง', bg:'#FEE2E2', color:'#DC2626'},
+    {key:'delivery',  label:'จัดส่ง<br>(Delivery)', bg:'#E0F2FE', color:'#0284C7'},
+    {key:'delivered', label:'จัดส่ง<br>สำเร็จ',     bg:'var(--success-bg)', color:'var(--success)'},
+  ];
+  var html='';
+  for(var i=0;i<stageConfig.length;i++){
+    var sc=stageConfig[i];
+    var isLast=(i===stageConfig.length-1);
+    // Count tickets currently AT this stage (not done past it)
+    var cnt=real.filter(function(t){return t.currentStage===sc.key && !t.journey[sc.key].done;}).length;
+    // Special for 'po': count where po is done but nothing further
+    if(sc.key==='po') cnt=real.filter(function(t){return t.currentStage==='po';}).length;
+    html+='<div style="flex:1;background:'+sc.bg+';display:flex;flex-direction:column;align-items:center;justify-content:center;'+(isLast?'':'border-right:1px solid var(--border);')+'padding:4px 3px;cursor:pointer" onclick="gotoView(\'sla-journey\')" title="'+sc.label.replace(/<br>/g,' ')+'">'
+      +'<div style="font-size:20px;font-weight:800;color:'+sc.color+';line-height:1">'+cnt+'</div>'
+      +'<div style="font-size:9px;color:'+sc.color+';font-weight:600;text-align:center;line-height:1.3;margin-top:3px">'+sc.label+'</div>'
+      +'</div>';
+  }
+  el.innerHTML=html;
+}
+
+// ─── DASHBOARD SO CHANNEL (dynamic from TICKETS) ───
+function renderDashSOChannel(){
+  var el=document.getElementById('dashSOChannelContent');
+  if(!el) return;
+  var real=TICKETS.filter(function(t){return !t._isMockup;});
+  // MT มี Invoice = non-ORDER caseType, has 'approve_so' done (Invoice exists)
+  var mtInv=real.filter(function(t){return t.caseType!=='ORDER' && t.journey && t.journey.approve_so && t.journey.approve_so.done;});
+  // MT ไม่มี Invoice = non-ORDER, no approve_so done yet but status != canceled
+  var mtNoInv=real.filter(function(t){return t.caseType!=='ORDER' && t.status!=='canceled' && !(t.journey && t.journey.approve_so && t.journey.approve_so.done);});
+  // TT = ORDER type
+  var tt=real.filter(function(t){return t.caseType==='ORDER' && t.status!=='canceled';});
+  var total=mtInv.length+mtNoInv.length+tt.length;
+  var maxCount=Math.max(mtInv.length,mtNoInv.length,tt.length,1);
+  var maxBarH=64;
+  function bar(count,bg,color,label){
+    var h=Math.max(4,Math.round((count/maxCount)*maxBarH));
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">'
+      +'<div style="font-size:14px;font-weight:700;color:'+color+'">'+count+'</div>'
+      +'<div style="width:100%;display:flex;align-items:flex-end;height:'+maxBarH+'px">'
+      +'<div style="width:100%;height:'+h+'px;background:'+bg+';border-radius:4px 4px 0 0"></div>'
+      +'</div>'
+      +'<div style="font-size:9.5px;font-weight:600;color:'+color+';text-align:center;line-height:1.3">'+label+'</div>'
+      +'</div>';
+  }
+  el.innerHTML='<div style="display:flex;align-items:flex-end;gap:10px">'
+    +bar(mtInv.length,'#DBEAFE','#1D4ED8','MT มี<br>Invoice')
+    +bar(mtNoInv.length,'#EDE9FE','#7C3AED','MT ไม่มี<br>Invoice')
+    +bar(tt.length,'#D1FAE5','#059669','TT')
+    +'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">'
+    +'<div style="font-size:14px;font-weight:700;color:#D97706">—</div>'
+    +'<div style="width:100%;display:flex;align-items:flex-end;height:'+maxBarH+'px">'
+    +'<div style="width:100%;height:4px;background:#FEF3C7;border-radius:4px 4px 0 0"></div>'
+    +'</div>'
+    +'<div style="font-size:9.5px;font-weight:600;color:#92400E;text-align:center;line-height:1.3">E-Commerce<br>(WMS)</div>'
+    +'</div>'
+    +'</div>'
+    +'<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
+    +'<div style="font-size:11px;color:var(--text2)">รวม SO: <strong>'+total+'</strong> ใบ</div>'
+    +'</div>';
+}
+
 // ─── INIT ───
+curPOMainTab='inbox';curPOFilter='all_inbox';renderPOSubTabs();
 renderTickets();
 renderJourney();
+renderDashPipeline();
+renderDashSOChannel();
 renderVendorSummary();
 renderAdminTable();
 renderVendorRules();
 renderNotifications('all');
+
+// ─── LIVE DURATION COUNTER (อัปเดตทุก 30 วินาที) ───
+setInterval(function(){
+  var counters=document.querySelectorAll('[id^="jdur-"][data-start]');
+  counters.forEach(function(el){
+    var startMs=parseInt(el.dataset.start||'0');
+    var isStuck=el.dataset.stuck==='1';
+    if(!startMs) return;
+    var diffMs=Date.now()-startMs;
+    var h=Math.floor(diffMs/3600000);
+    var m=Math.floor((diffMs%3600000)/60000);
+    var txt=(h>0?(h+' ชม. '):'')+(m+' น.');
+    if(isStuck) txt+=(' (ค้าง)');
+    el.textContent=txt;
+  });
+},30000);
 
 // ─── NAVIGATION ───
 // ── SIDEBAR COLLAPSE ─────────────────────
@@ -138,7 +310,7 @@ function gotoView(v,el){
       if(fn.includes("'"+v+"'"))ni.classList.add('active');
     });
   }
-  const titles={dashboard:'Dashboard','sla-journey':'SLA Journey — ติดตามเอกสาร','po-tickets':'PO Tickets จาก Email','create-order':'สร้าง Order',admin:'Admin PO',notifications:'การแจ้งเตือน',vendors:'Vendor Rules','sales-order':'Sales Order','wms-upload':'Upload ข้อมูลการส่งของจาก WMS'};
+  const titles={dashboard:'Dashboard','sla-journey':'SLA Journey — ติดตามเอกสาร','po-tickets':'PO Tickets จาก Email','create-order':'สร้าง Order',admin:'Admin PO',notifications:'การแจ้งเตือน',vendors:'Vendor Rules','sales-order':'Sales Order','wms-upload':'Upload ข้อมูลการส่งของจาก WMS','role-management':'🔑 จัดการสิทธิ์ผู้ใช้'};
   document.getElementById('page-title').textContent=titles[v]||v;
 }
 
@@ -205,38 +377,14 @@ function getAllVendors(){
   return result.sort();
 }
 
-function onVendorSearch(inp){
-  var q=inp.value.toLowerCase().trim();
-  var dd=document.getElementById('vendor-dropdown');
-  if(!dd) return;
-  var vendors=getAllVendors();
-  var filtered=q?vendors.filter(function(v){return v.toLowerCase().indexOf(q)>=0;}):vendors;
-  if(!filtered.length){dd.style.display='none';renderJourney();return;}
-  dd.innerHTML=filtered.map(function(v){
-    var isOrder=TICKETS.find(function(t){return t.vendor===v&&t.caseType==='ORDER';});
-    var tag=isOrder
-      ?'<span style="font-size:9px;background:#dcfce7;color:#166534;border-radius:3px;padding:0 5px;font-weight:700">TT</span>'
-      :'<span style="font-size:9px;background:#dbeafe;color:#1d4ed8;border-radius:3px;padding:0 5px;font-weight:700">MT</span>';
-    return '<div onclick="selectVendor(\'' + v.replace(/'/g,"\\'") + '\')" style="padding:7px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)" onmousedown="event.preventDefault()" onmouseover="this.style.background=\'var(--pink-ll)\'" onmouseout="this.style.background=\'\'">'+tag+' '+v+'</div>';
-  }).join('');
-  dd.style.display='block';
+function onVendorSelect(sel){
   renderJourney();
 }
 
 function selectVendor(name){
-  var inp=document.getElementById('journey-vendor-filter');
-  if(inp) inp.value=name;
-  var dd=document.getElementById('vendor-dropdown');
-  if(dd) dd.style.display='none';
+  var sel=document.getElementById('journey-vendor-filter');
+  if(sel) sel.value=name;
   renderJourney();
-}
-
-function hideVendorDropdown(){
-  setTimeout(function(){
-    var dd=document.getElementById('vendor-dropdown');
-    if(dd) dd.style.display='none';
-    renderJourney();
-  },150);
 }
 
 // ─── SLA JOURNEY DATE FILTER ───
@@ -392,6 +540,34 @@ function buildRemarkRowHtml(tid, sk){
 
 
 
+
+// ── Journey expand state ──
+var journeyExpandedIds = new Set();
+var journeyAllExpanded = false;
+
+function journeyToggleAll(){
+  journeyAllExpanded = !journeyAllExpanded;
+  var rows = document.querySelectorAll('.jt-row');
+  rows.forEach(function(row){
+    var id = parseInt(row.id.replace('jrow-',''));
+    if(!isNaN(id)){
+      var expRow = document.getElementById('jexp-'+id);
+      var inner = document.getElementById('jexpinner-'+id);
+      if(expRow && inner){
+        if(journeyAllExpanded){
+          expRow.classList.add('open'); inner.style.display='block'; row.style.background='var(--pink-ll)';
+          journeyExpandedIds.add(id);
+        } else {
+          expRow.classList.remove('open'); inner.style.display='none'; row.style.background='';
+          journeyExpandedIds.delete(id);
+        }
+      }
+    }
+  });
+  var btn = document.getElementById('journey-collapse-btn');
+  if(btn) btn.textContent = journeyAllExpanded ? '📁 พับทั้งหมด' : '📂 ขยายทั้งหมด';
+}
+
 function renderJourney(){
   var vendorFilter=document.getElementById('journey-vendor-filter')?document.getElementById('journey-vendor-filter').value:'';
   var stageFilter=document.getElementById('journey-stage-filter')?document.getElementById('journey-stage-filter').value:'';
@@ -444,10 +620,19 @@ function buildPipelineHtml(t){
   for(var i=0;i<STAGES.length;i++){
     var stage=STAGES[i];
     var s=t.journey[stage.key]||{done:false,ts:null,stuck:false};
+    // Auto-advance: if previous stage is done but currentStage not updated yet
+    var effectiveCurrentStage=t.currentStage;
+    for(var ci=0;ci<STAGES.length-1;ci++){
+      var csk=STAGES[ci].key; var csd=t.journey[csk]||{};
+      var nsk=STAGES[ci+1].key; var nsd=t.journey[nsk]||{};
+      if(csd.done&&!nsd.done&&!nsd.stuck&&t.currentStage===csk){
+        effectiveCurrentStage=nsk; break;
+      }
+    }
     var cls='ps-pending';
     if(s.done) cls='ps-done';
-    else if(s.stuck) cls='ps-blocked';
-    else if(stage.key===t.currentStage) cls='ps-active';
+    else if(s.stuck && ((i===0)||(t.journey[STAGES[i-1].key]||{}).done===true)) cls='ps-blocked';
+    else if(stage.key===effectiveCurrentStage) cls='ps-active';
     var icon=s.done?'✓':s.stuck?'!':stage.key===t.currentStage?'◉':'';
     var allowMins=slaMins[stage.key]||480;
     var pipeOverSLA=false;
@@ -466,11 +651,16 @@ function buildPipelineHtml(t){
               +'<div class="pipe-ts-sla" style="color:'+durColor+';font-size:8.5px;font-weight:700">⏱ '+durStr+(overSLA?' ⚠':'')+'</div>';
       }
     } else if(cls==='ps-active'){
-      var elapsedMins=Math.round((Date.now()-(s.ts||t.startTs))/60000);
+      // เวลาเริ่มต้น = ts ของ stage ก่อนหน้า (ถ้ามี) หรือ startTs ของ ticket
+      var prevTs2=null;
+      if(i>0){var prevS2=t.journey[STAGES[i-1].key]||{};if(prevS2.ts) prevTs2=prevS2.ts;}
+      var activeStartTs=prevTs2||t.startTs;
+      var elapsedMins=Math.round((Date.now()-activeStartTs)/60000);
       var overSLA2=elapsedMins>allowMins;
       var eColor=overSLA2?'var(--danger)':'var(--warn)';
-      tsLine='<div class="pipe-ts" style="color:var(--warn)">ดำเนินการ</div>'
-            +'<div class="pipe-ts-sla" style="color:'+eColor+';font-size:8.5px;font-weight:700">⏱ '+(elapsedMins>=60?(Math.round(elapsedMins/60*10)/10+'h'):(elapsedMins+'m'))+(overSLA2?' ⚠️':'')+'</div>';
+      var elStr=elapsedMins>=60?(Math.round(elapsedMins/60*10)/10+'h'):(elapsedMins+'m');
+      tsLine='<div class="pipe-ts" style="color:var(--warn)">'+fmtTime(activeStartTs)+'</div>'
+            +'<div class="pipe-ts-sla" style="color:'+eColor+';font-size:8.5px;font-weight:700">⏱ '+elStr+(overSLA2?' ⚠️':'')+'</div>';
     } else if(cls==='ps-blocked'){
       var stuckMins=s.ts?Math.round((Date.now()-s.ts)/60000):0;
       tsLine='<div class="pipe-ts" style="color:var(--danger)">กำลังดำเนินการ</div>'
@@ -496,16 +686,39 @@ function buildExpandHtml(t){
   var rows='';
   var slaMins={po:60,approve_po:1440,open_so:480,approve_so:480,doc_wh:240,delivery:1440,delivered:60};
 
+  // Only show the FIRST stuck stage - suppress any subsequent stuck stages
+  var firstStuckKey2=null;
+  for(var si3=0;si3<STAGES.length;si3++){
+    var ss3=t.journey[STAGES[si3].key]||{};
+    if(ss3.stuck){firstStuckKey2=STAGES[si3].key;break;}
+  }
   for(var i=0;i<STAGES.length;i++){
     var stage=STAGES[i];
     var s=t.journey[stage.key]||{done:false,ts:null,stuck:false};
     var nextTs=(i<STAGES.length-1)?(t.journey[STAGES[i+1].key]||{}).ts:null;
     var isCurrentActive=(stage.key===t.currentStage&&!s.done);
-    if(!s.ts && !s.stuck && !isCurrentActive) continue;
+    // Only render stuck stage if it's THE FIRST stuck (firstStuckKey2)
+    var effectiveStuck2=s.stuck&&(stage.key===firstStuckKey2);
+    if(!s.ts && !effectiveStuck2 && !isCurrentActive) continue;
+    s=Object.assign({},s,{stuck:effectiveStuck2});
     var isPO=(stage.key==='po');
-    var startTs=s.ts;
-    var endTs=isPO?s.ts:nextTs;
+    // startTs: PO uses ticket.startTs; others use PREVIOUS stage's completion ts
+    var startTs;
+    if(isPO){
+      startTs=t.startTs;
+    } else if(i>0){
+      var ps=t.journey[STAGES[i-1].key]||{};
+      startTs=ps.ts||t.startTs;
+    } else {
+      startTs=t.startTs;
+    }
+    // endTs: for PO, show po.ts if done; for others, endTs = this stage's own ts (completion time)
+    var endTs=isPO?(s.done?s.ts:null):(s.done?s.ts:null);
+    // doneButNoEndTs = stage is marked done but ts wasn't recorded (legacy data)
+    
+    var doneButNoEndTs=(s.done&&!s.stuck&&!s.ts&&!isPO);
     var durationHrs=0; var durationStr='—';
+    var isLiveCounter=false; // flag for live counter
     if(isPO){
       durationStr='รับจากคู่ค้า';
     } else if(startTs&&endTs){
@@ -513,13 +726,17 @@ function buildExpandHtml(t){
       durationStr=durationHrs>=1?(durationHrs+' ชม.'):(Math.round((endTs-startTs)/60000)+' นาที');
     } else if(startTs&&s.stuck){
       durationHrs=Math.floor((Date.now()-startTs)/3600000);
-      durationStr=durationHrs+' ชม. (ค้าง)';
+      var dMin=Math.floor(((Date.now()-startTs)%3600000)/60000);
+      durationStr=durationHrs+' ชม. '+dMin+' น. (ค้าง)';
+      isLiveCounter=true;
     } else if(startTs&&stage.key===t.currentStage){
       durationHrs=Math.floor((Date.now()-startTs)/3600000);
-      durationStr=(durationHrs>=1?(durationHrs+' ชม.'):'< 1 ชม.')+' (ดำเนินการ)';
+      var dMin2=Math.floor(((Date.now()-startTs)%3600000)/60000);
+      durationStr=(durationHrs>0?(durationHrs+' ชม. '):'')+(dMin2+' น.');
+      isLiveCounter=true;
     }
 
-    var isDone=s.done&&!s.stuck&&!!endTs;
+    var isDone=(s.done&&!s.stuck&&!!endTs)||(doneButNoEndTs);
     var isActive=(s.stuck||isCurrentActive);
 
     // ── PER-STAGE SLA STATUS (single line, 3 states) ──
@@ -561,17 +778,23 @@ function buildExpandHtml(t){
     // ── DURATION BAR ──
     var barMax=72; var barPct=isPO?0:Math.min(100,(durationHrs/barMax)*100);
     var barColor=durationHrs>48?'var(--danger)':durationHrs>12?'var(--warn)':'var(--success)';
-    var endTsCell=isPO?(startTs?fmtDateTime(startTs):'—')
+    if(isLiveCounter) barColor=s.stuck?'var(--danger)':'var(--warn)';
+    var endTsCell=isPO?(s.done&&s.ts?fmtDateTime(s.ts):(s.stuck?'<span style="color:var(--danger);font-weight:600">กำลังดำเนินการ</span>':'<span style="color:var(--warn);font-weight:600">กำลังดำเนินการ</span>'))
       :(endTs?fmtDateTime(endTs)
-        :(s.stuck?'<span style="color:var(--danger)">ยังค้างอยู่</span>'
-          :(stage.key===t.currentStage?'<span style="color:var(--warn)">กำลังดำเนินการ</span>':'—')));
+        :(s.stuck?'<span style="color:var(--danger);font-weight:600">ยังค้างอยู่</span>'
+          :(doneButNoEndTs?'<span style="color:var(--success);font-size:10.5px">เสร็จแล้ว</span>'
+            :(stage.key===t.currentStage?'<span style="color:var(--warn);font-weight:600">กำลังดำเนินการ</span>':'—'))));
+    var liveId=isLiveCounter?('jdur-'+t.id+'-'+stage.key):null;
+    var liveStartAttr=isLiveCounter?(' data-start="'+startTs+'" data-stuck="'+(s.stuck?1:0)+'"'):'';
     var durationCell=isPO
       ?'<span style="font-size:11.5px;color:var(--text3);font-style:italic">รับจากคู่ค้า</span>'
       :('<div style="display:flex;align-items:center;gap:7px">'
         +'<div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden">'
         +'<div style="width:'+barPct+'%;height:100%;background:'+barColor+';border-radius:3px"></div>'
         +'</div>'
-        +'<span style="font-size:11.5px;font-weight:700;color:'+barColor+';font-family:monospace;white-space:nowrap">'+durationStr+'</span>'
+        +(liveId
+          ?'<span id="'+liveId+'"'+liveStartAttr+' style="font-size:11.5px;font-weight:700;color:'+barColor+';font-family:monospace;white-space:nowrap">'+durationStr+'</span>'
+          :'<span style="font-size:11.5px;font-weight:700;color:'+barColor+';font-family:monospace;white-space:nowrap">'+durationStr+'</span>')
         +'</div>');
 
     // ── REMARK BUTTON (rightmost column, no shortcut) ──
@@ -598,15 +821,18 @@ function buildExpandHtml(t){
          +'</tr>';
   }
 
-  // ── SUMMARY PANEL: CTA for current stage ──
+  // ── SUMMARY PANEL: CTA for current stage (no button for delivery/delivered) ──
   var activeStageCTA='';
+  var noCtaStages={'delivery':true,'delivered':true};
   for(var si=0;si<STAGES.length;si++){
     var ss=STAGES[si]; var sv=t.journey[ss.key]||{};
     var isAct=(sv.stuck||(ss.key===t.currentStage&&!sv.done));
     if(isAct){
-      var sact=STAGE_ACTIONS[ss.key];
-      if(sact){
-        activeStageCTA='<a href="'+sact.url+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 14px;background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px">ดำเนินการ '+sact.label+'</a>';
+      if(!noCtaStages[ss.key]){
+        var sact=STAGE_ACTIONS[ss.key];
+        if(sact){
+          activeStageCTA='<a href="'+sact.url+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 14px;background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px">ดำเนินการ '+sact.label+'</a>';
+        }
       }
       break;
     }
@@ -677,6 +903,7 @@ function toggleJourneyRow(id){
   var isOpen=expRow.classList.toggle('open');
   inner.style.display=isOpen?'block':'none';
   if(mainRow) mainRow.style.background=isOpen?'var(--pink-ll)':'';
+  if(isOpen) journeyExpandedIds.add(id); else journeyExpandedIds.delete(id);
 }
 
 function jtShowStage(ticketId,stageKey){
@@ -755,8 +982,9 @@ function closeJourneyModal(){document.getElementById('journey-overlay').classLis
 // ─── PO TICKETS ───
 function setPOFilter(f,el){
   curPOFilter=f;
-  document.querySelectorAll('.potab').forEach(x=>x.classList.remove('active'));
-  if(el)el.classList.add('active');
+  var stEl=document.getElementById('po-status-tabs');
+  if(stEl) stEl.querySelectorAll('.potab').forEach(function(b){b.classList.remove('active');});
+  if(el) el.classList.add('active');
   renderTickets();
 }
 function filterTicketVendor(v){curPOVendor=v;renderTickets();}
@@ -777,7 +1005,7 @@ function setEmailDateFilter(days,el){
 }
 
 function renderTickets(){
-  var data=TICKETS;
+  var data=TICKETS.filter(function(t){return t.caseType!=='ORDER';});  // PO Tracker: MT only
   // Date filter
   if(curDateFilter===-1){
     var fromEl=document.getElementById('email-date-from');
@@ -788,8 +1016,16 @@ function renderTickets(){
     var cutoff=Date.now()-curDateFilter*24*3600*1000;
     data=data.filter(function(t){return t.startTs>=cutoff;});
   }
-  // Unified status filter (maps to procStatus or status='confirmed'/'canceled')
-  if(curPOFilter!=='all'){
+  // Zone filter (main tab)
+  if(curPOMainTab==='inbox'){
+    data=data.filter(function(t){return t.procStatus==='pending_att'||t.procStatus==='received'||t.procStatus==='escalated';});
+  } else if(curPOMainTab==='approve'){
+    data=data.filter(function(t){return t.procStatus==='verified'||t.procStatus==='approved';});
+  } else if(curPOMainTab==='done'){
+    data=data.filter(function(t){return t.status==='confirmed'||t.status==='canceled';});
+  }
+  // Sub-filter within zone
+  if(curPOFilter!=='all'&&curPOFilter!=='all_inbox'&&curPOFilter!=='all_approve'&&curPOFilter!=='all_done'){
     if(curPOFilter==='confirmed') data=data.filter(function(t){return t.status==='confirmed';});
     else if(curPOFilter==='rejected') data=data.filter(function(t){return t.status==='canceled';});
     else data=data.filter(function(t){return t.procStatus===curPOFilter;});
@@ -811,6 +1047,7 @@ function renderTickets(){
   // procStatus badge map — new 5-status model
   var procMap={
     'pending_att': '<span class="badge b-pending-att"><span class="bdot"></span>📎 รอแนบไฟล์เพิ่ม</span>',
+    'escalated':   '<span class="badge b-pending-att" style="background:#FEE2E2;color:#DC2626"><span class="bdot" style="background:#DC2626"></span>🔴 Escalated</span>',
     'received':    '<span class="badge b-received"><span class="bdot"></span>📥 รอกดรับงาน PO</span>',
     'accepted':    '<span class="badge b-confirmed"><span class="bdot"></span>📥 กดรับงานแล้ว</span>',
     'verified':    '<span class="badge b-verified"><span class="bdot"></span>🔍 รอ Approve PO</span>',
@@ -893,7 +1130,7 @@ function renderTickets(){
       +'<td style="white-space:nowrap;min-width:140px">'+actionHtml+'</td>'
       +'</tr>';
   }).join('');
-  if(document.getElementById('dashPieSvg')) renderDashPie();renderDashBreachChart();
+  updatePOMainTabCounts();renderDashPipeline();renderDashSOChannel();if(document.getElementById('dashPieSvg')) renderDashPie();renderDashBreachChart();
 }
 
 // ─── TICKET MODAL ───
@@ -1317,7 +1554,7 @@ function buildAttSubTasks(t){
         +'<span style="font-size:11px;color:var(--pink-d);font-weight:700">เลือก '+selCount+' งาน:</span>'
         +'<button onclick="acceptSelected('+t.id+',event)" style="font-size:11px;padding:6px 14px;background:var(--pink);color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit">📥 รับที่เลือก</button>'
         +'<button onclick="approveSelected('+t.id+',event)" style="font-size:11px;padding:6px 14px;background:#7C3AED;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit">✅ Approve PO ที่เลือก</button>'
-        +'<button onclick="rejectSelected('+t.id+',event)" style="font-size:11px;padding:6px 14px;background:transparent;color:var(--danger);border:1.5px solid var(--danger);border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit">🚫 ไม่รับที่เลือก</button>'
+        +'<button onclick="rejectSelected('+t.id+',event)" style="font-size:11px;padding:6px 14px;background:var(--danger);color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit">🚫 ปฏิเสธที่เลือก</button>'
         +'</div>';
     } else {
       var allAccepted=atts.every(function(a){return a.accepted;});
@@ -1443,7 +1680,7 @@ function confirmTicket(id,ev){
   t.currentStage='approve_po';
   // Mark only first stage done
   t.journey.po={done:true,ts:t.acceptedAt,stuck:false};
-  renderDashPie();renderDashBreachChart();renderTickets();renderJourney();renderVendorSummary();renderAdminTable();
+  renderDashPie();renderDashBreachChart();renderDashPipeline();renderDashSOChannel();renderTickets();renderJourney();renderVendorSummary();renderAdminTable();
   showToast('📥 กดรับงานแล้ว — ' + t.vendor + ' · ' + fmtDateTime(t.acceptedAt));
 }
 
@@ -1454,11 +1691,11 @@ function openCancelModal(id,ev){
   const wrap=document.getElementById('cancel-wrap');
   wrap.innerHTML=`
     <div class="mhdr">
-      <div><div class="mtitle">🚫 ยกเลิก PO</div><div class="msub">${t?t.vendor:''} — ${t?t.subject.substring(0,40):''}…</div></div>
+      <div><div class="mtitle">🚫 ไม่รับงาน PO นี้</div><div class="msub">${t?t.vendor:''} — ${t?t.subject.substring(0,40):''}…</div></div>
       <button class="mclose" onclick="closeCancelModal()">✕</button>
     </div>
     <div class="mbody">
-      <div style="font-size:12.5px;color:var(--text2);margin-bottom:12px">เลือกเหตุผลการยกเลิก:</div>
+      <div style="font-size:12.5px;color:var(--text2);margin-bottom:12px">กรุณาเลือกเหตุผลที่ไม่รับงาน:</div>
       <div style="display:flex;flex-direction:column;gap:6px" id="cancel-reasons">
         ${CANCEL_REASONS.map((r,i)=>`
           <label style="display:flex;align-items:center;gap:10px;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:all .12s" onmouseenter="this.style.borderColor='var(--cancel)'" onmouseleave="this.style.borderColor='var(--border)'">
@@ -1481,7 +1718,7 @@ function doCancel(){
   if(!sel){showToast('⚠️ กรุณาเลือกเหตุผล');return;}
   const t=TICKETS.find(x=>x.id===cancelPendingId);
   if(t){t.status='canceled';t.procStatus='rejected';t.cancelReason=sel.value;t.canceledAt=Date.now();t.currentStage='canceled';}
-  renderDashPie();renderDashBreachChart();renderTickets();renderJourney();renderVendorSummary();renderAdminTable();
+  renderDashPie();renderDashBreachChart();renderDashPipeline();renderDashSOChannel();renderTickets();renderJourney();renderVendorSummary();renderAdminTable();
   closeCancelModal();
   showToast('🚫 ยกเลิก PO เรียบร้อย — เหตุผล: '+sel.value);
 }
@@ -1509,23 +1746,189 @@ function renderAdminTable(){
 
 // ─── NOTIFICATIONS ───
 function renderNotifications(tab){
-  curNotifTab=tab;
-  let data=NOTIFICATIONS;
-  if(tab!=='all')data=data.filter(n=>n.type===tab);
-  document.getElementById('notif-list').innerHTML=data.map(n=>`
-    <div class="notif-item${n.unread?' unread':''}" onclick="readNotif(${n.id})">
-      <div class="notif-ava" style="background:var(--pink-ll)">${n.icon}</div>
-      <div class="notif-content">
-        <div class="notif-title">${n.title}</div>
-        <div class="notif-desc">${n.desc}</div>
-        <div class="notif-time">${n.time}</div>
-      </div>
-      ${n.unread?'<div class="notif-dot"></div>':''}
-    </div>`).join('')||'<div class="empty"><div class="empty-ico">🔔</div><div class="empty-title">ไม่มีการแจ้งเตือน</div></div>';
+  curNotifTab=tab||curNotifTab;
+  tab=curNotifTab;
+  var data=NOTIFICATIONS;
+  if(tab!=='all') data=data.filter(function(n){return n.type===tab;});
+
+  // ── Main notification list ──
+  var listEl=document.getElementById('notif-list');
+  if(listEl){
+    listEl.innerHTML=data.map(function(n){
+      var iconBg=n.type==='sla'?'#FEE2E2':n.type==='new'?'var(--pink-ll)':'var(--surface3)';
+      return '<div class="notif-item'+(n.unread?' unread':'')+'" onclick="readNotif('+n.id+')" style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:'+(n.unread?'var(--pink-ll)':'')+'">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:'+iconBg+';display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">'+n.icon+'</div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:12.5px;font-weight:'+(n.unread?'700':'600')+';color:var(--text);margin-bottom:2px">'+n.title+'</div>'
+        +'<div style="font-size:11.5px;color:var(--text2);margin-bottom:4px;line-height:1.4">'+n.desc+'</div>'
+        +'<div style="font-size:10.5px;color:var(--text3)">'+n.time+'</div>'
+        +'</div>'
+        +(n.unread?'<div style="width:8px;height:8px;border-radius:50%;background:var(--pink);flex-shrink:0;margin-top:4px"></div>':'')
+        +'</div>';
+    }).join('')||'<div style="text-align:center;padding:32px;color:var(--text3)">🔔 ไม่มีการแจ้งเตือน</div>';
+  }
+
+  // ── Summary cards ──
+  renderNotifSummaryCards();
+
+  // ── Pending actions panel ──
+  var pendEl=document.getElementById('notif-pending-actions');
+  if(pendEl){
+    var received=TICKETS.filter(function(t){return t.procStatus==='received'||t.procStatus==='pending_att';});
+    var toApprove=TICKETS.filter(function(t){return t.procStatus==='verified';});
+    var slaBreached=TICKETS.filter(function(t){
+      var sla=getSLAStatus(t.startTs,t.status);return sla.cls==='urgent';
+    });
+    var items=[
+      received.length?{icon:'📥',label:'รอกดรับงาน',count:received.length,color:'var(--pink)',action:"goToPOTab('inbox','received')"}:null,
+      toApprove.length?{icon:'✅',label:'รอ Approve PO',count:toApprove.length,color:'#7C3AED',action:"goToPOTab('approve','verified')"}:null,
+      slaBreached.length?{icon:'🚨',label:'เกิน SLA แล้ว',count:slaBreached.length,color:'var(--danger)',action:"gotoView('sla-journey')"}:null,
+    ].filter(Boolean);
+    pendEl.innerHTML=items.length?items.map(function(item){
+      return '<div onclick="'+item.action+'" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer">'
+        +'<div style="width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">'+item.icon+'</div>'
+        +'<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">'+item.label+'</div></div>'
+        +'<span style="font-size:13px;font-weight:800;color:'+item.color+';font-family:monospace">'+item.count+'</span>'
+        +'<span style="color:var(--text3);font-size:12px">→</span>'
+        +'</div>';
+    }).join(''):'<div style="color:var(--text3);font-size:12px;text-align:center;padding:12px 0">✅ ไม่มีงานรอดำเนินการ</div>';
+  }
+
+  // ── Urgent ticket list ──
+  renderNotifUrgentList();
+  // ── Vendor mini summary ──
+  renderNotifVendorSummary();
+
+  // ── SLA countdown panel ──
+  var slaEl=document.getElementById('notif-sla-countdown');
+  if(slaEl){
+    var urgentTickets=TICKETS.filter(function(t){return t.status!=='confirmed'&&t.status!=='canceled';})
+      .map(function(t){
+        var dl=getSLADeadline(t.startTs);
+        var remaining=dl-Date.now();
+        return {t:t,deadline:dl,remaining:remaining};
+      })
+      .sort(function(a,b){return a.remaining-b.remaining;})
+      .slice(0,5);
+    slaEl.innerHTML=urgentTickets.length?urgentTickets.map(function(item){
+      var ms=item.remaining;
+      var isOver=ms<0;
+      var absMs=Math.abs(ms);
+      var h=Math.floor(absMs/3600000);
+      var m=Math.floor((absMs%3600000)/60000);
+      var timeStr=(isOver?'เกิน ':'')+(h>0?h+'ชม. ':'')+m+'น.';
+      var color=isOver?'var(--danger)':h<3?'var(--warn)':'var(--success)';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="flex:1;min-width:0"><div style="font-size:11.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+item.t.vendor+'</div>'
+        +'<div style="font-size:10px;color:var(--text3);font-family:monospace">'+(item.t.poRef||'')+'</div></div>'
+        +'<span style="font-size:11px;font-weight:700;color:'+color+';font-family:monospace;white-space:nowrap">'+(isOver?'🔴 ':'⏱ ')+timeStr+'</span>'
+        +'</div>';
+    }).join(''):'<div style="color:var(--success);font-size:12px;text-align:center;padding:12px 0">✅ ทุก Ticket ทันเวลา</div>';
+  }
 }
-function switchNotifTab(tab,el){document.querySelectorAll('.atab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderNotifications(tab);}
+
+function renderNotifSummaryCards(){
+  var cardsEl=document.getElementById('notif-summary-cards');
+  if(!cardsEl) return;
+  var unread=NOTIFICATIONS.filter(function(n){return n.unread;}).length;
+  var slaAlert=TICKETS.filter(function(t){var s=getSLAStatus(t.startTs,t.status);return s.cls==='urgent';}).length;
+  var newToday=TICKETS.filter(function(t){return Date.now()-t.startTs<86400000;}).length;
+  var pending=TICKETS.filter(function(t){return t.procStatus==='received'||t.procStatus==='verified';}).length;
+  var cards=[
+    {icon:'🔔',label:'ยังไม่ได้อ่าน',val:unread,color:'var(--pink)',bg:'var(--pink-ll)',view:'notifications'},
+    {icon:'🚨',label:'เกิน SLA',val:slaAlert,color:'var(--danger)',bg:'#FEE2E2',view:'sla-journey'},
+    {icon:'📧',label:'PO เข้าวันนี้',val:newToday,color:'#0284C7',bg:'#E0F2FE',view:'po-tickets'},
+    {icon:'⏳',label:'รอดำเนินการ',val:pending,color:'#7C3AED',bg:'#EDE9FE',view:'po-tickets'},
+  ];
+  cardsEl.innerHTML=cards.map(function(c){
+    var html='<div style="background:'+c.bg+';border-radius:var(--r);padding:14px 16px;cursor:pointer" onclick="gotoView(\''+c.view+'\')">'; 
+    html+='<div style="font-size:20px;margin-bottom:4px">'+c.icon+'</div>';
+    html+='<div style="font-size:24px;font-weight:800;color:'+c.color+';font-family:monospace;line-height:1">'+c.val+'</div>';
+    html+='<div style="font-size:11px;font-weight:600;color:'+c.color+';margin-top:4px">'+c.label+'</div>';
+    html+='</div>';
+    return html;
+  }).join('');
+}
+function switchNotifTab(tab,el){
+  var allAtabs=document.querySelectorAll('#view-notifications .atab');
+  allAtabs.forEach(function(x){x.classList.remove('active');});
+  if(el) el.classList.add('active');
+  renderNotifications(tab);
+}
 function readNotif(id){const n=NOTIFICATIONS.find(x=>x.id===id);if(n){n.unread=false;renderNotifications(curNotifTab);updateBadge();}}
 function markAllRead(){NOTIFICATIONS.forEach(n=>n.unread=false);renderNotifications(curNotifTab);updateBadge();showToast('✓ อ่านทั้งหมดแล้ว');}
+
+// ─── NOTIFICATION: URGENT TICKET LIST ───
+var curNotifUrgentTab = 'all';
+function switchNotifUrgentTab(tab, el) {
+  curNotifUrgentTab = tab;
+  document.querySelectorAll('#ntab-urgent,#ntab-near,#ntab-pending').forEach(function(b) {
+    b.style.borderBottomColor = 'transparent';
+    b.style.color = 'var(--text3)';
+    b.style.fontWeight = '600';
+  });
+  if(el) { el.style.borderBottomColor = 'var(--pink)'; el.style.color = 'var(--pink)'; el.style.fontWeight = '700'; }
+  renderNotifUrgentList();
+}
+function renderNotifUrgentList() {
+  var el = document.getElementById('notif-urgent-list');
+  if(!el) return;
+  var tickets = TICKETS.filter(function(t){ return t.status!=='confirmed'&&t.status!=='canceled'; });
+  var now = Date.now();
+  if(curNotifUrgentTab === 'all') {
+    tickets = tickets.filter(function(t){ var s=getSLAStatus(t.startTs,t.status); return s.cls==='urgent'; });
+  } else if(curNotifUrgentTab === 'near') {
+    tickets = tickets.filter(function(t){ var s=getSLAStatus(t.startTs,t.status); return s.cls==='warn'; });
+  } else if(curNotifUrgentTab === 'pending') {
+    tickets = tickets.filter(function(t){ return t.procStatus==='received'||t.procStatus==='pending_att'; });
+  }
+  if(!tickets.length) {
+    el.innerHTML = '<div style="text-align:center;padding:28px;color:var(--text3);font-size:12px">✅ ไม่มีรายการ</div>';
+    return;
+  }
+  var v_map = VENDORS || {};
+  el.innerHTML = tickets.map(function(t) {
+    var v = v_map[t.vendor]||{color:'#666',bg:'#eee',logo:'??'};
+    var sla = getSLAStatus(t.startTs,t.status);
+    var stage = STAGES.find(function(s){return s.key===t.currentStage;})||{label:t.currentStage};
+    return '<div onclick="gotoView(\'sla-journey\')" style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'var(--pink-ll)\'" onmouseout="this.style.background=\'\'">'
+      +'<div style="width:28px;height:28px;border-radius:7px;background:'+v.bg+';color:'+v.color+';font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+v.logo+'</div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+t.vendor+'</div>'
+      +'<div style="font-size:10.5px;color:var(--text3);font-family:monospace">'+(t.poRef||'—')+'</div>'
+      +'<div style="font-size:10px;color:var(--text2);margin-top:1px">📍 '+stage.label+'</div>'
+      +'</div>'
+      +'<span class="sla-chip '+sla.cls+'" style="font-size:10px;white-space:nowrap">'+(sla.cls==='urgent'?'🔴 เกิน SLA':sla.cls==='warn'?'⚠️ ใกล้ครบ':'✅')+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+// ─── NOTIFICATION: VENDOR MINI SUMMARY ───
+function renderNotifVendorSummary() {
+  var el = document.getElementById('notif-vendor-summary');
+  if(!el) return;
+  var pending = TICKETS.filter(function(t){ return t.status!=='confirmed'&&t.status!=='canceled'; });
+  var vendorCount = {};
+  pending.forEach(function(t){ vendorCount[t.vendor] = (vendorCount[t.vendor]||0)+1; });
+  var sorted = Object.entries(vendorCount).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  if(!sorted.length) { el.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">ไม่มีรายการค้าง</div>'; return; }
+  el.innerHTML = sorted.map(function(entry) {
+    var v = (VENDORS||{})[entry[0]]||{color:'#666',bg:'#eee',logo:'??'};
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">'
+      +'<div style="width:22px;height:22px;border-radius:5px;background:'+v.bg+';color:'+v.color+';font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+v.logo+'</div>'
+      +'<div style="flex:1;font-size:11.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+entry[0]+'</div>'
+      +'<span style="font-size:12px;font-weight:800;color:var(--pink);font-family:monospace">'+entry[1]+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+// ─── NAV: GO TO PO TAB WITH FILTER ───
+function goToPOTab(group, filter) {
+  gotoView('po-tickets');
+  var btn = document.querySelector('[data-filter="'+filter+'"]');
+  setPOFilter(filter, btn);
+}
+
 function updateBadge(){
   const c=NOTIFICATIONS.filter(n=>n.unread).length;
   const el=document.getElementById('nb-notif');

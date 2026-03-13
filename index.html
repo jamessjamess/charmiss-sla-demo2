@@ -12,6 +12,72 @@
 
 </head>
 <body>
+<!-- ══════════════════════════════
+     LOGIN SCREEN
+     ══════════════════════════════ -->
+<div id="loginScreen" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#180a12 0%,#2a1520 50%,#1a0d16 100%)">
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 65% 35%,rgba(219,39,119,.2) 0%,transparent 65%),radial-gradient(ellipse 50% 45% at 20% 75%,rgba(124,58,237,.13) 0%,transparent 60%)"></div>
+  <div id="loginCard" style="position:relative;z-index:1;width:380px;max-width:95vw;background:rgba(255,255,255,.04);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:40px 44px;box-shadow:0 28px 72px rgba(0,0,0,.55)">
+    <div style="position:absolute;width:90px;height:90px;top:-25px;right:-25px;border-radius:50%;background:rgba(219,39,119,.14);animation:floatOrb 9s ease-in-out infinite;pointer-events:none"></div>
+    <div style="position:absolute;width:45px;height:45px;bottom:20px;left:-15px;border-radius:50%;background:rgba(219,39,119,.1);animation:floatOrb 9s ease-in-out 3.5s infinite;pointer-events:none"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:30px">
+      <img src="https://charmiss.co/wp-content/uploads/2024/02/logo.png" alt="Charmiss" style="height:40px;object-fit:contain;margin-bottom:10px;filter:brightness(0) invert(1);opacity:.9" onerror="this.style.display='none'">
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:.5px">Charmiss</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Internal Portal · Betime Beauty House</div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label class="login-label">Username</label>
+      <input id="loginUsername" class="login-input" type="text" placeholder="กรอก username..." autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+    </div>
+    <div style="margin-bottom:18px">
+      <label class="login-label">Password</label>
+      <input id="loginPassword" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ &nbsp;→</button>
+    <div id="loginError"></div>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:20px 0">
+    <div style="text-align:center;font-size:11px;color:rgba(255,255,255,.3);margin-bottom:8px">ทดลองเข้าระบบด้วย role ต่างๆ</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center">
+      <button class="demo-chip" onclick="quickFill('root','root')">🔑 Root Admin</button>
+      <button class="demo-chip" onclick="quickFill('ceo','ceo')">👑 CEO</button>
+      <button class="demo-chip" onclick="quickFill('admin_officer','admin_officer')">🛡️ Admin Officer</button>
+      <button class="demo-chip" onclick="quickFill('sales','sales')">🛍️ Sales</button>
+      <button class="demo-chip" onclick="quickFill('warehouse','warehouse')">📦 Warehouse</button>
+      <button class="demo-chip" onclick="quickFill('account','account')">🧾 Accounting</button>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1);opacity:.3}50%{transform:translateY(-22px) scale(1.08);opacity:.6}}
+@keyframes loginShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.login-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:6px}
+.login-input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;font-size:14px;color:#fff;font-family:inherit;outline:none;transition:border-color .2s,background .2s}
+.login-input::placeholder{color:rgba(255,255,255,.22)}
+.login-input:focus{border-color:rgba(219,39,119,.7);background:rgba(255,255,255,.1)}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;margin-top:4px;background:linear-gradient(135deg,#DB2777,#9D174D);color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 4px 20px rgba(219,39,119,.4);transition:transform .15s,box-shadow .15s}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(219,39,119,.55)}
+#loginError{display:none;margin-top:10px;text-align:center;color:#FCA5A5;font-size:12px;font-weight:600;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:8px 12px}
+.demo-chip{font-size:10.5px;padding:4px 11px;border-radius:20px;cursor:pointer;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);background:rgba(255,255,255,.05);font-family:inherit;transition:all .15s}
+.demo-chip:hover{background:rgba(219,39,119,.22);border-color:rgba(219,39,119,.6);color:#fff}
+.user-role-badge{display:inline-block;font-size:9px;font-weight:700;padding:1px 7px;border-radius:4px;color:#fff;letter-spacing:.4px;margin-top:2px}
+.rm-stat-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;transition:box-shadow .15s,transform .15s}
+.rm-stat-card:hover{box-shadow:var(--sh);transform:translateY(-1px)}
+.rm-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.rm-role-badge{font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap}
+.rm-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;transition:border-color .2s}
+.rm-row:hover{border-color:var(--pink-m)}
+.rm-row-editing{border-color:var(--pink)!important;box-shadow:0 0 0 3px var(--pink-ll)}
+.rm-edit-panel{width:100%;padding:16px 0 4px;margin-top:10px;border-top:2px dashed var(--pink-m)}
+.rm-edit-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:5px 10px;cursor:pointer;font-size:14px;transition:background .15s}
+.rm-edit-btn:hover{background:var(--pink-ll);border-color:var(--pink-m)}
+.add-user-card{background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);padding:28px 32px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+</style>
+
+
+<!-- ══════════════════════════════
+     PORTAL (hidden until login)
+     ══════════════════════════════ -->
+<div id="portalWrap" style="display:none;width:100%;height:100vh;flex-direction:row;overflow:hidden;position:fixed;inset:0;">
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
@@ -29,45 +95,51 @@
 
   <nav class="sidebar-nav">
     <div class="nav-grp">หลัก</div>
-    <div class="nav-item active" onclick="gotoView('dashboard',this)" data-tip="Dashboard">
+    <div data-nav-view="dashboard" class="nav-item active" onclick="gotoView('dashboard',this)" data-tip="Dashboard">
       <span class="nav-icon">📊</span><span class="nav-label"> Dashboard</span>
     </div>
-    <div class="nav-item" onclick="gotoView('sla-journey',this)" data-tip="SLA Journey">
+    <div data-nav-view="sla-journey" class="nav-item" onclick="gotoView('sla-journey',this)" data-tip="SLA Journey">
       <span class="nav-icon">🗺️</span><span class="nav-label"> SLA Journey</span>
       <span class="nbadge warn" id="nb-stuck">3</span>
     </div>
-    <div class="nav-item" onclick="gotoView('po-tickets',this)" data-tip="PO Tickets">
+    <div data-nav-view="po-tickets" class="nav-item" onclick="gotoView('po-tickets',this)" data-tip="PO Tickets">
       <span class="nav-icon">📧</span><span class="nav-label"> PO Tickets</span>
       <span class="nbadge warn" id="nb-tickets">4</span>
     </div>
     <div class="nav-grp" style="margin-top:10px">ระบบ</div>
-    <div class="nav-item" onclick="gotoView('admin',this)" data-tip="Admin PO">
+    <div data-nav-view="admin" class="nav-item" onclick="gotoView('admin',this)" data-tip="Admin PO">
       <span class="nav-icon">👤</span><span class="nav-label"> Admin PO</span>
     </div>
-    <div class="nav-item" onclick="gotoView('notifications',this)" data-tip="การแจ้งเตือน">
+    <div data-nav-view="notifications" class="nav-item" onclick="gotoView('notifications',this)" data-tip="การแจ้งเตือน">
       <span class="nav-icon">🔔</span><span class="nav-label"> การแจ้งเตือน</span>
       <span class="nbadge" id="nb-notif">3</span>
     </div>
-    <div class="nav-item" onclick="gotoView('vendors',this)" data-tip="Vendor Rules">
+    <div data-nav-view="vendors" class="nav-item" onclick="gotoView('vendors',this)" data-tip="Vendor Rules">
       <span class="nav-icon">🏪</span><span class="nav-label"> Vendor Rules</span>
+    </div>
+    <div data-nav-view="role-management" class="nav-item" onclick="gotoView('role-management',this)" data-tip="Role Management">
+      <span class="nav-icon">👥</span><span class="nav-label"> Role Management</span>
     </div>
 
     <div class="nav-grp" style="margin-top:10px">Sales</div>
-    <div class="nav-item" onclick="gotoView('create-order',this)" data-tip="สร้าง Order">
+    <div data-nav-view="create-order" class="nav-item" onclick="gotoView('create-order',this)" data-tip="สร้าง Order">
       <span class="nav-icon">➕</span><span class="nav-label"> สร้าง Order</span>
     </div>
-    <div class="nav-item" onclick="gotoView('sales-order',this)" data-tip="Sales Order">
+    <div data-nav-view="sales-order" class="nav-item" onclick="gotoView('sales-order',this)" data-tip="Sales Order">
       <span class="nav-icon">📋</span><span class="nav-label"> Sales Order</span>
     </div>
-    <div class="nav-item" onclick="gotoView('wms-upload',this)" data-tip="Upload ข้อมูล WMS">
-      <span class="nav-icon">📦</span><span class="nav-label"> Upload ข้อมูล WMS</span>
-    </div>
+
   </nav>
 
   <div class="sidebar-foot">
-    <div class="user-card" style="overflow:hidden">
-      <div class="uava" style="flex-shrink:0">Ad</div>
-      <div style="overflow:hidden;transition:opacity .2s"><div class="uname">Admin PO</div><div class="urole">Betime Beauty House</div></div>
+    <div class="user-card" style="overflow:hidden;cursor:pointer" onclick="doLogout()" title="ออกจากระบบ">
+      <div class="uava" style="flex-shrink:0;background:var(--pink)" id="sidebarUserAvatar">—</div>
+      <div style="overflow:hidden;transition:opacity .2s;flex:1;min-width:0">
+        <div class="uname" id="sidebarUserName">—</div>
+        <div class="urole" id="sidebarUserRole" style="font-size:10px">—</div>
+        <div><span class="user-role-badge" id="sidebarUserBadge" style="background:var(--text3)">—</span></div>
+      </div>
+      <span style="font-size:13px;color:var(--text3);padding-left:4px">⏻</span>
     </div>
   </div>
 </aside>
@@ -124,46 +196,23 @@
       </div>
 
       <!-- Charts -->
-      <div class="chart-row">
-        <div class="chart-card">
+      <div class="chart-row" style="grid-template-columns:minmax(280px,1fr) 2fr">
+        <div class="chart-card" style="min-height:200px">
           <div class="chart-title">PO ตามสถานะ</div>
           <div class="chart-sub">สัดส่วน Ticket แยกตาม procStatus</div>
-          <div class="donut-wrap" id="dashPieWrap">
-            <svg width="110" height="110" viewBox="0 0 36 36" id="dashPieSvg">
+          <div id="dashPieWrap" style="display:flex;align-items:center;gap:16px;margin-top:10px">
+            <svg width="110" height="110" viewBox="0 0 36 36" id="dashPieSvg" style="flex-shrink:0">
               <circle cx="18" cy="18" r="15.5" fill="none" stroke="#F0D9E4" stroke-width="3.5"/>
               <text x="18" y="20" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2D1A24" id="dashPieTotal">0</text>
             </svg>
-            <div class="dlegend" id="dashPieLegend"></div>
+            <div class="dlegend" id="dashPieLegend" style="flex:1;display:flex;flex-direction:column;gap:5px"></div>
           </div>
         </div>
         <div class="chart-card">
           <div class="chart-title">🗺️ Document Flow Pipeline</div>
           <div class="chart-sub">จำนวน PO ค้างอยู่แต่ละ Stage (คลิกเพื่อดู Journey)</div>
-          <div style="display:flex;gap:0;align-items:stretch;height:80px;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:4px">
-            <div style="flex:1;background:#EDE9FE;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--border);padding:4px;cursor:pointer" onclick="gotoView('sla-journey')">
-              <div style="font-size:18px;font-weight:700;color:#7C3AED">3</div>
-              <div style="font-size:9.5px;color:#6D28D9;font-weight:600;text-align:center;line-height:1.3">Appv PO /<br>Order</div>
-            </div>
-            <div style="flex:1;background:#DBEAFE;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--border);padding:4px;cursor:pointer" onclick="gotoView('sla-journey')">
-              <div style="font-size:18px;font-weight:700;color:#1D4ED8">1</div>
-              <div style="font-size:9.5px;color:#1E40AF;font-weight:600;text-align:center">เปิด SO</div>
-            </div>
-            <div style="flex:1;background:#FEF3C7;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--border);padding:4px;cursor:pointer" onclick="gotoView('sla-journey')">
-              <div style="font-size:18px;font-weight:700;color:#B45309">1</div>
-              <div style="font-size:9.5px;color:#92400E;font-weight:600;text-align:center;line-height:1.3">Approve SO /<br>Invoice</div>
-            </div>
-            <div style="flex:1;background:#FEE2E2;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--border);padding:4px;cursor:pointer" onclick="gotoView('sla-journey')">
-              <div style="font-size:18px;font-weight:700;color:#DC2626">0</div>
-              <div style="font-size:9.5px;color:#B91C1C;font-weight:600;text-align:center;line-height:1.3">ส่งเอกสาร<br>ให้คลัง</div>
-            </div>
-            <div style="flex:1;background:#E0F2FE;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--border);padding:4px;cursor:pointer" onclick="gotoView('sla-journey')">
-              <div style="font-size:18px;font-weight:700;color:#0284C7">1</div>
-              <div style="font-size:9.5px;color:#075985;font-weight:600;text-align:center;line-height:1.3">จัดส่งสินค้า<br>(Delivery)</div>
-            </div>
-            <div style="flex:1;background:var(--success-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;cursor:pointer" onclick="gotoView('sla-journey')">
-              <div style="font-size:18px;font-weight:700;color:var(--success)">1</div>
-              <div style="font-size:9.5px;color:#047857;font-weight:600;text-align:center;line-height:1.3">จัดส่ง<br>สำเร็จ</div>
-            </div>
+          <div style="display:flex;gap:0;align-items:stretch;height:86px;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:8px" id="dashPipeline">
+            <!-- rendered by renderDashPipeline() -->
           </div>
           <div style="display:flex;align-items:center;gap:4px;margin-top:8px">
             <span style="font-size:10.5px;color:var(--text3)">คลิกที่แต่ละ Stage เพื่อดูรายละเอียด SLA Journey</span>
@@ -191,118 +240,11 @@
           </div>
         </div>
 
-        <!-- Sales Order Volume by Channel -->
-        <div class="chart-card">
+        <!-- Sales Order Volume by Channel — rendered by JS -->
+        <div class="chart-card" id="dashSOChannelCard">
           <div class="chart-title">📊 Sales Order แยก Channel</div>
-          <div class="chart-sub">จำนวน SO ใน 30 วันล่าสุด แยกตาม Channel</div>
-          <div style="display:flex;align-items:flex-end;gap:10px;margin-top:14px">
-            <!-- MT มี Invoice -->
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
-              <div style="font-size:13px;font-weight:700;color:#1D4ED8">9</div>
-              <div style="width:100%;background:#DBEAFE;border-radius:4px 4px 0 0" id="dash-ch-mt-inv-bar" style="height:54px"></div>
-              <div style="font-size:9.5px;font-weight:600;color:#1E40AF;text-align:center;line-height:1.3">MT มี<br>Invoice</div>
-            </div>
-            <!-- MT ไม่มี Invoice -->
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
-              <div style="font-size:13px;font-weight:700;color:#7C3AED">8</div>
-              <div style="width:100%;background:#EDE9FE;border-radius:4px 4px 0 0" id="dash-ch-mt-noinv-bar" style="height:48px"></div>
-              <div style="font-size:9.5px;font-weight:600;color:#6D28D9;text-align:center;line-height:1.3">MT ไม่มี<br>Invoice</div>
-            </div>
-            <!-- TT -->
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
-              <div style="font-size:13px;font-weight:700;color:#059669">12</div>
-              <div style="width:100%;background:#D1FAE5;border-radius:4px 4px 0 0" id="dash-ch-tt-bar" style="height:72px"></div>
-              <div style="font-size:9.5px;font-weight:600;color:#047857;text-align:center;line-height:1.3">TT</div>
-            </div>
-            <!-- E-Commerce (WMS) -->
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
-              <div style="font-size:13px;font-weight:700;color:#D97706">—</div>
-              <div style="width:100%;background:#FEF3C7;border-radius:4px 4px 0 0" style="height:8px"></div>
-              <div style="font-size:9.5px;font-weight:600;color:#92400E;text-align:center;line-height:1.3">E-Commerce<br>(WMS)</div>
-            </div>
-          </div>
-          <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-            <div style="font-size:11px;color:var(--text2)">รวม SO: <strong>29</strong> ใบ</div>
-            <div style="font-size:11px;color:var(--text2)">รวม Qty: <strong>5,241</strong> pcs</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Second lower row: WMS Status + Recent Activity ── -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-
-        <!-- WMS Outbound Status Summary -->
-        <div class="chart-card">
-          <div class="chart-title">📦 WMS Outbound — สรุปสถานะ</div>
-          <div class="chart-sub">ข้อมูลจากไฟล์ WMS ล่าสุดที่ Upload</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
-            <div style="background:#D1FAE5;border-radius:8px;padding:10px 14px">
-              <div style="font-size:18px;font-weight:700;color:#059669">—</div>
-              <div style="font-size:11px;color:#065F46;font-weight:600">Allocated</div>
-              <div style="font-size:10px;color:#047857">พร้อมจัดส่ง</div>
-            </div>
-            <div style="background:#FEF3C7;border-radius:8px;padding:10px 14px">
-              <div style="font-size:18px;font-weight:700;color:#D97706">—</div>
-              <div style="font-size:11px;color:#92400E;font-weight:600">New / Unallocated</div>
-              <div style="font-size:10px;color:#B45309">รอดำเนินการ</div>
-            </div>
-            <div style="background:#DBEAFE;border-radius:8px;padding:10px 14px">
-              <div style="font-size:18px;font-weight:700;color:#1D4ED8">—</div>
-              <div style="font-size:11px;color:#1E40AF;font-weight:600">Picked</div>
-              <div style="font-size:10px;color:#1D4ED8">หยิบสินค้าแล้ว</div>
-            </div>
-            <div style="background:#F3F4F6;border-radius:8px;padding:10px 14px">
-              <div style="font-size:18px;font-weight:700;color:#6B7280">—</div>
-              <div style="font-size:11px;color:#374151;font-weight:600">Cancelled</div>
-              <div style="font-size:10px;color:#6B7280">ยกเลิกแล้ว</div>
-            </div>
-          </div>
-          <div style="margin-top:10px">
-            <button class="btn btn-ghost btn-sm" onclick="gotoView('wms-upload')">📊 ดูรายละเอียด WMS →</button>
-          </div>
-        </div>
-
-        <!-- Recent Activity Feed -->
-        <div class="chart-card" style="overflow:hidden">
-          <div class="chart-title">🕐 กิจกรรมล่าสุด</div>
-          <div class="chart-sub">รายการที่เกิดขึ้นในระบบวันนี้</div>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:0;max-height:180px;overflow-y:auto">
-            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-              <span style="font-size:16px;flex-shrink:0">✅</span>
-              <div style="min-width:0">
-                <div style="font-size:12px;font-weight:600;color:var(--text)">Eveandboy — POD260135171 Confirmed</div>
-                <div style="font-size:11px;color:var(--text3)">koranit · 19:29 · เปิด SO เรียบร้อย</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-              <span style="font-size:16px;flex-shrink:0">🚚</span>
-              <div style="min-width:0">
-                <div style="font-size:12px;font-weight:600;color:var(--text)">Tsuruha — TS-20250727 Delivery</div>
-                <div style="font-size:11px;color:var(--text3)">system · 18:00 · เข้าสู่ Stage จัดส่งสินค้า</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-              <span style="font-size:16px;flex-shrink:0">🚨</span>
-              <div style="min-width:0">
-                <div style="font-size:12px;font-weight:600;color:var(--danger)">Eveandboy — SLA เกินกำหนด</div>
-                <div style="font-size:11px;color:var(--text3)">system · 09:00 · ยังไม่ผ่าน Appv PO</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-              <span style="font-size:16px;flex-shrink:0">📧</span>
-              <div style="min-width:0">
-                <div style="font-size:12px;font-weight:600;color:var(--text)">Watsons — รับ PO ใหม่</div>
-                <div style="font-size:11px;color:var(--text3)">WT-NEDI-0730-03 · 08:44 · รอดำเนินการ</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0">
-              <span style="font-size:16px;flex-shrink:0">📊</span>
-              <div style="min-width:0">
-                <div style="font-size:12px;font-weight:600;color:var(--text)">Upload WMS — 674 records</div>
-                <div style="font-size:11px;color:var(--text3)">admin · 07:30 · Outbound_Order_20260310</div>
-              </div>
-            </div>
-          </div>
+          <div class="chart-sub">จำนวน SO ในระบบ แยกตาม Channel</div>
+          <div id="dashSOChannelContent" style="margin-top:12px"><!-- rendered by renderDashSOChannel() --></div>
         </div>
       </div>
 
@@ -319,16 +261,27 @@
           <div class="po-tabs" style="border:1.5px solid var(--border);flex-shrink:0">
             <button class="potab ch-filter-btn active" onclick="setChannelFilter('all',this)" style="padding:5px 11px;font-size:11px">ทั้งหมด</button>
             <button class="potab ch-filter-btn" onclick="setChannelFilter('mt',this)" style="padding:5px 11px;font-size:11px">🏬 Modern Trade</button>
-            <button class="potab ch-filter-btn" onclick="setChannelFilter('tt',this)" style="padding:5px 11px;font-size:11px">🏪 Traditional Trade</button>
           </div>
-          <!-- Searchable vendor filter -->
+          <!-- Vendor dropdown filter -->
           <div style="position:relative;flex-shrink:0">
-            <input id="journey-vendor-filter" type="text" class="sel" placeholder="ค้นหาคู่ค้า / ร้านค้า..." 
-              style="min-width:200px;padding:5px 10px 5px 28px;font-size:12px" 
-              oninput="onVendorSearch(this)" onblur="hideVendorDropdown()" autocomplete="off">
+            <select id="journey-vendor-filter" class="sel" onchange="onVendorSelect(this)" style="min-width:200px;font-size:12px;padding:5px 10px 5px 28px">
+              <option value="">🔍 ทุกคู่ค้า / ร้านค้า</option>
+              <optgroup label="─── Modern Trade ───">
+                <option value="Watsons">🏬 Watsons</option>
+                <option value="Beautrium">🏬 Beautrium</option>
+                <option value="Eveandboy">🏬 Eveandboy</option>
+                <option value="Konvy">🏬 Konvy</option>
+                <option value="Lotus">🏬 Lotus</option>
+                <option value="Tsuruha">🏬 Tsuruha</option>
+                <option value="Multy">🏬 Multy</option>
+                <option value="24Shopping (7-11)">🏬 24Shopping (7-11)</option>
+                <option value="CJ Express">🏬 CJ Express</option>
+              </optgroup>
+              <optgroup label="─── Traditional Trade ───">
+                <option value="Traditional Trade">🏪 Traditional Trade</option>
+              </optgroup>
+            </select>
             <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none">🔍</span>
-            <div id="vendor-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);z-index:200;max-height:200px;overflow-y:auto;box-shadow:0 4px 14px rgba(0,0,0,.12);margin-top:2px">
-            </div>
           </div>
           <!-- Stage filter -->
           <select class="sel" id="journey-stage-filter" onchange="renderJourney()" style="font-size:12px">
@@ -382,7 +335,10 @@
       <div class="tbl-wrap">
         <div class="tbl-hdr">
           <div class="tbl-hdr-title" id="journey-table-title">📋 SLA Journey — เอกสารทั้งหมด</div>
-          <button class="export-btn" onclick="exportTable('journey')"><span class="xls-icon">X</span> ดาวน์โหลด Excel</button>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="journey-collapse-btn" onclick="journeyToggleAll()" style="display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border:1.5px solid var(--border2);border-radius:var(--r-sm);background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text2);white-space:nowrap">📂 ขยายทั้งหมด</button>
+            <button class="export-btn" onclick="exportTable('journey')"><span class="xls-icon">X</span> ดาวน์โหลด Excel</button>
+          </div>
         </div>
         <div style="overflow-x:auto">
           <table class="jt-table">
@@ -409,13 +365,25 @@
           <div style="display:flex;align-items:center;gap:10px;flex:1;flex-wrap:wrap">
             <div class="po-section-title">📧 PO Tickets จาก Email</div>
             <!-- Unified status tab (Ticket Status) -->
-            <div class="po-tabs" id="po-status-tabs">
-              <button class="potab active" data-filter="all" onclick="setPOFilter('all',this)">ทั้งหมด <span style="font-family:monospace" id="cnt-all">(16)</span></button>
-              <button class="potab" data-filter="pending_att" onclick="setPOFilter('pending_att',this)">📎 รอแนบไฟล์ <span style="font-family:monospace" id="cnt-pending-att"></span></button>
-              <button class="potab" data-filter="received" onclick="setPOFilter('received',this)">📥 รอรับงาน <span style="font-family:monospace" id="cnt-received"></span></button>
-              <button class="potab" data-filter="verified" onclick="setPOFilter('verified',this)">🔍 รอ Approve <span style="font-family:monospace" id="cnt-verified"></span></button>
-              <button class="potab" data-filter="approved" onclick="setPOFilter('approved',this)">✅ Approved <span style="font-family:monospace" id="cnt-approved"></span></button>
-              <button class="potab" data-filter="rejected" onclick="setPOFilter('rejected',this)">🚫 ยกเลิกแล้ว <span style="font-family:monospace" id="cnt-rejected"></span></button>
+            <!-- Workflow Tab Groups -->
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap" id="po-status-tabs">
+              <!-- Group 1: รอดำเนินการ -->
+              <div class="po-tabs" style="border-color:var(--pink-m)">
+                <button class="potab active" data-filter="all" onclick="setPOFilter('all',this)" style="font-size:11.5px">ทั้งหมด <span style="font-family:monospace" id="cnt-all"></span></button>
+                <button class="potab" data-filter="pending_att" onclick="setPOFilter('pending_att',this)" style="font-size:11.5px">📎 รอแนบไฟล์ <span style="font-family:monospace" id="cnt-pending-att"></span></button>
+                <button class="potab" data-filter="received" onclick="setPOFilter('received',this)" style="font-size:11.5px">📥 รอกดรับงาน <span style="font-family:monospace" id="cnt-received"></span></button>
+              </div>
+              <span style="font-size:14px;color:var(--text3)">›</span>
+              <!-- Group 2: อยู่ระหว่างดำเนินการ -->
+              <div class="po-tabs" style="border-color:#C4B5FD">
+                <button class="potab" data-filter="verified" onclick="setPOFilter('verified',this)" style="font-size:11.5px;color:#7C3AED">🔍 รอ Approve PO <span style="font-family:monospace" id="cnt-verified"></span></button>
+                <button class="potab" data-filter="approved" onclick="setPOFilter('approved',this)" style="font-size:11.5px;color:#059669">✅ Approved <span style="font-family:monospace" id="cnt-approved"></span></button>
+              </div>
+              <span style="font-size:14px;color:var(--text3)">›</span>
+              <!-- Group 3: ปิด -->
+              <div class="po-tabs" style="border-color:#D1D5DB">
+                <button class="potab" data-filter="rejected" onclick="setPOFilter('rejected',this)" style="font-size:11.5px;color:var(--danger)">🚫 ยกเลิก <span style="font-family:monospace" id="cnt-rejected"></span></button>
+              </div>
             </div>
           </div>
           <button class="export-btn" onclick="exportTable('po-tickets')" style="flex-shrink:0"><span class="xls-icon">X</span> ดาวน์โหลด Excel</button>
@@ -440,7 +408,7 @@
           <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
           <select class="sel" onchange="filterTicketVendor(this.value)">
             <option value="">ทุก Modern Trade</option>
-            <option>Beautrium</option><option>CJ Express</option><option>Traditional Trade</option>
+            <option>Beautrium</option><option>CJ Express</option>
             <option>Eveandboy</option><option>Konvy</option>
             <option>Lotus</option><option>Tsuruha</option>
             <option>Watsons</option><option>24Shopping (7-11)</option>
@@ -619,11 +587,18 @@
     <div class="chip" onclick="setOStatus('confirmed',this)">✓ ยืนยันแล้ว</div>
     <div class="chip" onclick="setOStatus('draft',this)">✏️ แบบร่าง</div>
   </div>
-  <div class="chips" id="dateChips" style="margin-bottom:11px;">
+  <div class="chips" id="dateChips" style="margin-bottom:6px;">
     <div class="chip active" onclick="setDF('all',this)">ทั้งหมด</div>
     <div class="chip" onclick="setDF('today',this)">วันนี้</div>
-    <div class="chip" onclick="setDF('week',this)">7 วัน</div>
-    <div class="chip" onclick="setDF('month',this)">เดือนนี้</div>
+    <div class="chip" onclick="setDF('7',this)">7 วัน</div>
+    <div class="chip" onclick="setDF('14',this)">14 วัน</div>
+    <div class="chip" onclick="setDF('30',this)">30 วัน</div>
+    <div class="chip" onclick="setDF('custom',this)">📅 กำหนดเอง</div>
+  </div>
+  <div id="ord-date-range" style="display:none;gap:7px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+    <input type="date" id="ordDateFrom" onchange="setDFCustom()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;color:var(--text);background:var(--surface2)">
+    <span style="font-size:12px;color:var(--text3)">ถึง</span>
+    <input type="date" id="ordDateTo" onchange="setDFCustom()" style="padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;color:var(--text);background:var(--surface2)">
   </div>
   <div class="sstrip" id="oStats"></div>
   <div id="ordsList"></div>
@@ -706,7 +681,6 @@
                 <th>PRINT STATUS</th>
                 <th>เอกสารใบ PO</th>
                 <th>PREVIEW</th>
-                <th>UPLOAD เอกสาร</th>
               </tr>
             </thead>
             <tbody id="soTableBody">
@@ -716,222 +690,7 @@
       </div>
     </div>
 
-    <!-- ════════ WMS UPLOAD ════════ -->
-    <div class="view" id="view-wms-upload">
 
-      <!-- Page Header -->
-      <div class="sec-hdr" style="margin-bottom:12px">
-        <div class="sec-hdr-title">📦 Upload ข้อมูลการส่งของจาก WMS</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost btn-sm" onclick="wmsExportTable()">📤 Export รายการ</button>
-        </div>
-      </div>
-
-      <!-- WMS Tabs -->
-      <div class="po-tabs" style="border:1.5px solid var(--border);margin-bottom:16px;width:fit-content">
-        <button class="potab wms-tab active" onclick="wmsSetTab('upload',this)">📤 Upload ไฟล์ใหม่</button>
-        <button class="potab wms-tab" onclick="wmsSetTab('history',this)">🗂️ ประวัติ Upload <span id="wms-history-badge" style="display:none;background:var(--pink);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:3px">0</span></button>
-      </div>
-
-      <!-- ── TAB: Upload ── -->
-      <div id="wms-tab-upload">
-
-        <!-- Top row: Drop zone + Date filter side by side -->
-        <div style="display:grid;grid-template-columns:1fr auto;gap:16px;align-items:stretch;margin-bottom:16px">
-
-          <!-- Left card: Date filter + Column info -->
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--sh-sm)">
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">📅 ระบุช่วงเวลาที่ Export จาก WMS</div>
-            <div style="font-size:11.5px;color:var(--text2);margin-bottom:14px">ระบบจะรวมข้อมูลจากทุกไฟล์โดยอัตโนมัติ — สามารถ Upload ข้ามเดือนเพื่อดูภาพรวมได้</div>
-
-            <!-- Quick buttons -->
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-              <div class="po-tabs" style="border:1.5px solid var(--border)">
-                <button class="potab wmsdtab" onclick="wmsSetDateRange('today',this)">วันนี้</button>
-                <button class="potab wmsdtab" onclick="wmsSetDateRange(7,this)">7 วัน</button>
-                <button class="potab wmsdtab" onclick="wmsSetDateRange(30,this)">30 วัน</button>
-                <button class="potab wmsdtab active" onclick="wmsSetDateRange('month',this)">เดือนนี้</button>
-                <button class="potab wmsdtab" onclick="wmsSetDateRange('lastmonth',this)">เดือนที่แล้ว</button>
-              </div>
-            </div>
-
-            <!-- Manual date range -->
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span style="font-size:11.5px;color:var(--text3);font-weight:600;white-space:nowrap">ช่วงเวลา:</span>
-              <input type="date" id="wms-date-from" class="so-date-input" style="height:32px;font-size:12px;padding:0 10px">
-              <span style="color:var(--text3);font-size:12px">–</span>
-              <input type="date" id="wms-date-to" class="so-date-input" style="height:32px;font-size:12px;padding:0 10px">
-              <button onclick="wmsFilter()" style="padding:5px 14px;background:var(--pink);color:#fff;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Apply</button>
-            </div>
-
-            <!-- Column info chips -->
-            <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap">
-              <div style="background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:10.5px;color:var(--text3);line-height:1.6">
-                <span style="font-weight:700;color:var(--text2)">คอลัมน์ WMS:</span> Created Date · Outbound Order ID · External Order #1 · <span style="font-weight:700;color:#1D4ED8">External Order #2</span> · Status · Order Group · Customer Company · # of Order Lines · Open Qty
-              </div>
-              <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:5px 10px;font-size:10.5px;line-height:1.6">
-                <span style="font-weight:700;color:#1D4ED8">💡 External Order #2 = เลขที่ SO</span> เช่น SO260300080
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Drop zone -->
-          <div id="wms-drop-zone"
-            style="border:2px dashed var(--border2);border-radius:var(--r-lg);padding:28px 36px;text-align:center;background:var(--bg);cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:220px"
-            ondragover="event.preventDefault();this.style.borderColor='var(--pink)';this.style.background='var(--pink-ll)'"
-            ondragleave="this.style.borderColor='var(--border2)';this.style.background='var(--bg)'"
-            ondrop="wmsHandleDrop(event)"
-            onclick="document.getElementById('wms-file-input').click()">
-            <div style="font-size:40px;margin-bottom:10px;line-height:1">📊</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">ลาก & วาง ไฟล์ที่นี่</div>
-            <div style="font-size:12px;font-weight:600;color:var(--pink);margin-bottom:4px">หรือ คลิกเพื่อเลือก</div>
-            <div style="font-size:11px;color:var(--text3);">.xlsx / .xls / .csv</div>
-            <div id="wms-drop-status" style="margin-top:10px;font-size:11.5px;font-weight:600;min-height:18px;color:var(--success)"></div>
-            <input type="file" id="wms-file-input" accept=".xlsx,.xls,.csv" multiple style="display:none" onchange="wmsHandleFileSelect(this)">
-          </div>
-        </div>
-
-        <!-- Stats strip -->
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px">
-          <div class="stat-card" style="padding:11px 14px">
-            <div class="stat-hdr"><span class="stat-lbl">Records ทั้งหมด</span><div class="stat-ico" style="background:var(--pink-l);color:var(--pink);width:26px;height:26px;font-size:12px">📦</div></div>
-            <div class="stat-val" id="wms-stat-total" style="font-size:22px">—</div>
-            <div class="stat-sub">จากไฟล์ที่โหลด</div>
-          </div>
-          <div class="stat-card" style="padding:11px 14px">
-            <div class="stat-hdr"><span class="stat-lbl">Allocated</span><div class="stat-ico" style="background:var(--success-bg);color:var(--success);width:26px;height:26px;font-size:12px">✅</div></div>
-            <div class="stat-val" style="color:var(--success);font-size:22px" id="wms-stat-allocated">—</div>
-            <div class="stat-sub ok">พร้อมจัดส่ง</div>
-          </div>
-          <div class="stat-card" style="padding:11px 14px">
-            <div class="stat-hdr"><span class="stat-lbl">New / Unallocated</span><div class="stat-ico" style="background:var(--warn-bg);color:var(--warn);width:26px;height:26px;font-size:12px">⏳</div></div>
-            <div class="stat-val" style="color:var(--warn);font-size:22px" id="wms-stat-new">—</div>
-            <div class="stat-sub warn">รอดำเนินการ</div>
-          </div>
-          <div class="stat-card" style="padding:11px 14px">
-            <div class="stat-hdr"><span class="stat-lbl">Picked</span><div class="stat-ico" style="background:#DBEAFE;color:#1D4ED8;width:26px;height:26px;font-size:12px">🚚</div></div>
-            <div class="stat-val" style="color:#1D4ED8;font-size:22px" id="wms-stat-picked">—</div>
-            <div class="stat-sub">หยิบสินค้าแล้ว</div>
-          </div>
-          <div class="stat-card" style="padding:11px 14px">
-            <div class="stat-hdr"><span class="stat-lbl">Cancelled</span><div class="stat-ico" style="background:var(--gray-bg);color:var(--gray);width:26px;height:26px;font-size:12px">🚫</div></div>
-            <div class="stat-val" style="color:var(--gray);font-size:22px" id="wms-stat-cancelled">—</div>
-            <div class="stat-sub">ยกเลิกแล้ว</div>
-          </div>
-        </div>
-
-        <!-- Data Table with filters on top -->
-        <div class="tbl-wrap">
-          <div class="tbl-hdr" style="flex-wrap:wrap;gap:8px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="tbl-hdr-title" id="wms-table-title">📋 รายการ Outbound Orders</div>
-              <span id="wms-record-count" style="font-size:12px;color:var(--text3)"></span>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto">
-              <input type="text" class="sel" placeholder="🔍 Order ID / SO / ลูกค้า..." id="wms-search" oninput="wmsFilter()" style="font-size:12px;min-width:200px">
-              <select class="sel" id="wms-status-filter" onchange="wmsFilter()" style="font-size:12px">
-                <option value="">ทุก Status</option>
-                <option value="New">New</option>
-                <option value="Allocated">Allocated</option>
-                <option value="Picked">Picked</option>
-                <option value="Unallocated">Unallocated</option>
-                <option value="Partially Allocated">Partially Allocated</option>
-                <option value="Allocation Failed">Allocation Failed</option>
-                <option value="Cancelled via API">Cancelled</option>
-              </select>
-              <select class="sel" id="wms-group-filter" onchange="wmsFilter()" style="font-size:12px">
-                <option value="">ทุก Group</option>
-                <option value="Nomal Order">Normal Order</option>
-                <option value="E-Commerce">E-Commerce</option>
-              </select>
-            </div>
-          </div>
-          <div style="overflow-x:auto;max-height:calc(100vh - 460px);overflow-y:auto">
-            <table style="width:100%;border-collapse:collapse;min-width:900px">
-              <thead style="position:sticky;top:0;z-index:2">
-                <tr>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap">Created Date</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">Outbound Order ID</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">External Order #1</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);background-color:#EFF6FF;color:#1D4ED8">External Order #2 (SO)</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">Order Group</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">Status</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);text-align:right">Order Lines</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);text-align:right">Open Qty</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">Customer Company</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap">Req. Delivery</th>
-                </tr>
-              </thead>
-              <tbody id="wms-tbody">
-                <tr><td colspan="10" style="text-align:center;padding:48px;color:var(--text3)">
-                  <div style="font-size:36px;margin-bottom:12px">📊</div>
-                  <div style="font-size:13.5px;font-weight:700;margin-bottom:6px">ยังไม่มีข้อมูล WMS</div>
-                  <div style="font-size:12px">กรุณาอัปโหลดไฟล์ Outbound_Order จาก WMS ด้านบน</div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Confirm bar -->
-        <div id="wms-confirm-bar" style="display:none;margin-top:12px;padding:14px 18px;background:var(--success-bg);border:1.5px solid var(--success);border-radius:var(--r);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:700;color:#065F46">✅ ข้อมูลโหลดแล้ว — พร้อม Confirm เข้าระบบ</div>
-            <div style="font-size:11.5px;color:#047857;margin-top:2px" id="wms-confirm-desc">—</div>
-          </div>
-          <button onclick="wmsConfirmUpload()" style="padding:8px 22px;background:#059669;color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Confirm บันทึกเข้าระบบ
-          </button>
-        </div>
-
-    </div><!-- /wms-tab-upload -->
-
-      <!-- ── TAB: History ── -->
-      <div id="wms-tab-history" style="display:none">
-        <div class="tbl-wrap">
-          <div class="tbl-hdr" style="flex-wrap:wrap;gap:8px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="tbl-hdr-title">🗂️ ประวัติไฟล์ที่ Upload แล้ว</div>
-              <span style="font-size:11px;color:var(--text3)">(ระบบรวมข้อมูลทุกไฟล์ในช่วงเดียวกันอัตโนมัติ)</span>
-            </div>
-            <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;align-items:center">
-              <select class="sel" id="wms-hist-month" onchange="wmsRenderHistory()" style="font-size:12px">
-                <option value="">ทุกช่วงเวลา</option>
-              </select>
-              <input type="text" class="sel" placeholder="🔍 ค้นหาชื่อไฟล์..." id="wms-hist-search" oninput="wmsRenderHistory()" style="font-size:12px;min-width:180px">
-            </div>
-          </div>
-
-          <!-- Period summary cards -->
-          <div id="wms-period-cards" style="display:flex;gap:10px;flex-wrap:wrap;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border)"></div>
-
-          <div style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse;min-width:700px">
-              <thead>
-                <tr>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap">วันที่อัปโหลด</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">ชื่อไฟล์</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">ช่วงข้อมูล (Export)</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);text-align:right">Records</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">สถานะ</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">รวมกับช่วง</th>
-                  <th style="padding:8px 12px;font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">ผู้อัปโหลด</th>
-                </tr>
-              </thead>
-              <tbody id="wms-history-tbody">
-                <tr><td colspan="7" style="text-align:center;padding:36px;color:var(--text3)">
-                  <div style="font-size:28px;margin-bottom:8px">🗂️</div>
-                  <div style="font-weight:700">ยังไม่มีประวัติ Upload</div>
-                  <div style="font-size:12px;margin-top:4px">Confirm ไฟล์จากแท็บ "Upload ไฟล์ใหม่" เพื่อบันทึกประวัติ</div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /view-wms-upload -->
     <div class="view" id="view-admin">
       <div class="sec-hdr" style="margin-bottom:16px">
         <div class="sec-hdr-title">👤 Admin PO — ภาพรวมการจัดการ</div>
@@ -995,18 +754,68 @@
 
     <!-- ════════ NOTIFICATIONS ════════ -->
     <div class="view" id="view-notifications">
-      <div class="sec-hdr">
-        <div class="sec-hdr-title">🔔 การแจ้งเตือน</div>
-        <button class="btn btn-ghost btn-sm" onclick="markAllRead()">✓ อ่านทั้งหมด</button>
+      <div class="sec-hdr" style="margin-bottom:14px">
+        <div class="sec-hdr-title">🔔 การแจ้งเตือน & Dashboard งาน</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-pink btn-sm" onclick="goToPOTab('inbox','received')">📥 ไปกดรับงาน</button>
+          <button class="btn btn-ghost btn-sm" onclick="markAllRead()">✓ อ่านทั้งหมด</button>
+        </div>
       </div>
-      <div class="admin-tabs">
-        <button class="atab active" onclick="switchNotifTab('all',this)">ทั้งหมด</button>
-        <button class="atab" onclick="switchNotifTab('sla',this)">⚠️ SLA Alert</button>
-        <button class="atab" onclick="switchNotifTab('new',this)">🆕 PO ใหม่</button>
-        <button class="atab" onclick="switchNotifTab('system',this)">⚙️ ระบบ</button>
+
+      <!-- Summary Cards (4 KPIs) -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px" id="notif-summary-cards">
+        <!-- rendered by JS -->
       </div>
-      <div class="card">
-        <div id="notif-list"></div>
+
+      <!-- Main layout: 3 columns -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 300px;gap:14px;align-items:start">
+
+        <!-- Col 1: Notification feed -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📬 ฟีดการแจ้งเตือน</div>
+          <div class="admin-tabs" style="margin-bottom:0;border-radius:var(--r) var(--r) 0 0;border-bottom:none">
+            <button class="atab active" onclick="switchNotifTab('all',this)">ทั้งหมด</button>
+            <button class="atab" onclick="switchNotifTab('sla',this)">🚨 SLA</button>
+            <button class="atab" onclick="switchNotifTab('new',this)">📧 PO ใหม่</button>
+            <button class="atab" onclick="switchNotifTab('system',this)">⚙️ ระบบ</button>
+          </div>
+          <div class="card" style="border-radius:0 0 var(--r) var(--r);border-top:none;padding:0;max-height:480px;overflow-y:auto">
+            <div id="notif-list" style="padding:4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Col 2: SLA Breach list (tickets needing action) -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">🚨 Tickets ที่ต้องดำเนินการ</div>
+          <div class="card" style="padding:0;overflow:hidden">
+            <!-- Tab: All urgent / Overdue SLA / Near SLA -->
+            <div style="display:flex;border-bottom:1px solid var(--border)">
+              <button id="ntab-urgent" onclick="switchNotifUrgentTab('all',this)" style="flex:1;padding:9px 6px;font-size:11px;font-weight:700;border:none;border-bottom:2px solid var(--pink);background:none;cursor:pointer;font-family:inherit;color:var(--pink)">🔴 เกิน SLA</button>
+              <button id="ntab-near" onclick="switchNotifUrgentTab('near',this)" style="flex:1;padding:9px 6px;font-size:11px;font-weight:600;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;font-family:inherit;color:var(--text3)">⚠️ ใกล้เกิน</button>
+              <button id="ntab-pending" onclick="switchNotifUrgentTab('pending',this)" style="flex:1;padding:9px 6px;font-size:11px;font-weight:600;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;font-family:inherit;color:var(--text3)">📥 รอกดรับ</button>
+            </div>
+            <div id="notif-urgent-list" style="max-height:420px;overflow-y:auto;padding:4px 0"><!-- rendered by JS --></div>
+          </div>
+        </div>
+
+        <!-- Col 3: Quick actions + SLA countdown -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <!-- Pending action shortcuts -->
+          <div class="card" style="padding:14px 16px">
+            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">⚡ Shortcut งานด่วน</div>
+            <div id="notif-pending-actions"><!-- rendered by JS --></div>
+          </div>
+          <!-- SLA countdown -->
+          <div class="card" style="padding:14px 16px">
+            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">⏱ SLA Countdown (5 อันดับแรก)</div>
+            <div id="notif-sla-countdown"><!-- rendered by JS --></div>
+          </div>
+          <!-- Vendor summary mini -->
+          <div class="card" style="padding:14px 16px">
+            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">📊 สรุป Vendor ค้างงาน</div>
+            <div id="notif-vendor-summary"><!-- rendered by JS --></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1035,6 +844,66 @@
           </thead>
           <tbody id="vendor-rules-tbody"></tbody>
         </table>
+      </div>
+    </div>
+
+
+    <!-- ════════ ROLE MANAGEMENT ════════ -->
+    <div class="view" id="view-role-management">
+      <div class="sec-hdr" style="margin-bottom:16px">
+        <div class="sec-hdr-title">👥 Role Management — จัดการผู้ใช้และสิทธิ์</div>
+        <button class="btn btn-pink btn-sm" onclick="openAddUserModal()">➕ เพิ่มผู้ใช้ใหม่</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px" id="rm-stats-row"></div>
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">🔐 สิทธิ์การเข้าถึงแต่ละ Role</div>
+        <div style="overflow-x:auto;margin-top:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+            <thead>
+              <tr style="border-bottom:2px solid var(--border)">
+                <th style="text-align:left;padding:8px 14px;color:var(--text3);font-weight:700;width:170px">สิทธิ์ / หน้าที่</th>
+                <th style="text-align:center;padding:8px;color:#7C3AED;white-space:nowrap">🔑 Root</th>
+                <th style="text-align:center;padding:8px;color:#B45309;white-space:nowrap">👑 CEO</th>
+                <th style="text-align:center;padding:8px;color:#1D4ED8;white-space:nowrap">🛡️ Admin</th>
+                <th style="text-align:center;padding:8px;color:#0891B2;white-space:nowrap">🧾 Acct</th>
+                <th style="text-align:center;padding:8px;color:#059669;white-space:nowrap">📦 WH</th>
+                <th style="text-align:center;padding:8px;color:#DB2777;white-space:nowrap">🛍️ Sales</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 14px;font-weight:600">📊 Dashboard</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+              <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:7px 14px;font-weight:600">🗺️ SLA Journey</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 14px;font-weight:600">📧 PO Tickets</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+              <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:7px 14px;font-weight:600">✅ Approve PO</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 14px;font-weight:600">➕ สร้าง Order (TT)</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">✅</td></tr>
+              <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:7px 14px;font-weight:600">✅ Approve Order</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 14px;font-weight:600">📤 Export ข้อมูล</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">✅</td></tr>
+              <tr style="background:var(--surface2)"><td style="padding:7px 14px;font-weight:600">👥 Role Management</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-hdr">
+          <div class="tbl-hdr-title">👤 ผู้ใช้งานทั้งหมด</div>
+          <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+            <div style="position:relative">
+              <input id="rm-search" class="sel" style="padding-left:28px;font-size:12px;min-width:180px"
+                placeholder="ค้นหาชื่อ / username..." oninput="renderRoleManagement()">
+              <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none">🔍</span>
+            </div>
+            <div class="po-tabs" style="border:1.5px solid var(--border)">
+              <button class="potab rm-filter-btn active" onclick="rmSetFilter('all',this)">ทั้งหมด</button>
+              <button class="potab rm-filter-btn" onclick="rmSetFilter('root',this)" title="Root Admin">🔑</button>
+              <button class="potab rm-filter-btn" onclick="rmSetFilter('ceo',this)" title="CEO">👑</button>
+              <button class="potab rm-filter-btn" onclick="rmSetFilter('admin_officer',this)" title="Admin Officer">🛡️</button>
+              <button class="potab rm-filter-btn" onclick="rmSetFilter('account',this)" title="Accounting">🧾</button>
+              <button class="potab rm-filter-btn" onclick="rmSetFilter('warehouse',this)" title="Warehouse">📦</button>
+              <button class="potab rm-filter-btn" onclick="rmSetFilter('sales',this)" title="Sales">🛍️</button>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px" id="rm-user-list"></div>
       </div>
     </div>
 
@@ -1152,12 +1021,53 @@
 
 <!-- 1. ข้อมูลหลัก (แก้ที่นี่เพื่ออัปเดต สินค้า / ลูกค้า / Vendor) -->
 <script src="data.js"></script>
-
-<!-- 2. PO/SLA Tracker module -->
 <script src="po-tracker.js"></script>
-
-<!-- 3. Sales Order App + WMS module -->
 <script src="order-app.js"></script>
+<script src="auth.js"></script>
+<script>
+(function(){
+  var _g = gotoView;
+  gotoView = function(v, el) {
+    _g(v, el);
+    if (v === 'role-management') renderRoleManagement();
+  };
+})();
+</script>
 
+<!-- ADD USER MODAL -->
+<div id="add-user-modal" style="display:none;position:fixed;inset:0;z-index:3000;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)" onclick="if(event.target===this)closeAddUserModal()">
+  <div class="add-user-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:16px;font-weight:700;color:var(--text)">➕ เพิ่มผู้ใช้ใหม่</div>
+      <button onclick="closeAddUserModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div><label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:4px">ชื่อ-นามสกุล *</label><input id="au-name" class="sel" style="width:100%;box-sizing:border-box" placeholder="เช่น น.ส.สมใจ ดีมาก"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:4px">Username *</label><input id="au-username" class="sel" style="width:100%;box-sizing:border-box" placeholder="เช่น somjai"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:4px">ทีม / แผนก</label><input id="au-team" class="sel" style="width:100%;box-sizing:border-box" placeholder="เช่น TT Sales"></div>
+      <div></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:4px">รหัสผ่าน *</label><input id="au-pw" type="password" class="sel" style="width:100%;box-sizing:border-box" placeholder="••••••••"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:4px">ยืนยันรหัสผ่าน *</label><input id="au-pw2" type="password" class="sel" style="width:100%;box-sizing:border-box" placeholder="••••••••"></div>
+    </div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:8px">Role *</label>
+      <div style="display:flex;flex-wrap:wrap;gap:7px">
+        <label style="display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px"><input type="radio" name="au-role-pick" value="root" style="accent-color:#7C3AED"> 🔑 Root Admin</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px"><input type="radio" name="au-role-pick" value="ceo" style="accent-color:#B45309"> 👑 CEO</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px"><input type="radio" name="au-role-pick" value="admin_officer" style="accent-color:#1D4ED8"> 🛡️ Admin Officer</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px"><input type="radio" name="au-role-pick" value="account" style="accent-color:#0891B2"> 🧾 Accounting</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px"><input type="radio" name="au-role-pick" value="warehouse" style="accent-color:#059669"> 📦 Warehouse</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px"><input type="radio" name="au-role-pick" value="sales" style="accent-color:#DB2777"> 🛍️ Sales</label>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-pink" onclick="doAddUser()">➕ เพิ่มผู้ใช้</button>
+      <button class="btn btn-ghost" onclick="closeAddUserModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+
+</div><!-- /portalWrap -->
 </body>
 </html>
