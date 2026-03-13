@@ -196,7 +196,7 @@ tbody td{padding:10px 13px;font-size:13px;color:var(--text);vertical-align:middl
 .dleg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .dleg-label{flex:1;color:var(--text2);line-height:1.3;word-break:break-word;}
 .dleg-val{font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0;margin-left:4px;}
-.bar-chart{display:flex;align-items:flex-end;gap:8px;height:90px;}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;width:100%;}
 .bar-grp{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
 .bar-val{font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text2);}
 .bar{width:100%;border-radius:3px 3px 0 0;transition:opacity .13s;}

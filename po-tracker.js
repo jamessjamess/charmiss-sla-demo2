@@ -236,13 +236,6 @@ function renderDashSOChannel(){
     +bar(mtInv.length,'#DBEAFE','#1D4ED8','MT มี<br>Invoice')
     +bar(mtNoInv.length,'#EDE9FE','#7C3AED','MT ไม่มี<br>Invoice')
     +bar(tt.length,'#D1FAE5','#059669','TT')
-    +'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">'
-    +'<div style="font-size:14px;font-weight:700;color:#D97706">—</div>'
-    +'<div style="width:100%;display:flex;align-items:flex-end;height:'+maxBarH+'px">'
-    +'<div style="width:100%;height:4px;background:#FEF3C7;border-radius:4px 4px 0 0"></div>'
-    +'</div>'
-    +'<div style="font-size:9.5px;font-weight:600;color:#92400E;text-align:center;line-height:1.3">E-Commerce<br>(WMS)</div>'
-    +'</div>'
     +'</div>'
     +'<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
     +'<div style="font-size:11px;color:var(--text2)">รวม SO: <strong>'+total+'</strong> ใบ</div>'
@@ -329,7 +322,6 @@ function setVsDate(days,el){
 function renderDashBreachChart() {
   var el = document.getElementById('dashBreachChart');
   if(!el) return;
-  // Mock weekly data: [week label, breach, ontime]
   var weeks = [
     {w:'W38',breach:3,ontime:8},
     {w:'W39',breach:1,ontime:11},
@@ -340,17 +332,17 @@ function renderDashBreachChart() {
     {w:'W44',breach:1,ontime:10},
   ];
   var maxTotal = Math.max.apply(null, weeks.map(function(w){return w.breach+w.ontime;}));
-  var h = 70;
+  var h = 100;
   el.innerHTML = weeks.map(function(w) {
     var breachH = Math.round((w.breach/(maxTotal||1))*h);
     var ontimeH = Math.round((w.ontime/(maxTotal||1))*h);
-    return '<div class="bar-grp" style="gap:2px;justify-content:flex-end">'
-      + '<div class="bar-val" style="font-size:9px">' + (w.breach>0?'<span style="color:var(--danger)">'+w.breach+'</span>':'') + '</div>'
+    return '<div class="bar-grp" style="gap:2px;justify-content:flex-end;flex:1">'
+      + '<div class="bar-val" style="font-size:9px">' + (w.breach>0?'<span style="color:var(--danger);font-weight:700">'+w.breach+'</span>':'<span style="color:var(--text3)">'+w.breach+'</span>') + '</div>'
       + '<div style="width:100%;display:flex;flex-direction:column;gap:1px;align-items:stretch">'
-        + '<div style="background:var(--danger);height:'+breachH+'px;border-radius:2px 2px 0 0;opacity:0.85;min-height:'+(w.breach>0?'3':'0')+'px"></div>'
-        + '<div style="background:var(--success);height:'+ontimeH+'px;opacity:0.75;min-height:'+( w.ontime>0?'3':'0')+'px"></div>'
+        + '<div style="background:var(--danger);height:'+breachH+'px;border-radius:3px 3px 0 0;opacity:0.85;min-height:'+(w.breach>0?'3':'0')+'px"></div>'
+        + '<div style="background:var(--success);height:'+ontimeH+'px;opacity:0.75;min-height:'+(w.ontime>0?'3':'0')+'px"></div>'
       + '</div>'
-      + '<div style="font-size:9px;color:var(--text3);font-weight:600">'+w.w+'</div>'
+      + '<div style="font-size:9.5px;color:var(--text3);font-weight:600;margin-top:3px">'+w.w+'</div>'
       + '</div>';
   }).join('');
 }
@@ -572,12 +564,14 @@ function renderJourney(){
   var vendorFilter=document.getElementById('journey-vendor-filter')?document.getElementById('journey-vendor-filter').value:'';
   var stageFilter=document.getElementById('journey-stage-filter')?document.getElementById('journey-stage-filter').value:'';
   var stuckFilter=document.getElementById('journey-stuck-filter')?document.getElementById('journey-stuck-filter').value:'';
+  var docSearch=(document.getElementById('journey-doc-search')?document.getElementById('journey-doc-search').value:'').toLowerCase().trim();
 
   var realData=TICKETS.filter(function(t){return !t._isMockup && t.status!=='canceled';});
   if(curChannelFilter==='mt') realData=realData.filter(function(t){return t.caseType!=='ORDER';});
   if(curChannelFilter==='tt') realData=realData.filter(function(t){return t.caseType==='ORDER';});
   var vendorSearch=vendorFilter.toLowerCase().trim();
   if(vendorSearch) realData=realData.filter(function(t){return t.vendor.toLowerCase().indexOf(vendorSearch)>=0 || (t.poRef&&t.poRef.toLowerCase().indexOf(vendorSearch)>=0);});
+  if(docSearch) realData=realData.filter(function(t){return (t.poRef&&t.poRef.toLowerCase().indexOf(docSearch)>=0)||(t.subject&&t.subject.toLowerCase().indexOf(docSearch)>=0)||(String(t.id).indexOf(docSearch)>=0);});
   if(stageFilter)  realData=realData.filter(function(t){return t.currentStage===stageFilter;});
   if(stuckFilter==='stuck')  realData=realData.filter(function(t){return Object.values(t.journey).some(function(s){return s.stuck;});});
   if(stuckFilter==='ontime') realData=realData.filter(function(t){return !Object.values(t.journey).some(function(s){return s.stuck;});});
@@ -595,6 +589,7 @@ function renderJourney(){
   if(curChannelFilter==='mt') mockupData=mockupData.filter(function(t){return t.caseType!=='ORDER';});
   if(curChannelFilter==='tt') mockupData=mockupData.filter(function(t){return t.caseType==='ORDER';});
   if(vendorSearch) mockupData=mockupData.filter(function(t){return t.vendor.toLowerCase().indexOf(vendorSearch)>=0||(t.poRef&&t.poRef.toLowerCase().indexOf(vendorSearch)>=0);});
+  if(docSearch) mockupData=mockupData.filter(function(t){return (t.poRef&&t.poRef.toLowerCase().indexOf(docSearch)>=0)||(t.subject&&t.subject.toLowerCase().indexOf(docSearch)>=0)||(String(t.id).indexOf(docSearch)>=0);});
   if(stageFilter)  mockupData=mockupData.filter(function(t){return t.currentStage===stageFilter;});
   if(stuckFilter==='ontime') mockupData=mockupData.filter(function(t){return !Object.values(t.journey).some(function(s){return s.stuck;});});
 

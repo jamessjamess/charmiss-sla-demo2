@@ -21,7 +21,7 @@ var ROLES = {
 // ─── USERS  (username = role key, password = role key) ───
 var USERS = [
   { id:'u01', name:'System Admin',    username:'root',          password:'root',          role:'root',          avatar:'RA', team:'IT / System' },
-  { id:'u02', name:'คุณปิยะ ชัยดี',   username:'ceo',           password:'ceo',           role:'ceo',           avatar:'ปย', team:'Executive' },
+  { id:'u02', name:'Wilasinee',        username:'ceo',           password:'ceo',           role:'ceo',           avatar:'WL', team:'Executive' },
   { id:'u03', name:'สมใจ เจริญสุข',   username:'admin_officer', password:'admin_officer', role:'admin_officer', avatar:'สจ', team:'MT Operations' },
   { id:'u04', name:'ฝนเทพ สมบัติ',    username:'sales',         password:'sales',         role:'sales',         avatar:'ฝท', team:'TT Sales' },
   { id:'u05', name:'สิริกาญจน์ ดี',   username:'sales2',        password:'sales',         role:'sales',         avatar:'สก', team:'TT Sales' },

@@ -81,7 +81,7 @@ let S = {
 // ═══ MOCK DATA ═══
 S.orders = [
   {
-    ref:'ORD-260301-001', status:'confirmed',
+    ref:'ORD-260301-001', status:'confirmed', soNumber:'SO260300201',
     custId:'768', custName:'ชมพู่คอสเมติกส์', sales:'ฝนเทพ',
     items:[
       {pid:'g_blush',name:'Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'04 Crush Blush',trCode:'16040',barcode:'8857127482248',qty:6,mode:'dealer',dp:60,wp:67,p50:null,p6:null,unitPrice:60},
@@ -92,7 +92,7 @@ S.orders = [
     timestamp: new Date(Date.now()-2*60*60*1000).toISOString(),
   },
   {
-    ref:'ORD-260310-002', status:'confirmed',
+    ref:'ORD-260310-002', status:'confirmed', soNumber:'SO260300202',
     custId:'1887', custName:'ไอซี่ บิวตี้ สำนักงานใหญ่', sales:'ฝนเทพ',
     items:[
       {pid:'g_eyepalette',name:'Glowlogram Eyeshadow Palette',emoji:'🎨',cat:'Eye',variant:'01 Sweet Moments',trCode:'22010',barcode:'8857127482569',qty:4,mode:'dealer',dp:80,wp:90,p50:null,p6:null,unitPrice:80},
@@ -103,7 +103,7 @@ S.orders = [
     timestamp: new Date(Date.now()-2*24*3600000).toISOString(),
   },
   {
-    ref:'ORD-260308-003', status:'confirmed',
+    ref:'ORD-260308-003', status:'confirmed', soNumber:'SO260300203',
     custId:'1974', custName:'ดาวบิวตี้ สำนักงานใหญ่', sales:'ฝนเทพ',
     items:[
       {pid:'g_blush',name:'Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'01 Coral Kiss',trCode:'16010',barcode:'8857127482224',qty:12,mode:'wholesale',dp:60,wp:67,p50:null,p6:null,unitPrice:67},
@@ -114,7 +114,7 @@ S.orders = [
     timestamp: new Date(Date.now()-4*24*3600000).toISOString(),
   },
   {
-    ref:'ORD-260307-004', status:'confirmed',
+    ref:'ORD-260307-004', status:'confirmed', soNumber:'SO260300204',
     custId:'73', custName:'ไฮโซ คอสเมติก สำนักงานใหญ่', sales:'สิริกาญจน์',
     items:[
       {pid:'g_mochiblush',name:'Glowfriend Mochi Blush On',emoji:'🍡',cat:'Cheek',variant:'01 Milk Strawberry',trCode:'16210',barcode:'8857128879665',qty:10,mode:'wholesale',dp:110,wp:120,p50:null,p6:null,unitPrice:120},
@@ -124,7 +124,7 @@ S.orders = [
     timestamp: new Date(Date.now()-5*24*3600000).toISOString(),
   },
   {
-    ref:'ORD-260305-005', status:'confirmed',
+    ref:'ORD-260305-005', status:'confirmed', soNumber:'SO260300205',
     custId:'330', custName:'เซคคั่นฟลอร์', sales:'อัมพร',
     items:[
       {pid:'g_blush',name:'Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'03 Dusty Rose',trCode:'16030',barcode:'8857127482231',qty:8,mode:'dealer',dp:60,wp:67,p50:null,p6:null,unitPrice:60},
@@ -135,7 +135,7 @@ S.orders = [
     timestamp: new Date(Date.now()-7*24*3600000).toISOString(),
   },
   {
-    ref:'ORD-260303-006', status:'confirmed',
+    ref:'ORD-260303-006', status:'confirmed', soNumber:'SO260300206',
     custId:'1349', custName:'น.ส.พลอยรุ้ง เลิศทวีพรกุล', sales:'สิริกาญจน์',
     items:[
       {pid:'g_airykiss',name:'Show Me Your Charm Airy Kiss Tint',emoji:'💋',cat:'Lip',variant:'05 Candy Coral',trCode:'33170',barcode:'8857127482347',qty:24,mode:'wholesale',dp:60,wp:67,p50:null,p6:null,unitPrice:67},
@@ -145,7 +145,7 @@ S.orders = [
     timestamp: new Date(Date.now()-9*24*3600000).toISOString(),
   },
   {
-    ref:'ORD-260228-007', status:'confirmed',
+    ref:'ORD-260228-007', status:'confirmed', soNumber:'SO260300207',
     custId:'1981', custName:'SOKKHENG HOK', sales:'ฝนเทพ',
     items:[
       {pid:'g_blush',name:'Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'02 Sweet Pink',trCode:'16020',barcode:'8857127482217',qty:6,mode:'dealer',dp:60,wp:67,p50:null,p6:null,unitPrice:60},
@@ -657,9 +657,14 @@ function doConfirm(){
   const now=new Date();
   const ref='ORD-'+orderFmtD(now)+'-'+String(S.orders.filter(o=>o.status==='confirmed').length+1).padStart(3,'0');
   const grand=S.cart.reduce((s,i)=>s+lineTotal(i),0);
+  // Auto-generate SO number (mockup): SO + 9-digit sequence
+  var maxSO=260300207;
+  S.orders.forEach(function(o){ if(o.soNumber&&o.soNumber.startsWith('SO')){var n=parseInt(o.soNumber.slice(2));if(!isNaN(n)&&n>maxSO)maxSO=n;} });
+  var soNumber='SO'+String(maxSO+1);
   const order={
     ref,status:'confirmed',custId:S.selCust.id,custName:S.selCust.name,sales:CURRENT_SALES,
     items:JSON.parse(JSON.stringify(S.cart)),total:grand,
+    soNumber:soNumber,
     note:document.getElementById('orderNote').value,
     timestamp:now.toISOString(),
   };
@@ -761,7 +766,9 @@ function renderOrds(){
     const modes=[...new Set(o.items.map(i=>i.mode))];
     return `<div class="ocard ${isDraft?'is-draft':''}" onclick="openDetail('${o.ref}')">
       <div class="ocard-top">
-        <div style="min-width:0;"><div class="o-store">${o.custName}</div><div class="o-id">${o.ref}</div></div>
+        <div style="min-width:0;"><div class="o-store">${o.custName}</div><div class="o-id">${o.ref}</div>
+        ${(!isDraft&&o.soNumber)?`<div style="font-size:11px;font-family:monospace;font-weight:700;color:#7C3AED;margin-top:2px;letter-spacing:.3px">📄 ${o.soNumber}</div>`:''}
+        </div>
         <div class="o-amt ${isDraft?'draft-amt':''}">฿${o.total.toLocaleString()}</div>
       </div>
       <div class="otags">
@@ -944,6 +951,10 @@ function confirmDraft(ref){
   o.status='confirmed';
   o.ref=newRef;
   o.timestamp=now.toISOString();
+  // Auto-assign SO number
+  var maxSO=260300207;
+  S.orders.forEach(function(ord){ if(ord.soNumber&&ord.soNumber.startsWith('SO')){var n=parseInt(ord.soNumber.slice(2));if(!isNaN(n)&&n>maxSO)maxSO=n;} });
+  o.soNumber='SO'+String(maxSO+1);
   closeSheet('detailSheet'); orderUpdateBadge(); renderOrds();
 }
 function deleteOrder(ref){
