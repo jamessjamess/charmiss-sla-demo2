@@ -37,4 +37,5 @@ charmiss-portal/
 
 ## Live URL
 
-https://[your-username].github.io/charmiss-portal/
+Your site is live at 
+https://jamessjamess.github.io/charmiss-sla-demo2/
