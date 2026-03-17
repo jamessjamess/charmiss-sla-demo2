@@ -614,9 +614,9 @@ function renderPgrid(){
       var freeTotal=(S.varFreeItems[vkey]||[]).reduce(function(s,f){return s+f.qty;},0);
       var freeHtml=
         '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">'
-        +'<button class="var-qbtn" data-action="adjfreetotal" data-vkey="'+vkeyAttr+'" data-delta="-1">−</button>'
+        +'<button class="var-qbtn psh-free-btn" type="button" data-freevkey="'+vkeyAttr+'" data-freedelta="-1">−</button>'
         +'<input data-action="setfreetotal" data-vkey="'+vkeyAttr+'" type="number" min="0" value="'+freeTotal+'" placeholder="0" style="width:42px;padding:2px 4px;border:1.5px solid '+(freeTotal>0?'#059669':'var(--border)')+';border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:inherit;background:'+(freeTotal>0?'#f0fdf4':'var(--bg)')+';color:'+(freeTotal>0?'#166534':'var(--text3)')+';transition:all .15s;">'
-        +'<button class="var-qbtn" data-action="adjfreetotal" data-vkey="'+vkeyAttr+'" data-delta="1">+</button>'
+        +'<button class="var-qbtn psh-free-btn" type="button" data-freevkey="'+vkeyAttr+'" data-freedelta="1">+</button>'
 
       var rowBg=qty>0?'background:var(--pink-l);':'';
       html+='<tr data-vkey="'+vkeyAttr+'" style="'+rowBg+'">'
@@ -684,6 +684,15 @@ function attachPsheetHandlers(container){
     } else if(action==='adjqty'){
       var delta=parseInt(el.getAttribute('data-delta'))||0;
       pshAdjQty(pid,label,vkey,delta);
+    } else if(el.classList&&el.classList.contains('psh-free-btn')){
+      // Free/tester +/- via data attribute (avoids onclick quote issues)
+      var fvkey=el.getAttribute('data-freevkey');
+      var fdeltaF=parseInt(el.getAttribute('data-freedelta'))||0;
+      if(fvkey){
+        e.stopPropagation();
+        pshFreeAdj(fvkey, fdeltaF);
+      }
+      return;
     } else if(action==='adjfreetotal'){
       var fdelta2=parseInt(el.getAttribute('data-delta'))||0;
       if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
@@ -916,6 +925,25 @@ function pshAddToCart(pid,label,vkey,qty){
 }
 
 
+// Global free/tester adj — avoids event delegation double-fire
+function pshFreeAdj(vkey,delta){
+  if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
+  var cur=S.varFreeItems[vkey].reduce(function(s,f){return s+f.qty;},0);
+  var nv=Math.max(0,cur+delta);
+  S.varFreeItems[vkey]=nv>0?[{type:'free',qty:nv}]:[];
+  var ci=S.cart.find(function(c){return c.pid===vkey.split('||')[0]&&c.variant===vkey.split('||').slice(1).join('||');});
+  if(ci) ci.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
+  // Update DOM directly — no re-render needed
+  var container=document.getElementById('prod-flat-list');
+  if(!container) return;
+  var inp=container.querySelector('input[data-action="setfreetotal"][data-vkey="'+vkey+'"]');
+  if(inp){
+    inp.value=nv;
+    inp.style.borderColor=nv>0?'#059669':'var(--border)';
+    inp.style.background=nv>0?'#f0fdf4':'var(--bg)';
+    inp.style.color=nv>0?'#166534':'var(--text3)';
+  }
+}
 function filterP(){
   document.getElementById('pClr').classList.toggle('show',document.getElementById('pSearch').value.length>0);
   if(renderPgridDebounced) renderPgridDebounced(); else renderPgrid();

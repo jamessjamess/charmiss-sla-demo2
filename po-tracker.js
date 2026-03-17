@@ -1163,9 +1163,6 @@ function openTicketModal(id){
     'ขอบคุณ,\n' + t.vendor + ' Procurement Team'
   );
 
-  // Per-attachment sub-tasks
-  const attSubTasks=buildAttSubTasks(t);
-
   wrap.innerHTML=`
     <div class="mhdr">
       <div style="display:flex;align-items:center;gap:10px">
@@ -1226,10 +1223,8 @@ function openTicketModal(id){
       <div class="sec-title">📧 Email Content</div>
       <div style="background:#F8F9FA;border:1px solid var(--border);border-radius:8px;padding:13px 15px;margin-bottom:12px;font-size:11.5px;line-height:1.8;color:var(--text2);white-space:pre-wrap;font-family:'IBM Plex Mono',monospace;max-height:140px;overflow-y:auto">${emailBody}</div>
 
-      <div class="sec-title">📋 Sub-tasks — แยกตาม Attachment / งานที่ต้องทำ</div>
-      ${attSubTasks}
-
-      ${t.caseType==='B'&&t.subTasks?buildLotusSubPanel(t):''}
+      ${buildUploadSubPanel(t)}
+      ${buildAttActionsOnly(t)}
 
       ${t.status==='confirmed'
         ?'<div style="display:flex;align-items:center;gap:7px;margin-top:10px;padding:9px 13px;background:var(--success-bg);border-radius:8px;font-size:12px;color:var(--success);font-weight:600">✅ Confirmed แล้ว'+(t.confirmedAt?' — '+fmtDateTime(t.confirmedAt):'')+'</div>'
@@ -1596,26 +1591,167 @@ function acceptTicket(tid,ev){
 }
 
 // Lotus Case B sub-task panel (extracted to function to avoid nested template)
+
+// ─── ATTACHMENT ACTION BUTTONS ONLY (no subtask rows) ────────────────
+function buildAttActionsOnly(t){
+  if(!t.attachments||t.attachments.length===0) return '';
+  var isApproved=t.procStatus==='approved';
+  var filt=ATT_FILTER[t.id]||'all';
+  var atts=t.attachments;
+  var visible=filt==='all'?atts:atts.filter(function(a){return a.ext===filt;});
+  var visIdx=visible.map(function(a){return atts.indexOf(a);});
+  if(!t._sel) t._sel={};
+  var selCount=Object.keys(t._sel).filter(function(i){return t._sel[i];}).length;
+
+  var html='<div style="margin-top:4px;">';
+  if(!isApproved){
+    if(selCount>0){
+      html+='<div style="display:flex;gap:7px;padding:10px 12px;background:var(--pink-ll);border-radius:9px;align-items:center;">'
+        +'<span style="font-size:11px;color:var(--pink-d);font-weight:700;">เลือก '+selCount+' งาน:</span>'
+        +'<button onclick="acceptSelected('+t.id+',event)" style="font-size:11px;padding:6px 14px;background:var(--pink);color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit;">📥 รับที่เลือก</button>'
+        +'<button onclick="approveSelected('+t.id+',event)" style="font-size:11px;padding:6px 14px;background:#7C3AED;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit;">✅ Approve ที่เลือก</button>'
+        +'<button onclick="rejectSelected('+t.id+',event)" style="font-size:11px;padding:6px 14px;background:var(--danger);color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-family:inherit;">🚫 ปฏิเสธที่เลือก</button>'
+        +'</div>';
+    } else {
+      var allAccepted=atts.every(function(a){return a.accepted;});
+      html+='<div style="display:flex;gap:7px;padding-top:8px;">'
+        +(allAccepted
+          ?'<button onclick="approvePO('+t.id+',null,event)" style="flex:2;font-size:12px;padding:9px 14px;background:#7C3AED;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">✅ Approve PO ทั้งหมด</button>'
+          :'<button onclick="acceptAllVisible('+t.id+',event)" style="flex:2;font-size:12px;padding:9px 14px;background:var(--success);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">📥 รับทุกงานใน Email นี้</button>'
+          +'<button onclick="approvePO('+t.id+',null,event)" style="flex:2;font-size:12px;padding:9px 14px;background:#7C3AED;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">✅ Approve PO</button>'
+        )
+        +'<button onclick="rejectTicket('+t.id+',event)" style="flex:1;font-size:12px;padding:9px 12px;background:var(--surface);color:var(--danger);border:1.5px solid var(--danger);border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🚫 ปฏิเสธ</button>'
+        +'</div>';
+    }
+  } else {
+    html+='<div style="padding:10px 13px;background:#F0FDF4;border-radius:8px;border:1.5px solid #86EFAC;font-size:12px;color:#166534;font-weight:700;">'
+      +'✅ Approved PO แล้ว'+(t.approvedAt?' — '+(new Date(t.approvedAt)).toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'}):'')+' — เริ่มงาน SO ได้เลย</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
 function buildLotusSubPanel(t){
-  var allDone=t.subTasks.every(function(s){return s.done;});
-  var doneCount=t.subTasks.filter(function(s){return s.done;}).length;
-  var total=t.subTasks.length;
-  var pct=Math.round(doneCount/total*100);
-  return '<div style="background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:9px;padding:12px 14px;margin-bottom:10px">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-    +'<div style="display:flex;align-items:center;gap:7px">'
-    +'<span style="font-size:17px">🪷</span>'
-    +'<div><div style="font-size:12.5px;font-weight:700;color:#78350F">Lotus Supplier Portal — Sub-tasks</div>'
-    +'<div style="font-size:11px;color:#92400E">ต้อง Login Portal เพื่อ Download ใบ PO ด้วยตนเอง</div></div>'
-    +'</div>'
-    +'<div style="display:flex;align-items:center;gap:6px">'
-    +'<div style="font-size:10px;font-weight:700;color:#92400E">'+doneCount+'/'+total+'</div>'
-    +'<div style="width:60px;height:6px;background:#FDE68A;border-radius:3px;overflow:hidden">'
-    +'<div style="width:'+pct+'%;height:100%;background:'+(allDone?'#16A34A':'#F59E0B')+';border-radius:3px;transition:width .3s"></div></div>'
-    +(allDone?'<span style="font-size:10px;background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-weight:700">✓ ครบแล้ว</span>':'')
-    +'</div></div>'
-    +'<div style="display:flex;flex-direction:column;gap:5px">'+buildSubTaskRows(t)+'</div>'
+  return buildUploadSubPanel(t);
+}
+
+function buildUploadSubPanel(t){
+  var atts=t.attachments||[];
+  var filt=ATT_FILTER[t.id]||'all';
+  var isApproved=t.procStatus==='approved';
+  if(!t._sel) t._sel={};
+
+  var html='<div style="border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--surface);">';
+
+  // ── Header ──
+  html+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">'
+    +'<span style="font-size:16px">📋</span>'
+    +'<div style="font-size:12.5px;font-weight:800;color:var(--text);">SUB-TASKS — แยกตาม ATTACHMENT / งานที่ต้องทำ</div>'
     +'</div>';
+
+  // ── Extension filter tabs (when >1 type) ──
+  if(atts.length>0){
+    var exts={};
+    atts.forEach(function(a){ if(a.ext) exts[a.ext]=true; });
+    var extList=Object.keys(exts);
+    if(extList.length>1){
+      html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;">'
+        +'<span style="font-size:10.5px;color:var(--text3);font-weight:700;">กรอง:</span>';
+      var filters=['all'].concat(extList);
+      filters.forEach(function(ex){
+        var active=filt===ex;
+        var cnt=ex==='all'?atts.length:atts.filter(function(a){return a.ext===ex;}).length;
+        var label=ex==='all'?'ทั้งหมด ('+cnt+')':'.'+ex.toUpperCase()+' ('+cnt+')';
+        html+='<button onclick="setAttFilter('+t.id+',\''+ex+'\',event)" style="font-size:11px;padding:3px 11px;border:1.5px solid '+(active?'var(--pink)':'var(--border)')+';border-radius:16px;background:'+(active?'var(--pink)':'var(--surface)')+';color:'+(active?'#fff':'var(--text2)')+';cursor:pointer;font-family:inherit;font-weight:'+(active?'700':'500')+'">'+label+'</button>';
+      });
+      html+='</div>';
+    }
+  }
+
+  // ── Attachment rows (full featured with checkboxes + per-row buttons) ──
+  if(atts.length>0){
+    var visible=filt==='all'?atts:atts.filter(function(a){return a.ext===filt;});
+    var visIdx=visible.map(function(a){return atts.indexOf(a);});
+    var allSel=visIdx.length>0&&visIdx.every(function(i){return t._sel[i];});
+
+    // Select-All row
+    if(!isApproved && visible.length>1){
+      html+='<div style="display:flex;align-items:center;gap:8px;padding:4px 10px 8px 10px;">'
+        +'<label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;color:var(--text2);font-weight:600;user-select:none;">'
+        +'<input type="checkbox" '+(allSel?'checked':'')+' onchange="toggleSelAll('+t.id+',this.checked,event)" style="width:14px;height:14px;accent-color:var(--pink);cursor:pointer;">'
+        +'เลือกทั้งหมด ('+visible.length+' ไฟล์)</label>'
+        +'<span style="flex:1"></span>'
+        +'<span style="font-size:10px;color:var(--text3);">เลือกแล้ว: '+visIdx.filter(function(i){return t._sel[i];}).length+'/'+visible.length+'</span>'
+        +'</div>';
+    }
+
+    // File rows
+    html+='<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">';
+    visible.forEach(function(att,rowNum){
+      var origIdx=atts.indexOf(att);
+      var accepted=att.accepted||false;
+      var rejected=att.rejected||false;
+      var isSel=t._sel[origIdx]||false;
+      var extColor=att.ext==='pdf'?'#DC2626':att.ext==='xlsx'?'#166534':att.ext==='csv'?'#0369a1':att.ext==='rtf'?'#7c3aed':'#6366F1';
+      var extBg   =att.ext==='pdf'?'#FEE2E2':att.ext==='xlsx'?'#DCFCE7':att.ext==='csv'?'#e0f2fe':att.ext==='rtf'?'#f3e8ff':'#EEF2FF';
+      var rowState=isApproved?'approved':accepted?'accepted':rejected?'rejected':'pending';
+      var rowBg   =rowState==='approved'||rowState==='accepted'?'#F0FDF4':rowState==='rejected'?'#FEF2F2':'#fff';
+      var rowBdr  =rowState==='approved'||rowState==='accepted'?'#86EFAC':rowState==='rejected'?'#FECACA':isSel?'var(--pink)':'var(--border)';
+
+      html+='<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;background:'+rowBg+';border:1.5px solid '+rowBdr+';box-shadow:0 1px 3px rgba(0,0,0,.05);">';
+      // Checkbox
+      if(!isApproved&&!accepted&&!rejected){
+        html+='<input type="checkbox" '+(isSel?'checked':'')+' onchange="toggleSelItem('+t.id+','+origIdx+',this.checked,event)" style="width:15px;height:15px;accent-color:var(--pink);cursor:pointer;flex-shrink:0;">';
+      }
+      // Circle number
+      html+='<div style="width:22px;height:22px;border-radius:50%;border:2px solid '+(rowState==='approved'||rowState==='accepted'?'#16A34A':rowState==='rejected'?'#EF4444':'var(--pink-m)')+';background:'+(rowState==='approved'||rowState==='accepted'?'#16A34A':rowState==='rejected'?'#FEE2E2':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+        +(rowState==='approved'||rowState==='accepted'?'<svg width="10" height="10" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>':rowState==='rejected'?'<span style="font-size:10px;color:#EF4444;font-weight:700;">✕</span>':'<span style="font-size:10px;color:var(--pink);font-weight:700;">'+(rowNum+1)+'</span>')
+        +'</div>';
+      // Ext badge
+      if(att.ext) html+='<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:'+extBg+';color:'+extColor+';font-weight:700;font-family:monospace;flex-shrink:0;">.'+att.ext.toUpperCase()+'</span>';
+      // File info
+      html+='<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:12px;font-weight:600;color:'+(rowState==='rejected'?'#EF4444':rowState==='accepted'||rowState==='approved'?'#166534':'var(--text)')+';">📎 '+att.name+'</div>'
+        +(rowState==='accepted'?'<div style="font-size:10px;color:var(--success);">✓ รับงานโดย '+(att.acceptedBy||'')+'</div>'
+          :rowState==='approved'?'<div style="font-size:10px;color:var(--success);">✓ Approved PO แล้ว</div>'
+          :rowState==='rejected'?'<div style="font-size:10px;color:#EF4444;">🚫 ไม่รับงานนี้</div>'
+          :'<div style="font-size:10px;color:var(--pink-d);font-family:monospace;">PO Ref: '+(att.poRef||t.poRef)+'</div>')
+        +'</div>';
+      // Action buttons per row
+      if(!isApproved){
+        if(accepted){
+          html+='<button onclick="approvePO('+t.id+','+origIdx+',event)" style="font-size:10.5px;padding:4px 10px;background:#7C3AED;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;">✅ Approve</button>';
+        } else if(!rejected){
+          html+='<div style="display:flex;gap:4px;flex-shrink:0;">'
+            +'<button onclick="acceptAttTask('+t.id+','+origIdx+',event)" style="font-size:10.5px;padding:4px 9px;background:var(--pink);color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">รับงาน</button>'
+            +'<button onclick="approvePO('+t.id+','+origIdx+',event)" style="font-size:10.5px;padding:4px 9px;background:#7C3AED;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">✅ Approve PO</button>'
+            +'<button onclick="rejectSingleTask('+t.id+','+origIdx+',event)" style="font-size:10.5px;padding:4px 9px;background:transparent;color:var(--danger);border:1.5px solid var(--danger);border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit;">🚫</button>'
+            +'</div>';
+        }
+      } else {
+        html+='<span style="font-size:10px;color:var(--success);font-weight:700;flex-shrink:0;">✅</span>';
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+  }
+
+  // ── Upload zone (no ZIP support) ──
+  html+='<div style="border:2px dashed var(--border);border-radius:8px;padding:10px 12px;background:var(--bg);">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
+    +'<div>'
+    +'<div style="font-size:11.5px;font-weight:700;color:var(--text2);">📎 Upload ไฟล์ → สร้าง Sub-task อัตโนมัติ</div>'
+    +'<div style="font-size:10px;color:var(--text3);margin-top:2px;">รองรับ PDF, Excel (.xlsx/.xls), CSV, RTF · กรณีได้รับ ZIP กรุณาแตกไฟล์เองก่อน แล้ว Upload ทีละไฟล์</div>'
+    +'</div>'
+    +'<label style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:var(--pink);color:#fff;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;">'
+    +'📂 เลือกไฟล์'
+    +'<input type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.rtf" style="display:none;" onchange="handleSubtaskUpload('+t.id+',this,event)">'
+    +'</label>'
+    +'</div>'
+    +'</div>';
+
+  html+='</div>';
+  return html;
 }
 
 
@@ -1661,6 +1797,48 @@ function toggleSubTask(ticketId, stId, ev){
   }
   // Re-open modal to refresh
   openTicketModal(ticketId);
+  renderTickets();
+}
+
+function handleSubtaskUpload(tid, input, ev){
+  if(ev) ev.stopPropagation();
+  var t=TICKETS.find(function(x){return x.id===tid;});
+  if(!t||!input.files||!input.files.length) return;
+  if(!t.attachments) t.attachments=[];
+
+  var added=0;
+  var skipped=[];
+  Array.from(input.files).forEach(function(file){
+    var ext=file.name.split('.').pop().toLowerCase();
+    var supported=['pdf','xlsx','xls','csv','rtf'];
+    if(ext==='zip'){
+      skipped.push(file.name);
+      return;
+    }
+    if(!supported.includes(ext)){
+      skipped.push(file.name+' (ไม่รองรับ)');
+      return;
+    }
+    // Add as a new attachment row (same structure as email attachments)
+    t.attachments.push({
+      name:file.name, ext:ext,
+      poRef:t.poRef||'UPLOAD-'+Date.now(),
+      accepted:false, rejected:false,
+      uploadedAt:Date.now(), uploadedBy:CURRENT_SALES||'ฝนเทพ'
+    });
+    added++;
+  });
+
+  if(skipped.length>0){
+    showToast('⚠️ ข้ามไฟล์: '+skipped.join(', ')+' — กรุณาแตก ZIP ก่อน Upload');
+  }
+  if(added>0){
+    if(t.procStatus==='pending_att'||t.procStatus==='received') t.procStatus='verified';
+    if(!t.caseType||t.caseType==='A') t.caseType='B';
+    showToast('✅ เพิ่ม '+added+' ไฟล์แล้ว — สถานะอัปเดตอัตโนมัติ');
+  }
+  input.value='';
+  openTicketModal(tid);
   renderTickets();
 }
 
