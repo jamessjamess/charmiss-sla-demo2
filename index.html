@@ -476,7 +476,7 @@
         </div>
         <div class="cust-list" id="custList">
           <table class="ctable">
-            <thead><tr><th>รหัส</th><th>ชื่อร้านค้า / ลูกค้า</th><th>ประเภท</th></tr></thead>
+            <thead><tr><th>รหัส</th><th>ชื่อร้านค้า / ลูกค้า</th><th>ประเภทร้านค้า</th><th>ประเภทราคา</th><th>เงื่อนไขเครดิต</th></tr></thead>
             <tbody id="custListBody"></tbody>
           </table>
         </div>
@@ -500,14 +500,7 @@
         <button class="sclr" id="pClr" onclick="clearPS()">×</button>
       </div>
       <div class="chips" id="catChips"></div>
-      <div class="ptable-wrap">
-        <table class="ptable">
-          <thead><tr>
-            <th></th><th>ชื่อสินค้า / SKU</th><th>TR Code</th><th>หมวด</th><th>Dealer / WS</th><th id="stockColHdr" style="text-align:center;font-size:10px;">📊 Stock / Quota</th>
-          </tr></thead>
-          <tbody id="pgrid-body"></tbody>
-        </table>
-      </div>
+      <div class="psheet-wrap"><div id="prod-flat-list" style="margin-top:0;"></div></div>
     </div>
 
     <div class="card" id="cartCard" style="display:none;">
@@ -517,9 +510,21 @@
         <span id="cartBg" style="background:var(--pink);color:#fff;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:800;">0</span>
       </div>
       <div id="cartItems"></div>
+      <div id="disc2pctBar" style="display:none;margin-top:8px;padding:8px 12px;background:#fffbeb;border:1.5px solid #f59e0b;border-radius:9px;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="font-size:11px;font-weight:700;color:#92400e;" id="disc2pctLabel">💳 7 วัน ส่วนลด 2%</div>
+        <button onclick="toggleBillDiscount()" id="disc2pctBtn" style="padding:5px 14px;border-radius:7px;border:1.5px solid #f59e0b;cursor:pointer;font-size:11px;font-weight:800;font-family:inherit;background:#fff;color:#92400e;">กด ส่วนลด 2%</button>
+      </div>
       <div class="frow" style="margin-top:10px;margin-bottom:0;">
         <label class="flabel">หมายเหตุ Order</label>
         <textarea class="fctl" id="orderNote" rows="2" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
+        <div style="margin-top:6px;">
+          <label style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--surface);border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text2);">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            แนบไฟล์ (สูงสุด 5 ไฟล์)
+            <input type="file" multiple accept="image/*,.pdf,.xlsx,.xls,.csv,.doc,.docx" style="display:none;" onchange="handleOrderAttach(this)">
+          </label>
+        </div>
+        <div id="attList"></div>
       </div>
     </div>
 
@@ -529,6 +534,7 @@
     </div>
 
     <div id="sumWrap" style="display:none;">
+      <div id="discountRow" style="display:none;justify-content:space-between;padding:5px 12px;background:#fffbeb;border-radius:8px;margin-bottom:4px;"></div>
       <div class="sbar">
         <div>
           <div class="sbar-lbl">ยอดรวมทั้งหมด</div>
@@ -587,10 +593,16 @@
       <button class="sclr" id="oClr" onclick="clearOS()">×</button>
     </div>
   </div>
-  <div class="ord-filter-chips" id="statusChips">
+  <div class="ord-filter-chips" id="statusChips" style="flex-wrap:wrap;gap:5px;">
     <div class="chip active" onclick="setOStatus('all',this)">ทั้งหมด</div>
     <div class="chip" onclick="setOStatus('confirmed',this)">✓ ยืนยันแล้ว</div>
     <div class="chip" onclick="setOStatus('draft',this)">✏️ แบบร่าง</div>
+    <div class="chip" onclick="setOStatus('approved',this)">✅ SO แล้ว</div>
+  </div>
+  <div class="ord-filter-chips" id="soFilterChips" style="margin-top:4px;gap:5px;">
+    <div class="chip" onclick="setSOFilter('all',this)">📋 ทั้งหมด</div>
+    <div class="chip active so-chip-pending" onclick="setSOFilter('no_so',this)">⏳ ยังไม่ได้สร้าง SO</div>
+    <div class="chip so-chip-done" onclick="setSOFilter('has_so',this)">✅ สร้าง SO แล้ว</div>
   </div>
   <div class="chips" id="dateChips" style="margin-bottom:6px;">
     <div class="chip active" onclick="setDF('all',this)">ทั้งหมด</div>
@@ -976,25 +988,7 @@
 </div>
 
 <!-- VARIANT PICKER SHEET -->
-<div class="overlay" id="varSheet" onclick="closeBg(event,'varSheet')">
-  <div class="sheet">
-    <div class="sh-handle"></div>
-    <div class="sh-head">
-      <div class="sh-title">เลือก Variant & จำนวน</div>
-      <button class="sh-close" onclick="closeSheet('varSheet')">×</button>
-    </div>
-    <div class="sh-body">
-      <div class="varpick-prod" id="varProdInfo"></div>
-      <div class="price-pick" id="varPricePick"></div>
-      <div style="font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px;">เลือก Variant (เลือกได้หลายตัว)</div>
-      <div class="var-list" id="varList"></div>
-      <button class="btn btn-p" style="margin-top:14px;" onclick="confirmVarPick()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        เพิ่มลงตะกร้า
-      </button>
-    </div>
-  </div>
-</div>
+<!-- varSheet removed: product selection is now inline flat list -->
 
 <!-- EXPORT REPORT SHEET -->
 <div class="overlay" id="reportSheet" onclick="closeBg(event,'reportSheet')">

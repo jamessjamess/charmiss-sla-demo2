@@ -1027,3 +1027,212 @@ textarea.fctl{resize:none;}
 /* ═══ ROLE MANAGEMENT — Table rows ═══ */
 .rm-row { border-bottom: 1px solid var(--border); transition: background .12s; }
 .rm-row:hover { background: var(--pink-ll); }
+
+/* ═══ FLAT PRODUCT LIST ═══ */
+.pfl-product {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.pfl-prod-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+  background: var(--surface);
+  user-select: none;
+  transition: background 0.15s;
+}
+.pfl-prod-hd:hover { background: var(--pink-ll); }
+.pfl-em { font-size: 20px; flex-shrink: 0; }
+.pfl-arrow { transition: transform 0.2s; }
+.pfl-skus { padding: 0 8px 8px; }
+.pfl-sku {
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  background: var(--bg);
+  transition: background 0.15s, border-color 0.15s;
+}
+.pfl-price-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+.pfl-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid var(--border);
+}
+.pfl-free-wrap { margin-top: 4px; }
+
+/* Customer table wider */
+.ctable th:nth-child(3),
+.ctable th:nth-child(4),
+.ctable th:nth-child(5) { font-size: 9px; }
+.ctable { table-layout: auto; }
+
+/* ═══════════════════════════════════════════
+   PRODUCT SPREADSHEET TABLE (psheet)
+   ═══════════════════════════════════════════ */
+.psheet-wrap {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+}
+.psheet {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 11px;
+  min-width: 720px;
+  /* border handled by .psheet-wrap */
+}
+.psheet thead tr {
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.psheet thead th {
+  padding: 7px 8px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text2);
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+}
+.psheet thead th:last-child { border-right: none; }
+.psheet tbody tr { border-bottom: 1px solid var(--border); }
+.psheet tbody tr:last-child { border-bottom: none; }
+.psheet tbody td {
+  padding: 6px 8px;
+  vertical-align: middle;
+  border-right: 1px solid var(--border);
+}
+.psheet tbody td:last-child { border-right: none; }
+
+/* Product group header row */
+.psh-prod-hdr td {
+  background: linear-gradient(90deg, var(--pink-ll) 0%, var(--surface) 100%);
+  padding: 6px 10px !important;
+  border-right: none !important;
+}
+.psh-em { font-size: 14px; margin-right: 6px; }
+.psh-pname { font-size: 11px; font-weight: 800; color: var(--text); margin-right: 6px; }
+.psh-cat {
+  font-size: 9px; font-weight: 700;
+  background: var(--pink-ll); color: var(--pink-d);
+  border-radius: 4px; padding: 1px 6px;
+  margin-right: 6px;
+}
+.psh-cart-badge {
+  font-size: 9px; font-weight: 800;
+  background: var(--pink); color: #fff;
+  border-radius: 8px; padding: 2px 7px;
+}
+
+/* Column widths */
+.psh-code  { width: 70px;  min-width: 60px; }
+.psh-bc    { width: 110px; min-width: 90px; }
+.psh-name  { min-width: 120px; }
+.psh-stock { width: 100px; min-width: 90px; }
+.psh-tier  { min-width: 180px; }
+.psh-qty   { width: 90px;  min-width: 80px; text-align: center; }
+.psh-note  { min-width: 110px; }
+.psh-free  { min-width: 100px; }
+
+/* pfl-* classes removed — replaced by psheet */
+
+/* ═══ FROZEN COLUMNS (sticky) ═══ */
+.psheet { position: relative; }
+
+/* Freeze col 1: Code */
+.psheet th.psh-code,
+.psheet td.psh-code {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #fff;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.08);
+}
+.psheet thead th.psh-code {
+  z-index: 4;
+  background: #fce7f3;
+}
+/* Freeze col 2: Barcode */
+.psheet th.psh-bc,
+.psheet td.psh-bc {
+  position: sticky;
+  left: 70px;
+  z-index: 3;
+  background: #fff;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+}
+.psheet thead th.psh-bc {
+  z-index: 4;
+  background: #fce7f3;
+}
+/* Freeze col 3: Name */
+.psheet th.psh-name,
+.psheet td.psh-name {
+  position: sticky;
+  left: 180px;
+  z-index: 3;
+  background: #fff;
+  box-shadow: 3px 0 8px rgba(0,0,0,0.08);
+}
+.psheet thead th.psh-name {
+  z-index: 4;
+  background: #fce7f3;
+}
+/* Active (in-cart) rows — keep frozen bg consistent */
+.psheet tr[style*="background:var(--pink-l)"] td.psh-code,
+.psheet tr[style*="background:var(--pink-l)"] td.psh-bc,
+.psheet tr[style*="background:var(--pink-l)"] td.psh-name {
+  background: #fce7f3 !important;
+}
+
+/* ═══ SO FILTER CHIPS ═══ */
+#soFilterChips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:6px; }
+#soFilterChips .chip { font-size:11px; white-space:nowrap; }
+#soFilterChips .so-chip-pending.active {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #f59e0b !important;
+  font-weight: 800;
+}
+#soFilterChips .so-chip-done.active {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #059669 !important;
+  font-weight: 800;
+}
+
+/* ═══ Free/Tester unified inputs ═══ */
+.psh-free input[data-action="setfreetype"] {
+  transition: border-color .15s, background .15s, color .15s;
+}
+.psh-free input[data-action="setfreetype"]:focus {
+  outline: none;
+  border-color: #059669 !important;
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+}
+
+/* ═══ psh-total column ═══ */
+.psh-total { width: 80px; min-width: 70px; }

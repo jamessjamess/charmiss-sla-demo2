@@ -15,25 +15,176 @@ var STOCK_LOADING = false;
 // Mock stock data (simulates Google Sheets response)
 // Structure: allocated=ยอดที่ใช้ไปแล้ว, personalQuota=Quota ของ Sales คนนี้, poolQuota=Quota รวม TT ที่ยืมกันได้
 const MOCK_STOCK = {
-  'g_brookie_01 Dark Chocolate':   {allocated:45, personalQuota:80,  poolQuota:200},
-  'g_brookie_02 Brown Sugar':       {allocated:20, personalQuota:50,  poolQuota:150},
-  'g_brookie_04 Maple Syrup':       {allocated:60, personalQuota:60,  poolQuota:180},
-  'g_stylishbrow_01 Dark Brown':    {allocated:15, personalQuota:40,  poolQuota:120},
-  'g_stylishbrow_02 Natural Brown': {allocated:38, personalQuota:40,  poolQuota:120},
-  'g_blush_01 Best Friend':         {allocated:22, personalQuota:60,  poolQuota:160},
-  'g_blush_02 Sugar And Boo':       {allocated:55, personalQuota:60,  poolQuota:160},
-  'g_blush_03 Spoil Me':            {allocated:8,  personalQuota:30,  poolQuota:90},
-  'g_blush_04 Crush Blush':         {allocated:0,  personalQuota:30,  poolQuota:90},
-  'g_blush_05 Rosy Cheeks':         {allocated:30, personalQuota:30,  poolQuota:90},
-  'g_blush_06 Kiss Me More':        {allocated:12, personalQuota:50,  poolQuota:140},
-  'g_milkyblush_01 Milky Way':      {allocated:5,  personalQuota:20,  poolQuota:60},
-  'g_glittergloss_01 Rose Gold':    {allocated:18, personalQuota:40,  poolQuota:110},
-  'g_airykiss_01 Cherry Blossom':   {allocated:25, personalQuota:50,  poolQuota:140},
-  'g_airykiss_02 Berry':            {allocated:45, personalQuota:50,  poolQuota:140},
-  'g_tattoo_01 Red':                {allocated:10, personalQuota:30,  poolQuota:90},
-  'g_lipbalm_01 Cherry':            {allocated:33, personalQuota:60,  poolQuota:160},
-  'g_mascarabrow_One Size':         {allocated:7,  personalQuota:25,  poolQuota:70},
+  "g_charmiss_brow_high_lifting_l_One Size": {allocated:40, personalQuota:30, poolQuota:90},
+  "g_charmiss_brookie_brow_slim_p_01 DARK CHOCOLATE": {allocated:47, personalQuota:50, poolQuota:150},
+  "g_charmiss_brookie_brow_slim_p_02 BROWN SUGAR": {allocated:14, personalQuota:40, poolQuota:200},
+  "g_charmiss_brookie_brow_slim_p_04 MAPLE SYRUB": {allocated:6, personalQuota:80, poolQuota:240},
+  "g_charmiss_stylish_brow_auto_p_01 Dark Brown": {allocated:37, personalQuota:60, poolQuota:180},
+  "g_charmiss_stylish_brow_auto_p_02 Natural Brown": {allocated:1, personalQuota:30, poolQuota:90},
+  "g_charmiss_glowfriend_natural__01 BEST FRIEND": {allocated:14, personalQuota:80, poolQuota:400},
+  "g_charmiss_glowfriend_natural__02 SUGAR AND BOO": {allocated:1, personalQuota:80, poolQuota:240},
+  "g_charmiss_glowfriend_natural__03 Spoil Me": {allocated:45, personalQuota:80, poolQuota:320},
+  "g_charmiss_glowfriend_natural__04 Crush Blush": {allocated:14, personalQuota:60, poolQuota:300},
+  "g_charmiss_show_me_your_love_g_GL01 Crush On You": {allocated:17, personalQuota:30, poolQuota:90},
+  "g_charmiss_show_me_your_love_g_GL02 Be My Baby": {allocated:44, personalQuota:60, poolQuota:240},
+  "g_charmiss_show_me_your_love_g_GL03 Make You Mine": {allocated:17, personalQuota:40, poolQuota:120},
+  "g_charmiss_show_me_your_love_g_GL01 Crush On You (7-11)": {allocated:48, personalQuota:50, poolQuota:150},
+  "g_charmiss_show_me_your_charm__01 Crazy On Me": {allocated:5, personalQuota:60, poolQuota:180},
+  "g_charmiss_show_me_your_charm__02 Adore Me": {allocated:22, personalQuota:50, poolQuota:250},
+  "g_charmiss_show_me_your_charm__03 Play With Me": {allocated:16, personalQuota:30, poolQuota:150},
+  "g_charmiss_show_me_your_charm__04 Dance With Me": {allocated:29, personalQuota:80, poolQuota:240},
+  "g_charmiss_show_me_your_charm__01 Chic Rouge": {allocated:24, personalQuota:30, poolQuota:150},
+  "g_charmiss_show_me_your_charm__02 Naughty Pink": {allocated:18, personalQuota:80, poolQuota:320},
+  "g_charmiss_show_me_your_charm__03 Jolly Tangerine": {allocated:36, personalQuota:40, poolQuota:200},
+  "g_charmiss_glowlogram_eyeshado_01 Sweet Moments": {allocated:4, personalQuota:30, poolQuota:150},
+  "g_charmiss_glowlogram_eyeshado_02 Peach Energy": {allocated:14, personalQuota:50, poolQuota:150},
+  "g_charmiss_glowlogram_eyeshado_03 Warm On A Cold Night": {allocated:14, personalQuota:30, poolQuota:120},
+  "g_charmiss_glowlogram_eyeshado_04 Shiny Apricot (แพคเกจ7-11)": {allocated:17, personalQuota:60, poolQuota:300},
+  "g_charmiss_airy_glow_everyday__01 Ivory (เก่า)": {allocated:23, personalQuota:40, poolQuota:160},
+  "g_charmiss_airy_glow_everyday__02 Natural Beige (เก่า)": {allocated:22, personalQuota:40, poolQuota:200},
+  "g_charmiss_airy_glow_everyday__03 Honey Beige (เก่า)": {allocated:17, personalQuota:30, poolQuota:150},
+  "g_charmiss_good_mood_extra_shi_01 Pink Lemonade": {allocated:40, personalQuota:40, poolQuota:200},
+  "g_charmiss_good_mood_extra_shi_02 Orange Marmalade": {allocated:46, personalQuota:40, poolQuota:120},
+  "g_charmiss_good_mood_extra_shi_03 Cherry Margarita": {allocated:29, personalQuota:60, poolQuota:240},
+  "g_charmiss_good_mood_extra_shi_04 Chocolate Milk Tea": {allocated:40, personalQuota:80, poolQuota:240},
+  "g_charmiss_show_me_your_love_j_01 ROSY DROP": {allocated:43, personalQuota:50, poolQuota:150},
+  "g_charmiss_show_me_your_love_j_02 BRIGHT & GLOW DROP": {allocated:14, personalQuota:30, poolQuota:120},
+  "g_charmiss_show_me_your_love_j_03 AQUA DROP": {allocated:25, personalQuota:50, poolQuota:150},
+  "g_charmiss_show_me_your_love_j_03 AQUA DROP (7-11)": {allocated:13, personalQuota:80, poolQuota:400},
+  "g_charmiss_charming_glow_airy__01 Ivory": {allocated:20, personalQuota:40, poolQuota:200},
+  "g_charmiss_charming_glow_airy__02 Natural Beige": {allocated:31, personalQuota:60, poolQuota:300},
+  "g_charmiss_charming_glow_airy__03 Honey Beige": {allocated:29, personalQuota:40, poolQuota:160},
+  "g_charmiss_charming_glow_airy__01 Ivory (Refill)": {allocated:8, personalQuota:40, poolQuota:200},
+  "g_charmiss_charming_glow_longw_01 Ivory": {allocated:35, personalQuota:80, poolQuota:320},
+  "g_charmiss_charming_glow_longw_02 Light Beige": {allocated:47, personalQuota:80, poolQuota:320},
+  "g_charmiss_charming_glow_longw_03 Medium Beige": {allocated:37, personalQuota:60, poolQuota:240},
+  "g_charmiss_charming_glow_longw_04 Honey Beige": {allocated:14, personalQuota:40, poolQuota:200},
+  "g_charmiss_charming_glow_setti_One Size": {allocated:31, personalQuota:30, poolQuota:90},
+  "g_charmiss_charming_glow_powde_One Size": {allocated:7, personalQuota:40, poolQuota:200},
+  "g_charmiss_juicy_glowy_tint_01 Cherry On Top": {allocated:10, personalQuota:60, poolQuota:300},
+  "g_charmiss_juicy_glowy_tint_02 Cranberry Syrup": {allocated:4, personalQuota:60, poolQuota:240},
+  "g_charmiss_juicy_glowy_tint_03 Sweet Jelly": {allocated:38, personalQuota:60, poolQuota:300},
+  "g_charmiss_juicy_glowy_tint_04 Pink Pomelo": {allocated:16, personalQuota:80, poolQuota:240},
+  "g_charmiss_the_milky_way_marbl_01 LUNAR ECLIPSE": {allocated:43, personalQuota:30, poolQuota:150},
+  "g_charmiss_the_milky_way_marbl_02 JUPITER": {allocated:34, personalQuota:50, poolQuota:250},
+  "g_charmiss_the_milky_way_marbl_03 SHOOTING STAR": {allocated:21, personalQuota:30, poolQuota:120},
+  "g_charmiss_the_universe_plumpi_One Size": {allocated:27, personalQuota:40, poolQuota:160},
+  "g_charmiss_the_milky_way_marbl_01 MORNING STAR": {allocated:0, personalQuota:50, poolQuota:250},
+  "g_charmiss_the_milky_way_marbl_02 STRAWBERRY MOON": {allocated:48, personalQuota:40, poolQuota:200},
+  "g_charmiss_the_milky_way_marbl_03 NEBULA": {allocated:6, personalQuota:50, poolQuota:250},
+  "g_charmiss_the_milky_way_marbl_04 SUPERNOVA": {allocated:32, personalQuota:80, poolQuota:240},
+  "g_charmiss_endless_kiss_liquid_01 Puppy Love": {allocated:9, personalQuota:50, poolQuota:150},
+  "g_charmiss_endless_kiss_liquid_02 Romantic love": {allocated:34, personalQuota:80, poolQuota:240},
+  "g_charmiss_endless_kiss_liquid_03 True Love": {allocated:38, personalQuota:50, poolQuota:200},
+  "g_endless_kiss_liquid_matte_04 Cherry Rush": {allocated:1, personalQuota:30, poolQuota:120},
+  "g_endless_kiss_liquid_matte_05 Burnt Sugar": {allocated:19, personalQuota:40, poolQuota:120},
+  "g_endless_kiss_liquid_matte_06 Velvet Rosewood": {allocated:15, personalQuota:80, poolQuota:240},
+  "g_charmiss_stylish_matte_eyeli_One Size": {allocated:5, personalQuota:60, poolQuota:180},
+  "g_charmiss_crystal_cube_ph_cha_One Size": {allocated:48, personalQuota:80, poolQuota:240},
+  "g_charmiss_crystal_cube_ph_cha_One Size": {allocated:8, personalQuota:60, poolQuota:300},
+  "g_charmiss_uv_extra_shine_crys_One Size": {allocated:10, personalQuota:50, poolQuota:250},
+  "g_charmiss_uv_extra_shine_crys_One Size": {allocated:38, personalQuota:60, poolQuota:180},
+  "g_charmiss_uv_extra_shine_crys_One Size": {allocated:34, personalQuota:40, poolQuota:200},
+  "g_charmiss_mellow_shining_balm_01 GIRL BOSS": {allocated:19, personalQuota:60, poolQuota:300},
+  "g_charmiss_mellow_shining_balm_02 NEW GEN": {allocated:41, personalQuota:50, poolQuota:200},
+  "g_charmiss_mellow_shining_balm_03 INTERN": {allocated:33, personalQuota:60, poolQuota:180},
+  "g_charmiss_mellow_shining_balm_04 INSPIRING": {allocated:15, personalQuota:40, poolQuota:120},
+  "g_charmiss_matte_all_day_acne__01 IVORY": {allocated:21, personalQuota:30, poolQuota:150},
+  "g_charmiss_matte_all_day_acne__02 NATURAL BEIGE": {allocated:35, personalQuota:40, poolQuota:200},
+  "g_charmiss_matte_all_day_acne__03 HONEY BEIGE": {allocated:14, personalQuota:30, poolQuota:90},
+  "g_charmiss_matte_all_day_acne__01 Ivory 5g": {allocated:45, personalQuota:30, poolQuota:90},
+  "g_charmiss_show_me_your_love_i_GL04 CRYSTAL HEART": {allocated:4, personalQuota:30, poolQuota:120},
+  "g_charmiss_show_me_your_love_i_GL05 FAIRY DUST": {allocated:4, personalQuota:80, poolQuota:240},
+  "g_charmiss_show_me_your_love_i_GL06 STARRY SKY": {allocated:17, personalQuota:60, poolQuota:180},
+  "g_charmiss_show_me_your_love_i_GL07 PINKY TWINKLE": {allocated:34, personalQuota:40, poolQuota:200},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:36, personalQuota:80, poolQuota:320},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:15, personalQuota:60, poolQuota:240},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:12, personalQuota:30, poolQuota:90},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:42, personalQuota:60, poolQuota:240},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:27, personalQuota:60, poolQuota:240},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:46, personalQuota:30, poolQuota:150},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:41, personalQuota:30, poolQuota:90},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:25, personalQuota:50, poolQuota:150},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:15, personalQuota:40, poolQuota:120},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:34, personalQuota:60, poolQuota:180},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:27, personalQuota:40, poolQuota:160},
+  "g_charmiss_glowfriend_mochi_bl_One Size": {allocated:29, personalQuota:40, poolQuota:120},
+  "g_charmiss_jelly_joy_01 Soda Pop สีชมพู Cool Tone": {allocated:28, personalQuota:80, poolQuota:240},
+  "g_charmiss_jelly_joy_02 Sugar On Me #ไฮไลท์เนื้อเจลลี่": {allocated:3, personalQuota:80, poolQuota:240},
+  "g_charmiss_jelly_joy_03 Chewy Cherry สีแดงเชอร์รี่": {allocated:5, personalQuota:40, poolQuota:120},
+  "g_charmiss_jelly_joy_04 Eve & Joy สีชมพูช็อกกี้พิงค์": {allocated:26, personalQuota:60, poolQuota:240},
+  "g_charmiss_you_make_me_blush_l_01 FIRST DATE": {allocated:13, personalQuota:60, poolQuota:180},
+  "g_charmiss_you_make_me_blush_l_02 FANCY YOU": {allocated:10, personalQuota:60, poolQuota:180},
+  "g_charmiss_you_make_me_blush_l_03 FALL YOU": {allocated:24, personalQuota:50, poolQuota:200},
+  "g_charmiss_you_make_me_blush_l_04 FAITH LOVE": {allocated:18, personalQuota:60, poolQuota:300},
+  "g_charmiss_everything_nice_gli_01 Ice Sore": {allocated:46, personalQuota:80, poolQuota:400},
+  "g_charmiss_everything_nice_gli_02 Best Friends": {allocated:45, personalQuota:60, poolQuota:180},
+  "g_charmiss_everything_nice_gli_03 Sweet 'N Sour": {allocated:12, personalQuota:50, poolQuota:150},
+  "g_charmiss_everything_nice_gli_01 Ice Sore (GRADE B)": {allocated:3, personalQuota:80, poolQuota:400},
+  "g_charmiss_everything_nice_air_01 Vanquish Evil": {allocated:34, personalQuota:30, poolQuota:150},
+  "g_charmiss_everything_nice_air_02 Saving The Day": {allocated:20, personalQuota:30, poolQuota:90},
+  "g_charmiss_everything_nice_air_03 Girl Power": {allocated:37, personalQuota:60, poolQuota:300},
+  "g_charmiss_everything_nice_mat_01 Ivory": {allocated:33, personalQuota:40, poolQuota:120},
+  "g_charmiss_everything_nice_mat_02 Natural Beige": {allocated:32, personalQuota:30, poolQuota:90},
+  "g_charmiss_everything_nice_mat_03 Honey Beige": {allocated:4, personalQuota:80, poolQuota:240},
+  "g_charmiss_everything_nice_moc_01 Sugar": {allocated:43, personalQuota:40, poolQuota:160},
+  "g_charmiss_everything_nice_moc_02 Spice": {allocated:7, personalQuota:80, poolQuota:240},
+  "g_charmiss_everything_nice_moc_03 Everything Nice": {allocated:37, personalQuota:80, poolQuota:240},
+  "g_charmiss_everything_nice_eye_01 Girls Gone Mild": {allocated:39, personalQuota:30, poolQuota:120},
+  "g_charmiss_everything_nice_eye_02 Dream Scheme": {allocated:42, personalQuota:80, poolQuota:400},
+  "g_charmiss_everything_nice_eye_03 Just Desserts": {allocated:33, personalQuota:50, poolQuota:200},
+  "g_charmiss_perfect_heart_everl_00 FAIR": {allocated:13, personalQuota:50, poolQuota:150},
+  "g_charmiss_perfect_heart_everl_01 Ivory": {allocated:16, personalQuota:60, poolQuota:180},
+  "g_charmiss_perfect_heart_everl_02 Natural Beige": {allocated:42, personalQuota:50, poolQuota:200},
+  "g_charmiss_perfect_heart_everl_03 Honey Beige": {allocated:20, personalQuota:30, poolQuota:90},
+  "g_charmiss_jewel_jelly_crystal_01 PINK DIAMOND": {allocated:29, personalQuota:80, poolQuota:400},
+  "g_charmiss_jewel_jelly_crystal_02 SILVER MOON": {allocated:6, personalQuota:30, poolQuota:150},
+  "g_charmiss_jewel_jelly_crystal_03 GOLD CRUSH": {allocated:13, personalQuota:80, poolQuota:320},
+  "g_charmiss_juicy_pop_tint_01 Pink Lady": {allocated:8, personalQuota:50, poolQuota:150},
+  "g_charmiss_juicy_pop_tint_02 Milky Raspberry": {allocated:15, personalQuota:50, poolQuota:200},
+  "g_charmiss_juicy_pop_tint_03 Dragon Bloom": {allocated:10, personalQuota:60, poolQuota:300},
+  "g_charmiss_juicy_pop_tint_04 Grape Bliss": {allocated:45, personalQuota:50, poolQuota:250},
+  "g_charm_on_glassy_stick_01 PINK ME UP": {allocated:41, personalQuota:80, poolQuota:240},
+  "g_charm_on_glassy_stick_03 DEWY POMELO": {allocated:42, personalQuota:80, poolQuota:320},
+  "g_charm_on_glassy_stick_04 SUGAR LILAC": {allocated:42, personalQuota:30, poolQuota:90},
+  "g_charmiss_charm_on_glassy_sti_02 MOONBERRY": {allocated:16, personalQuota:30, poolQuota:90},
+  "g_charm_on_matte_stick_05 MWAH PINK": {allocated:47, personalQuota:80, poolQuota:240},
+  "g_charm_on_matte_stick_06 CHARMING ROSETTE": {allocated:17, personalQuota:50, poolQuota:250},
+  "g_charm_on_matte_stick_07 FOG MOCHA": {allocated:13, personalQuota:50, poolQuota:150},
+  "g_charm_on_matte_stick_08 TOASTY TEDDY": {allocated:43, personalQuota:50, poolQuota:250},
+  "g_charmiss_hyacherry_oil_contr_One Size": {allocated:31, personalQuota:50, poolQuota:150},
+  "g_charmiss_everything_nice_moc_01 SUGAR (GRADE B)": {allocated:5, personalQuota:60, poolQuota:240},
+  "g_charmiss_everything_nice_moc_02 SPICE (GRADE B)": {allocated:2, personalQuota:30, poolQuota:120},
+  "g_charmiss_everything_nice_moc_03 EVERYTHING NICE (GRADE B)": {allocated:49, personalQuota:40, poolQuota:200},
+  "g_charmiss_blooming_heart_soft_01 IVORY": {allocated:16, personalQuota:40, poolQuota:200},
+  "g_charmiss_blooming_heart_soft_02 NATURAL BEIGE": {allocated:28, personalQuota:80, poolQuota:400},
+  "g_charmiss_blooming_heart_glit_01 ROSIE": {allocated:27, personalQuota:80, poolQuota:240},
+  "g_charmiss_blooming_heart_glit_02 LILAC": {allocated:7, personalQuota:30, poolQuota:150},
+  "g_charmiss_blooming_heart_tint_01 Cherry Blossom": {allocated:9, personalQuota:80, poolQuota:240},
+  "g_charmiss_blooming_heart_tint_02 Peach Bunny": {allocated:23, personalQuota:80, poolQuota:400},
+  "g_charmiss_blooming_heart_tint_03 Plum Pixie": {allocated:9, personalQuota:60, poolQuota:180},
+  "g_charmiss_blooming_heart_tint_04 Bad Babe Berry": {allocated:2, personalQuota:50, poolQuota:200},
+  "g_charmiss_blooming_heart_shin_One Size": {allocated:50, personalQuota:30, poolQuota:120},
+  "g_charmiss_blooming_heart_shin_One Size": {allocated:13, personalQuota:40, poolQuota:200},
+  "g_charmiss_blooming_heart_loos_01 Pink Petal": {allocated:6, personalQuota:50, poolQuota:250},
+  "g_charmiss_blooming_heart_loos_02 Lilac Lock": {allocated:26, personalQuota:80, poolQuota:400},
+  "g_charmiss_blooming_heart_char_01 COTTON CANDY": {allocated:9, personalQuota:40, poolQuota:120},
+  "g_charmiss_blooming_heart_char_02 MIDNIGHT MOCHA": {allocated:11, personalQuota:60, poolQuota:180},
+  "g_charmiss_acne_balance_toner__One Size": {allocated:11, personalQuota:50, poolQuota:200},
+  "g_charmiss_acne_balance_cleans_One Size": {allocated:42, personalQuota:40, poolQuota:160},
+  "g_charmiss_perfect_heart_matte_One Size": {allocated:10, personalQuota:30, poolQuota:120},
+  "g_charmiss_my_melody_box_set_One Size": {allocated:2, personalQuota:60, poolQuota:180},
+  "g_charmiss_kuromi_box_set_One Size": {allocated:12, personalQuota:60, poolQuota:240},
+  "g_charmiss_snow_collection_tin_01 COZY PINK": {allocated:19, personalQuota:40, poolQuota:120},
+  "g_charmiss_snow_collection_tin_02 CRYSTAL FLAKE": {allocated:1, personalQuota:40, poolQuota:160},
+  "g_charmiss_airy_kiss_tint_matt_01 ROSE MERINGUE": {allocated:21, personalQuota:50, poolQuota:150},
+  "g_charmiss_airy_kiss_tint_matt_02 CHERRY ON TOP": {allocated:49, personalQuota:50, poolQuota:200},
+  "g_charmiss_airy_kiss_tint_matt_03 TANGERINE CRUSH": {allocated:41, personalQuota:80, poolQuota:320},
+  "g_charmiss_airy_kiss_tint_matt_04 STRAWBERRY KISS": {allocated:43, personalQuota:80, poolQuota:320},
 };
+
+
+
 
 function getStockKey(pid, varLabel){ return pid+'_'+varLabel; }
 function getStock(pid, varLabel){
@@ -54,27 +205,34 @@ function getPoolRemaining(pid, varLabel, qtyInCart){
 async function loadAllocatedStock(){
   if(STOCK_LOADING) return;
   STOCK_LOADING=true;
-  const btn=document.getElementById('loadStockBtn');
-  if(btn){btn.textContent='⏳ กำลังโหลด...';btn.disabled=true;}
-  // Simulate async fetch from Google Sheets (1.5s delay)
-  await new Promise(r=>setTimeout(r,1500));
-  // In production: fetch from Google Sheets API
-  // const resp = await fetch('https://sheets.googleapis.com/v4/spreadsheets/SHEET_ID/values/Stock!A:D?key=API_KEY');
-  STOCK_DATA = {...MOCK_STOCK};
-  STOCK_LOADED = true;
-  STOCK_LOADING = false;
-  if(btn){btn.textContent='🔄 Reload Stock';btn.disabled=false;}
+  var btn=document.getElementById('loadStockBtn');
+  if(btn){btn.innerHTML='⏳ กำลังโหลด...';btn.disabled=true;}
+  await new Promise(function(r){setTimeout(r,800);});
+  STOCK_DATA={};
+  Object.keys(MOCK_STOCK).forEach(function(k){STOCK_DATA[k]=MOCK_STOCK[k];});
+  STOCK_LOADED=true;
+  STOCK_LOADING=false;
+  if(btn){btn.innerHTML='🔄 Reload Stock';btn.disabled=false;}
   renderPgrid();
-  if(S.varPid) renderVarList(PRODUCTS.find(x=>x.id===S.varPid));
-  showToast('✅ โหลด Allocated Stock สำเร็จ — ข้อมูลล่าสุด '+new Date().toLocaleTimeString('th-TH'));
+  showToast('✅ โหลด Allocated Stock สำเร็จ (Mock Data) — '+new Date().toLocaleTimeString('th-TH'));
 }
 
 // ═══ STATE ═══
+// Debounce helper — prevents rapid re-renders
+function _debounce(fn, ms){
+  var t; return function(){ clearTimeout(t); t=setTimeout(fn, ms); };
+}
+var renderPgridDebounced;  // assigned after renderPgrid is defined
+
 let S = {
   cat:'ทั้งหมด', cart:[], orders:[], selCust:null,
-  dateFilter:'all', statusFilter:'all',
+  dateFilter:'all', statusFilter:'all', soFilter:'no_so',
   varPid:null, varModes:{}, varSelections:{},
   varSpecialPrice:{}, varSpecialReason:{},
+  varSkuNotes:{},         // หมายเหตุต่อ SKU
+  varFreeItems:{},        // ของแถม/Tester per SKU: {varLabel: [{type:'tester'|'free',qty:N}]}
+  billDiscount2pct:false, // ส่วนลดท้ายบิล 2%
+  orderAttachments:[],    // ไฟล์แนบ Order
   lastOrderRef:null,
 };
 
@@ -155,6 +313,17 @@ S.orders = [
     timestamp: new Date(Date.now()-12*24*3600000).toISOString(),
   },
   {
+    ref:'ORD-260226-008', status:'approved', soNumber:'SO260300208',
+    soRef:'SO260300208', stRef:'ST260300082',
+    custId:'687', custName:'เอ็นเอ็น บิวตี้', sales:'สิริกาญจน์',
+    items:[
+      {pid:'g_charmiss_glowfriend_natural_',name:'Charmiss Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'03 Spoil Me',trCode:'16030',barcode:'8857127482231',qty:12,mode:'wholesale',dp:60,wp:67,p50:null,p6:null,unitPrice:67,specialReason:'',isMismatch:false,skuNote:'',freeItems:[{type:'free',qty:2}]},
+      {pid:'g_charmiss_show_me_your_charm_',name:'Show Me Your Charm Airy Kiss Tint',emoji:'💋',cat:'Lip',variant:'01 Crazy On Me',trCode:'33110',barcode:'8857127482293',qty:6,mode:'dealer',dp:60,wp:67,p50:null,p6:null,unitPrice:60,specialReason:'ลูกค้า VIP',isMismatch:true,skuNote:'ลูกค้า VIP พิเศษ',freeItems:[]},
+    ],
+    total:12*67+6*60, note:'ส่งก่อนสิ้นเดือน',
+    timestamp: new Date(Date.now()-14*24*3600000).toISOString(),
+  },
+  {
     ref:'DFT-260312-001', status:'draft',
     custId:'3063', custName:'OR NAI SEA', sales:'ฝนเทพ',
     items:[
@@ -167,8 +336,11 @@ S.orders = [
 
 // ═══ INIT ═══
 (function(){
-  buildCats(); renderPgrid(); renderCusts();
-  const pCountEl = document.getElementById('pCount');
+  buildCats(); renderPgrid(); renderCusts(); renderCustInfo();
+  renderPgridDebounced = _debounce(renderPgrid, 120);
+  // Default: show orders without SO
+  S.soFilter='no_so';
+  var pCountEl = document.getElementById('pCount');
   if(pCountEl) pCountEl.textContent = PRODUCTS.length + ' รายการ';
   orderUpdateBadge();
   renderOrds();
@@ -180,34 +352,128 @@ function orderUpdateBadge(){
 
 // ═══ CUSTOMERS ═══
 function renderCusts(){
-  const q=document.getElementById('cSearch').value.toLowerCase().trim();
+  var q=document.getElementById('cSearch').value.toLowerCase().trim();
   document.getElementById('cClr').classList.toggle('show',q.length>0);
-  const list=CUSTOMERS.filter(c=>!q||c.name.toLowerCase().includes(q)||c.id.includes(q));
-  const tbody=document.getElementById('custListBody');
-  tbody.innerHTML=list.length
-    ?list.map(c=>{
-      const typeColor=c.type==='Dealer'?'background:var(--pink-ll);color:#2d5e9a;':'background:var(--success-bg);color:#2d7a56;';
-      return `<tr class="${S.selCust&&S.selCust.id===c.id?'selected':''}" onclick="selectCust('${c.id}')">
-        <td class="ct-id">#${c.id}</td>
-        <td class="ct-name">${c.name}</td>
-        <td class="ct-sales"><span style="display:inline-block;padding:2px 7px;border-radius:8px;font-size:9px;font-weight:800;${typeColor}">${c.type||'—'}</span></td></tr>`;
-    }).join('')+'<tr onclick="selectCustomOther()" style="cursor:pointer;border-top:1px solid var(--border);"><td class="ct-id" style="color:var(--pink);font-weight:800;">+</td><td class="ct-name" style="color:var(--pink);font-weight:700;">ไม่มีในรายการ / ร้านค้าใหม่</td><td></td></tr>'
-    :'<tr><td colspan="3" style="padding:14px;text-align:center;color:var(--text3);font-size:13px;">ไม่พบลูกค้า</td></tr>'
-    +'<tr onclick="selectCustomOther()" style="cursor:pointer;background:var(--pink-ll);"><td class="ct-id">+</td><td class="ct-name" style="color:var(--pink);font-weight:700;">+ เพิ่มร้านค้าที่ไม่มีในรายการ</td><td></td></tr>';
-  // custInfo cleared
+  var list=CUSTOMERS.filter(function(c){
+    return !q||c.name.toLowerCase().includes(q)||(c.id+'').includes(q)||(c.sales||'').toLowerCase().includes(q);
+  });
+  var tbody=document.getElementById('custListBody');
+  var shopTypeColor=function(t){
+    if(!t) return 'background:#f3f4f6;color:#6b7280;';
+    if(t.includes('Wholesale')) return 'background:#dbeafe;color:#1d4ed8;';
+    return 'background:#fce7f3;color:#be185d;';
+  };
+  var priceColor=function(p){
+    if(p==='Dealer') return 'background:var(--pink-ll);color:#9d174d;';
+    if(p==='Wholesale') return 'background:#d1fae5;color:#065f46;';
+    if(p==='Export') return 'background:#e0e7ff;color:#3730a3;';
+    if(p==='Clearance') return 'background:#fef3c7;color:#92400e;';
+    return 'background:#f3f4f6;color:#374151;';
+  };
+  var creditColor=function(cr){
+    if(!cr) return 'color:var(--text3)';
+    if(cr.includes('2%')) return 'color:#b45309;font-weight:700;';
+    if(cr.includes('30')) return 'color:#7c3aed;';
+    if(cr.includes('โอนก่อน')) return 'color:#dc2626;font-weight:700;';
+    return 'color:var(--text2);';
+  };
+  // Use data-custid attribute — NO onclick string interpolation
+  var rows=list.map(function(c){
+    var sel=S.selCust&&S.selCust.id===c.id;
+    var stLabel=(c.shopType||'').replace('Wholesale - ','WS-').replace('Retail - ','RT-')||'—';
+    return '<tr data-custid="'+c.id+'" class="cust-row'+(sel?' selected':'')+'" style="cursor:pointer;">'
+      +'<td class="ct-id">'+c.id+'</td>'
+      +'<td class="ct-name" style="font-weight:'+(sel?'700':'500')+';">'+c.name+'</td>'
+      +'<td style="font-size:9px;padding:4px 6px;"><span style="display:inline-block;padding:2px 6px;border-radius:6px;font-weight:700;white-space:nowrap;'+shopTypeColor(c.shopType)+'">'+stLabel+'</span></td>'
+      +'<td style="font-size:9px;padding:4px 6px;"><span style="display:inline-block;padding:2px 6px;border-radius:6px;font-weight:700;white-space:nowrap;'+priceColor(c.priceType)+'">'+( c.priceType||'—')+'</span></td>'
+      +'<td style="font-size:9px;padding:4px 6px;white-space:nowrap;'+creditColor(c.creditTerm)+'">'+( c.creditTerm||'—')+'</td>'
+      +'</tr>';
+  }).join('');
+  var addRow='<tr data-custid="__other__" class="cust-row" style="cursor:pointer;background:var(--pink-ll);">'
+    +'<td style="color:var(--pink);font-weight:800;padding:6px 8px;">+</td>'
+    +'<td style="color:var(--pink);font-weight:700;font-size:12px;" colspan="4">+ เพิ่มร้านค้าที่ไม่มีในรายการ</td>'
+    +'</tr>';
+  tbody.innerHTML = rows
+    ? rows+addRow
+    : '<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--text3);font-size:13px;">ไม่พบลูกค้า</td></tr>'+addRow;
+  renderCustInfo();
+  // Attach click handlers via event delegation on tbody (avoids all quote issues)
+  tbody.onclick=function(e){
+    var tr=e.target.closest('tr[data-custid]');
+    if(!tr) return;
+    var cid=tr.getAttribute('data-custid');
+    if(cid==='__other__'){selectCustomOther();}
+    else{selectCust(cid);}
+  };
 }
-function selectCust(id){ S.selCust=CUSTOMERS.find(c=>c.id===id); renderCusts(); }
-function selectCustomOther(){
-  // Prompt for custom customer name
-  const name=prompt('ชื่อร้านค้า / ลูกค้าใหม่:','');
-  if(!name||!name.trim()) return;
-  const typeOpt=confirm('ประเภทร้านค้า:\n[OK] = Dealer\n[ยกเลิก] = Wholesale');
-  const custType=typeOpt?'Dealer':'Wholesale';
-  S.selCust={id:'OTH-'+Date.now(),name:name.trim(),type:custType,_isOther:true};
+
+function renderCustInfo(){
+  var el=document.getElementById('custInfo');
+  if(!el) return;
+  if(!S.selCust){el.style.display='none';return;}
+  var c=S.selCust;
+  var creditHtml='';
+  if(c.creditTerm){
+    var ctColor=c.creditTerm.includes('2%')?'color:#b45309;font-weight:700;':c.creditTerm.includes('โอนก่อน')?'color:#dc2626;':'color:var(--text2);';
+    creditHtml='<span style="font-size:10px;'+ctColor+'">💳 '+c.creditTerm+'</span>';
+  }
+  var priceColor2=function(p){
+    if(p==='Dealer') return 'background:var(--pink-ll);color:#9d174d;';
+    if(p==='Wholesale') return 'background:#d1fae5;color:#065f46;';
+    return 'background:#f3f4f6;color:#374151;';
+  };
+  el.style.display='block';
+  el.innerHTML='<div style="background:var(--surface);border:1.5px solid var(--pink);border-radius:10px;padding:10px 12px;margin-top:6px;">'
+    +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+    +'<span style="font-size:12px;font-weight:800;color:var(--text);">✅ '+c.name+'</span>'
+    +'<span style="font-size:9px;padding:2px 7px;border-radius:6px;font-weight:700;'+priceColor2(c.priceType||c.type||'')+'">'+( c.priceType||c.type||'—')+'</span>'
+    +creditHtml
+    +'</div>'
+    +'<div style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap;">'
+    +'<span style="font-size:11px;color:var(--text2);">🏪 '+(c.shopType||'—')+'</span>'
+    +'<span style="font-size:11px;color:var(--text2);">👤 '+(c.sales||CURRENT_SALES)+'</span>'
+    +'<span style="font-size:11px;color:var(--text3);">ID: '+c.id+'</span>'
+    +'</div>'
+    +'</div>';
+}
+function toggleBillDiscount(){
+  S.billDiscount2pct=!S.billDiscount2pct;
+  renderCustInfo();
+  renderCart();
+  updateDisc2pctBar();
+}
+function updateDisc2pctBar(){
+  var bar=document.getElementById('disc2pctBar');
+  var btn=document.getElementById('disc2pctBtn');
+  var lbl=document.getElementById('disc2pctLabel');
+  if(!bar) return;
+  var c=S.selCust;
+  if(c&&c.creditTerm&&c.creditTerm.includes('2%')){
+    bar.style.display='flex'; bar.style.alignItems='center'; bar.style.justifyContent='space-between';
+    if(lbl) lbl.textContent='💳 '+c.creditTerm;
+    if(btn){
+      btn.textContent=S.billDiscount2pct?'✓ ส่วนลด 2% เปิดอยู่':'กด ส่วนลด 2%';
+      btn.style.background=S.billDiscount2pct?'#f59e0b':'#fff';
+      btn.style.color=S.billDiscount2pct?'#fff':'#92400e';
+    }
+  } else {
+    bar.style.display='none';
+  }
+}
+function selectCust(id){
+  S.selCust=CUSTOMERS.find(function(c){return c.id===id;});
+  S.billDiscount2pct=false;
   renderCusts();
-  // Show confirmation
-  document.getElementById('custInfo').style.display='block';
-  document.getElementById('custInfo').textContent='✅ เลือก: '+name.trim()+' ('+custType+') — ร้านค้าใหม่';
+  updateDisc2pctBar();
+}
+function selectCustomOther(){
+  var name=prompt('ชื่อร้านค้า / ลูกค้าใหม่:','');
+  if(!name||!name.trim()) return;
+  var typeOpt=confirm('ประเภทราคา:\n[OK] = Dealer\n[ยกเลิก] = Wholesale');
+  var priceType=typeOpt?'Dealer':'Wholesale';
+  S.selCust={id:'OTH-'+Date.now(),name:name.trim(),priceType:priceType,shopType:'',creditTerm:'',sales:CURRENT_SALES,_isOther:true};
+  S.billDiscount2pct=false;
+  renderCusts();
 }
 function clearCS(){ document.getElementById('cSearch').value=''; renderCusts(); }
 
@@ -222,72 +488,546 @@ function setCat(c,el){
   el.classList.add('active'); renderPgrid();
 }
 function renderPgrid(){
-  const q=document.getElementById('pSearch').value.toLowerCase().trim();
-  const list=PRODUCTS.filter(p=>{
-    const mc=S.cat==='ทั้งหมด'||p.cat===S.cat;
-    const mq=!q||p.name.toLowerCase().includes(q)
-      ||p.variants.some(v=>v.trCode&&v.trCode.toLowerCase().includes(q))
-      ||p.variants.some(v=>v.barcode&&v.barcode.includes(q));
+  var q=document.getElementById('pSearch').value.toLowerCase().trim();
+  var list=PRODUCTS.filter(function(p){
+    var mc=S.cat==='ทั้งหมด'||p.cat===S.cat;
+    var mq=!q||p.name.toLowerCase().includes(q)
+      ||p.variants.some(function(v){return v.trCode&&v.trCode.toLowerCase().includes(q);})
+      ||p.variants.some(function(v){return v.barcode&&v.barcode.includes(q);});
     return mc&&mq;
   });
-  const tbody=document.getElementById('pgrid-body');
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="5" class="ptable-empty">🔍 ไม่พบสินค้า</td></tr>`;return;}
-  let rows=[];
-  list.forEach(p=>{
-    p.variants.forEach((v,vi)=>{
-      const varQ=!q||v.trCode&&v.trCode.toLowerCase().includes(q)||v.barcode&&v.barcode.includes(q)||p.name.toLowerCase().includes(q);
-      if(!varQ) return;
-      const cartItem=S.cart.find(c=>c.pid===p.id&&c.variant===v.label);
-      const qty=cartItem?cartItem.qty:0;
-      const badge=qty>0?`<span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:var(--pink);color:#fff;border-radius:50%;font-size:9px;font-weight:800;margin-left:3px;vertical-align:middle;">${qty}</span>`:'';
-      const isFirst=vi===0;
-      rows.push(`<tr onclick="tapProdSku('${p.id.replace(/'/g,"\\'")}','${v.label.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')" style="${qty>0?'background:var(--pink-l);':''}">
-        <td class="ptbl-em">${isFirst?p.emoji:'<span style="opacity:.3;font-size:11px;">└</span>'}</td>
-        <td class="ptbl-name">
-          ${isFirst?`<span style="font-size:11px;font-weight:800;color:var(--text);">${p.name}</span><br>`:''}
-          <span style="font-size:12px;color:var(--text2);">${v.label}</span>${badge}
-        </td>
-        <td class="ptbl-cat"><span style="font-size:10px;background:var(--pink-ll);color:var(--pink-m);border-radius:4px;padding:1px 5px;font-weight:700;font-family:monospace;">${v.trCode||'—'}</span></td>
-        <td class="ptbl-cat">${isFirst?p.cat:''}</td>
-        <td class="ptbl-price">฿${p.dealer}<br><span style="color:var(--text3);font-size:10px;">WS ฿${p.wholesale}</span></td>
-        ${(()=>{
-          if(!STOCK_LOADED) return '<td style="text-align:center;font-size:10px;color:var(--text3);padding:8px 6px;">—</td>';
-          const s=getStock(p.id,v.label);
-          if(!s) return '<td style="text-align:center;font-size:10px;color:var(--text3);padding:8px 6px;">—</td>';
-          const pRem=s.personalQuota-s.allocated;
-          const poolRem=s.poolQuota-s.allocated;
-          const pPct=Math.round(s.allocated/s.personalQuota*100);
-          const poolPct=Math.round(s.allocated/s.poolQuota*100);
-          const pColor=pRem<=0?'var(--danger)':pRem<=5?'var(--warn)':'var(--success)';
-          const poolColor=poolRem<=0?'var(--danger)':poolRem<=10?'var(--warn)':'#6366f1';
-          const pBarColor=pPct>=100?'var(--danger)':pPct>=80?'var(--warn)':'var(--success)';
-          const poolBarColor=poolPct>=100?'var(--danger)':poolPct>=80?'var(--warn)':'#6366f1';
-          return '<td style="padding:5px 8px;min-width:130px;">'
-            +'<div style="display:flex;flex-direction:column;gap:3px">'
-            +'<div style="display:flex;align-items:center;gap:4px;">'
-            +'<span style="font-size:8px;font-weight:700;color:var(--text3);white-space:nowrap;width:32px;">ของฉัน</span>'
-            +'<div style="flex:1;height:4px;background:var(--border);border-radius:2px;min-width:36px;">'
-            +'<div style="width:'+Math.min(100,pPct)+'%;height:100%;background:'+pBarColor+';border-radius:2px"></div></div>'
-            +'<span style="font-size:9px;font-weight:700;color:'+pColor+';white-space:nowrap;min-width:34px;text-align:right;">เหลือ '+pRem+'</span>'
-            +'</div>'
-            +'<div style="display:flex;align-items:center;gap:4px;">'
-            +'<span style="font-size:8px;font-weight:700;color:#6366f1;white-space:nowrap;width:32px;">TT รวม</span>'
-            +'<div style="flex:1;height:4px;background:var(--border);border-radius:2px;min-width:36px;">'
-            +'<div style="width:'+Math.min(100,poolPct)+'%;height:100%;background:'+poolBarColor+';border-radius:2px"></div></div>'
-            +'<span style="font-size:9px;font-weight:700;color:'+poolColor+';white-space:nowrap;min-width:34px;text-align:right;">เหลือ '+poolRem+'</span>'
-            +'</div>'
-            +'</div></td>';
-        })()}
-      </tr>`);
+  var container=document.getElementById('prod-flat-list');
+  if(!container) return;
+  if(!list.length){
+    container.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);">🔍 ไม่พบสินค้า</div>';
+    return;
+  }
+
+  var RENDER_LIMIT=80;   // max SKU rows per render (performance)
+  var totalSkus=list.reduce(function(s,p){return s+p.variants.length;},0);
+  var pCountEl=document.getElementById('pCount');
+  if(pCountEl) pCountEl.textContent=list.length+' กลุ่ม / '+totalSkus+' SKU';
+  var html='<table class="psheet"><thead><tr>'
+    +'<th class="psh-code">Code</th>'
+    +'<th class="psh-bc">Barcode</th>'
+    +'<th class="psh-name">Product Name / SKU</th>'
+    +'<th class="psh-stock">Allocated Stock</th>'
+    +'<th class="psh-tier">Price Tier</th>'
+    +'<th class="psh-qty">จำนวน</th>'
+    +'<th class="psh-total" style="text-align:right;">รวม</th>'
+    +'<th class="psh-free">Tester/ของแถม</th>'
+    +'<th class="psh-note">หมายเหตุ</th>'
+    +'</tr></thead><tbody>';
+
+  var _rowCount=0;
+  list.forEach(function(p){
+    if(_rowCount>=RENDER_LIMIT) return;
+    p.variants.forEach(function(v){
+      var _inCart=S.cart.some(function(c){return c.pid===p.id&&c.variant===v.label;});
+      if(_rowCount>=RENDER_LIMIT&&!_inCart) return;  // always show cart items
+      if(!_inCart) _rowCount++;
+      var vkey=p.id+'||'+v.label;   // use || separator (safe in data attr)
+      var vkeyAttr=vkey.replace(/"/g,'&quot;');
+      var cartItem=S.cart.find(function(c){return c.pid===p.id&&c.variant===v.label;});
+      var qty=cartItem?cartItem.qty:0;
+
+      var custPT=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
+      var defaultMode=custPT.toLowerCase()==='wholesale'?'wholesale':'dealer';
+      var mode=S.varModes[vkey]||defaultMode;
+      var any50=v.price50!=null;
+      var any6=v.price6!=null;
+
+      // ── Stock ──
+      var stockHtml='<span style="font-size:9px;color:var(--text3);">—</span>';
+      if(STOCK_LOADED){
+        var s2=getStock(p.id,v.label);
+        if(s2){
+          var pRem=s2.personalQuota-s2.allocated;
+          var poolRem=s2.poolQuota-s2.allocated;
+          var pC=pRem<=0?'#dc2626':pRem<=5?'#d97706':'#16a34a';
+          var poC=poolRem<=0?'#dc2626':poolRem<=10?'#d97706':'#6366f1';
+          stockHtml='<div style="display:flex;flex-direction:column;gap:2px;">'
+            +'<span style="font-size:9px;font-weight:700;color:'+pC+';">👤 '+pRem+'/'+s2.personalQuota+'</span>'
+            +'<span style="font-size:9px;font-weight:700;color:'+poC+';">🤝 '+poolRem+'/'+s2.poolQuota+'</span>'
+            +'</div>';
+        }
+      }
+
+      // ── Price tier buttons — use data-action + data-vkey + data-mode ──
+      var btnBase='psh-tier-btn';
+      var tierBtnHtml=function(m,label){
+        var active=mode===m;
+        var bgMap={dealer:'var(--pink-m)',wholesale:'#059669',p50:'#d97706',p6:'#ea580c',special:'#f59e0b'};
+        var st='padding:2px 7px;border-radius:5px;border:1.5px solid '
+          +(active?'transparent':'var(--border)')
+          +';font-size:9px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;'
+          +'background:'+(active?(bgMap[m]||bgMap.dealer):'var(--bg)')
+          +';color:'+(active?'#fff':'var(--text2)')+';';
+        return '<button class="'+btnBase+'" data-action="setmode" data-vkey="'+vkeyAttr+'" data-mode="'+m+'" style="'+st+'">'+label+'</button>';
+      };
+      var tierHtml='<div style="display:flex;flex-wrap:wrap;gap:3px;">'
+        +tierBtnHtml('dealer','D ฿'+p.dealer)
+        +tierBtnHtml('wholesale','WS ฿'+p.wholesale)
+        +(any50?tierBtnHtml('p50','50ลัง ฿'+v.price50):'')
+        +(any6?tierBtnHtml('p6','6ลัง ฿'+v.price6):'')
+        +tierBtnHtml('special','⭐')
+        +'</div>';
+      // Mismatch check
+      var custPT3=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
+      var isTierMismatch=(custPT3==='Dealer'&&mode==='wholesale')||(custPT3==='Wholesale'&&mode==='dealer');
+      var hasMismatchReason=(S.varSpecialReason[vkey]||'').trim().length>0;
+      if(isTierMismatch){
+        tierHtml+='<div style="margin-top:3px;font-size:9px;font-weight:700;color:#92400e;background:#fef3c7;border-radius:4px;padding:1px 6px;display:inline-block;">⚠️ ไม่ตรงประเภท</div>';
+      }
+      if(mode==='special'){
+        var spVal=(S.varSpecialPrice[vkey]||'');
+        var spReason=(S.varSpecialReason[vkey]||'').replace(/"/g,'&quot;');
+        tierHtml+='<div style="display:flex;gap:3px;margin-top:3px;">'
+          +'<input data-action="sprice" data-vkey="'+vkeyAttr+'" type="number" min="0" placeholder="฿" value="'+spVal+'" style="width:55px;padding:2px 5px;border:1.5px solid #f59e0b;border-radius:5px;font-size:11px;font-family:inherit;">'
+          +'<input data-action="sreason" data-vkey="'+vkeyAttr+'" type="text" placeholder="เหตุผลราคาพิเศษ" value="'+spReason+'" style="flex:1;min-width:60px;padding:2px 5px;border:1.5px solid #f59e0b;border-radius:5px;font-size:11px;font-family:inherit;">'
+          +'</div>';
+      }
+
+      // ── Qty ──
+      var currentPrice=(function(){
+        if(mode==='dealer') return p.dealer;
+        if(mode==='wholesale') return p.wholesale;
+        if(mode==='p50'&&any50) return v.price50;
+        if(mode==='p6'&&any6) return v.price6;
+        if(mode==='special') return S.varSpecialPrice[vkey]||p.dealer;
+        return p.dealer;
+      })();
+      var qtyHtml='<div style="display:flex;align-items:center;gap:3px;justify-content:center;">'
+        +'<button class="var-qbtn" data-action="adjqty" data-vkey="'+vkeyAttr+'" data-delta="-1">−</button>'
+        +'<input class="var-qnum psh-qty-input" data-action="setqty" data-vkey="'+vkeyAttr+'" type="number" min="0" value="'+qty+'" style="width:42px;text-align:center;">'
+        +'<button class="var-qbtn" data-action="adjqty" data-vkey="'+vkeyAttr+'" data-delta="1">+</button>'
+        +'</div>'
+      // ── Note ──
+      var skuNote=(S.varSkuNotes[vkey]||'').replace(/"/g,'&quot;');
+      var mismatchNote=(isTierMismatch&&!hasMismatchReason);
+      var noteBorderColor=mismatchNote?'#dc2626':'var(--border)';
+      var notePlaceholder=isTierMismatch?'* เหตุผลที่ใช้ราคาข้ามประเภท (บังคับ)':'หมายเหตุ SKU...';
+      var noteHtml=(isTierMismatch?'<div style="font-size:9px;color:#92400e;font-weight:700;margin-bottom:2px;">⚠️ บังคับกรอก</div>':'')        +'<input data-action="skunote" data-vkey="'+vkeyAttr+'" type="text" placeholder="'+notePlaceholder+'" value="'+skuNote+'" style="width:100%;min-width:90px;padding:3px 6px;border:1.5px solid '+noteBorderColor+';border-radius:5px;font-size:11px;font-family:inherit;background:'+(mismatchNote?'#fff8f8':'var(--bg)')+';box-sizing:border-box;">';
+
+      // ── Free/Tester ──
+      // Single ของแถม/Tester qty input
+      var freeTotal=(S.varFreeItems[vkey]||[]).reduce(function(s,f){return s+f.qty;},0);
+      var freeHtml=
+        '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">'
+        +'<button class="var-qbtn" data-action="adjfreetotal" data-vkey="'+vkeyAttr+'" data-delta="-1">−</button>'
+        +'<input data-action="setfreetotal" data-vkey="'+vkeyAttr+'" type="number" min="0" value="'+freeTotal+'" placeholder="0" style="width:42px;padding:2px 4px;border:1.5px solid '+(freeTotal>0?'#059669':'var(--border)')+';border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:inherit;background:'+(freeTotal>0?'#f0fdf4':'var(--bg)')+';color:'+(freeTotal>0?'#166534':'var(--text3)')+';transition:all .15s;">'
+        +'<button class="var-qbtn" data-action="adjfreetotal" data-vkey="'+vkeyAttr+'" data-delta="1">+</button>'
+
+      var rowBg=qty>0?'background:var(--pink-l);':'';
+      html+='<tr data-vkey="'+vkeyAttr+'" style="'+rowBg+'">'
+        +'<td class="psh-code">'+(v.trCode?'<span style="font-size:14px;font-weight:900;font-family:monospace;color:#c0134f;background:#fce7f3;padding:3px 8px;border-radius:7px;display:inline-block;letter-spacing:0.5px;">'+v.trCode+'</span>':'<span style="color:var(--text3);font-size:10px;">—</span>')+'</td>'
+        +'<td class="psh-bc"><span style="font-family:monospace;font-size:9px;color:var(--text3);">'+(v.barcode||'—')+'</span></td>'
+        +'<td class="psh-name">'
+          +'<div style="font-size:10px;font-weight:800;color:var(--text);line-height:1.3;">'+p.emoji+' '+p.name+'</div>'
+          +'<div style="font-size:11px;color:var(--text2);margin-top:1px;">'+v.label+'</div>'
+        +'</td>'
+        +'<td class="psh-stock">'+stockHtml+'</td>'
+        +'<td class="psh-tier">'+tierHtml+'</td>'
+        +'<td class="psh-qty">'+qtyHtml+'</td>'
+        +'<td class="psh-total" style="text-align:right;padding:6px 10px;vertical-align:middle;font-size:12px;font-weight:800;color:var(--pink);white-space:nowrap;">'
+          +(qty>0?'฿'+(currentPrice*qty).toLocaleString():'<span style="color:var(--text3);font-weight:400;">—</span>')
+        +'</td>'
+        +'<td class="psh-free">'+freeHtml+'</td>'
+        +'<td class="psh-note">'+noteHtml+'</td>'
+        +'</tr>';
     });
   });
-  tbody.innerHTML=rows.join('')||`<tr><td colspan="5" class="ptable-empty">🔍 ไม่พบสินค้า</td></tr>`;
+
+
+  html+='</tbody></table>';
+  container.innerHTML=html;
+  attachPsheetHandlers(container);
 }
+
+// ── Central event handler for all psheet interactions ──
+var _pshClickHandler = null;
+var _pshChangeHandler = null;
+var _pshInputHandler = null;
+function attachPsheetHandlers(container){
+  // Remove previous listeners before attaching new ones (prevents double-fire)
+  if(_pshClickHandler)  container.removeEventListener('click',  _pshClickHandler);
+  if(_pshChangeHandler) container.removeEventListener('change', _pshChangeHandler);
+  if(_pshInputHandler)  container.removeEventListener('input',  _pshInputHandler);
+  _pshClickHandler = function(e){
+    var el=e.target.closest('[data-action]');
+    if(!el) return;
+    e.stopPropagation();
+    var action=el.getAttribute('data-action');
+    var vkey=el.getAttribute('data-vkey');
+    if(!vkey) return;
+    var parts=vkey.split('||');
+    var pid=parts[0], label=parts.slice(1).join('||');
+
+    if(action==='setmode'){
+      var mode=el.getAttribute('data-mode');
+      var custPT2=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
+      var isMismatch=(custPT2==='Dealer'&&mode==='wholesale')||(custPT2==='Wholesale'&&mode==='dealer');
+      if(isMismatch){
+        // Show inline warning — don't block, but flag it
+        if(!S.varSpecialReason[vkey]){
+          S.varModes[vkey]=mode;
+          S.varMismatch=S.varMismatch||{};
+          S.varMismatch[vkey]=true;
+        } else {
+          S.varModes[vkey]=mode;
+        }
+      } else {
+        S.varModes[vkey]=mode;
+        if(S.varMismatch) delete S.varMismatch[vkey];
+      }
+      if(renderPgridDebounced) renderPgridDebounced(); else renderPgrid();
+    } else if(action==='adjqty'){
+      var delta=parseInt(el.getAttribute('data-delta'))||0;
+      pshAdjQty(pid,label,vkey,delta);
+    } else if(action==='adjfreetotal'){
+      var fdelta2=parseInt(el.getAttribute('data-delta'))||0;
+      if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
+      var curTotal=S.varFreeItems[vkey].reduce(function(s,f){return s+f.qty;},0);
+      var newTotal=Math.max(0,curTotal+fdelta2);
+      S.varFreeItems[vkey]=newTotal>0?[{type:'free',qty:newTotal}]:[];
+      var ci3=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+      if(ci3) ci3.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
+      // Update input visually — suppress the change event with a flag
+      var inp=el.parentNode.querySelector('input[data-action="setfreetotal"]');
+      if(inp){
+        inp.dataset.suppressChange='1';
+        inp.value=newTotal;
+        inp.style.borderColor=newTotal>0?'#059669':'var(--border)';
+        inp.style.background=newTotal>0?'#f0fdf4':'var(--bg)';
+        inp.style.color=newTotal>0?'#166534':'var(--text3)';
+        setTimeout(function(){inp.dataset.suppressChange='';},0);
+      }
+    } else if(action==='addfree'){
+      // legacy — redirect to adjfreetotal logic
+      if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
+      var exAll=S.varFreeItems[vkey].reduce(function(s,f){return s+f.qty;},0);
+      S.varFreeItems[vkey]=[{type:'free',qty:exAll+1}];
+      renderPgrid();
+    } else if(action==='adjfree'){
+      var fidx=parseInt(el.getAttribute('data-fidx'));
+      var fdelta=parseInt(el.getAttribute('data-delta'))||0;
+      if(S.varFreeItems[vkey]&&S.varFreeItems[vkey][fidx]!==undefined){
+        S.varFreeItems[vkey][fidx].qty=Math.max(0,S.varFreeItems[vkey][fidx].qty+fdelta);
+        if(S.varFreeItems[vkey][fidx].qty===0) S.varFreeItems[vkey].splice(fidx,1);
+      }
+      renderPgrid();
+    } else if(action==='rmfree'){
+      var ridx=parseInt(el.getAttribute('data-fidx'));
+      if(S.varFreeItems[vkey]) S.varFreeItems[vkey].splice(ridx,1);
+      renderPgrid();
+    }
+  };
+  container.addEventListener('click', _pshClickHandler);
+
+  // Input handlers (change/input events)
+  _pshChangeHandler = function(e){
+    var el=e.target;
+    var action=el.getAttribute('data-action');
+    var vkey=el.getAttribute('data-vkey');
+    if(!vkey||!action) return;
+    var parts=vkey.split('||');
+    var pid=parts[0], label=parts.slice(1).join('||');
+
+    if(action==='setqty'){
+      pshSetQty(pid,label,vkey,parseInt(el.value)||0);
+    } else if(action==='setfreeqty'){
+      var fidxC=parseInt(el.getAttribute('data-fidx'));
+      var newQty=Math.max(0,parseInt(el.value)||0);
+      if(S.varFreeItems[vkey]&&S.varFreeItems[vkey][fidxC]!==undefined){
+        if(newQty===0){S.varFreeItems[vkey].splice(fidxC,1); renderPgrid();}
+        else{S.varFreeItems[vkey][fidxC].qty=newQty;}
+        var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+        if(ci) ci.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]||[]));
+      }
+    } else if(action==='setfreetype'||action==='setfreetotal'){
+      if(el.dataset.suppressChange) return;  // suppressed by adjfreetotal button
+      // Single combined ของแถม/Tester qty
+      var newFqty=Math.max(0,parseInt(el.value)||0);
+      if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
+      // Store as single entry with type='free'
+      if(newFqty===0){
+        S.varFreeItems[vkey]=[];
+      } else {
+        S.varFreeItems[vkey]=[{type:'free',qty:newFqty}];
+      }
+      var ci2=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+      if(ci2) ci2.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
+      // Re-style input instantly
+      var hasVal=newFqty>0;
+      el.style.borderColor=hasVal?'#059669':'var(--border)';
+      el.style.background=hasVal?'#f0fdf4':'var(--bg)';
+      el.style.color=hasVal?'#166534':'var(--text3)';
+    } else if(action==='sprice'){
+      S.varSpecialPrice[vkey]=parseFloat(el.value)||null;
+      // update cart if exists
+      var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+      if(ci&&ci.mode==='special'){ci.unitPrice=S.varSpecialPrice[vkey]||ci.dp;renderCart();}
+    } else if(action==='sreason'){
+      S.varSpecialReason[vkey]=el.value;
+      var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+      if(ci) ci.specialReason=el.value;
+    } else if(action==='skunote'){
+      S.varSkuNotes[vkey]=el.value;
+      var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+      if(ci) ci.skuNote=el.value;
+    }
+  };
+  container.addEventListener('change', _pshChangeHandler);
+  // Also handle input event for notes (live update without needing blur)
+  _pshInputHandler = function(e){
+    var el=e.target;
+    var action=el.getAttribute('data-action');
+    if(action==='skunote'||action==='sreason'||action==='sprice'){
+      var vkey=el.getAttribute('data-vkey');
+      if(!vkey) return;
+      var parts=vkey.split('||');
+      var pid=parts[0],label=parts.slice(1).join('||');
+      if(action==='skunote'){
+        S.varSkuNotes[vkey]=el.value;
+        var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+        if(ci) ci.skuNote=el.value;
+      }else if(action==='sreason'){
+        S.varSpecialReason[vkey]=el.value;
+      }else if(action==='sprice'){
+        S.varSpecialPrice[vkey]=parseFloat(el.value)||null;
+      }
+    }
+  };
+  container.addEventListener('input', _pshInputHandler);
+}
+
+function pshGetPrice(pid,label,vkey){
+  var p=PRODUCTS.find(function(x){return x.id===pid;});
+  if(!p) return 0;
+  var v=p.variants.find(function(x){return x.label===label;});
+  if(!v) return p.dealer;
+  var mode=S.varModes[vkey]||'dealer';
+  if(mode==='dealer') return p.dealer;
+  if(mode==='wholesale') return p.wholesale;
+  if(mode==='p50'&&v.price50!=null) return v.price50;
+  if(mode==='p6'&&v.price6!=null) return v.price6;
+  if(mode==='special') return S.varSpecialPrice[vkey]||p.dealer;
+  return p.dealer;
+}
+
+function pshAdjQty(pid,label,vkey,delta){
+  var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+  if(ci){
+    var newQty=Math.max(0,ci.qty+delta);
+    if(newQty===0){
+      // Quota check before removing
+      S.cart=S.cart.filter(function(c){return !(c.pid===pid&&c.variant===label);});
+    } else {
+      // Quota check
+      if(!pshCheckQuota(pid,label,newQty)) return;
+      ci.qty=newQty;
+      ci.unitPrice=pshGetPrice(pid,label,vkey);
+    }
+  } else if(delta>0){
+    if(!pshValidateMismatch(vkey)) return;
+    if(!pshCheckQuota(pid,label,1)) return;
+    pshAddToCart(pid,label,vkey,1);
+    return;
+  }
+  renderCart(); renderPgrid();
+}
+
+function pshSetQty(pid,label,vkey,qty){
+  if(qty<0) qty=0;
+  if(qty>0&&!pshCheckQuota(pid,label,qty)) return;
+  var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
+  if(qty===0){
+    S.cart=S.cart.filter(function(c){return !(c.pid===pid&&c.variant===label);});
+  } else if(ci){
+    ci.qty=qty;
+    ci.unitPrice=pshGetPrice(pid,label,vkey);
+  } else {
+    if(!pshValidateMismatch(vkey)) return;
+    pshAddToCart(pid,label,vkey,qty);
+    return;
+  }
+  renderCart(); renderPgrid();
+}
+
+var _quotaLock=false;
+function pshCheckQuota(pid,label,qty){
+  if(!STOCK_LOADED) return true;
+  if(_quotaLock) return true;  // prevent double-fire
+  var s=getStock(pid,label);
+  if(!s) return true;
+  var poolRem=s.poolQuota-s.allocated;
+  var pRem=s.personalQuota-s.allocated;
+  if(qty>poolRem){
+    _quotaLock=true;
+    var ok=confirm('🚫 สั่งเกิน Quota รวม TT\n• สั่ง '+qty+' / TT รวม เหลือ '+poolRem+'/'+s.poolQuota+'\n\nยืนยันการสั่ง?');
+    _quotaLock=false;
+    if(!ok) return false;
+  } else if(qty>pRem){
+    _quotaLock=true;
+    var ok2=confirm('⚠️ สั่งเกิน Quota ส่วนตัว — แต่ยังมี Quota รวม TT\n• สั่ง '+qty+' / Quota ฉัน เหลือ '+pRem+' | TT รวม เหลือ '+poolRem+'\n\nยืนยันใช้ Quota รวม TT?');
+    _quotaLock=false;
+    if(!ok2) return false;
+  }
+  return true;
+}
+
+function pshValidateMismatch(vkey){
+  var custPT4=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
+  var mode=S.varModes[vkey]||'dealer';
+  var isMis=(custPT4==='Dealer'&&mode==='wholesale')||(custPT4==='Wholesale'&&mode==='dealer');
+  if(!isMis) return true;
+  // Check skuNote (the หมายเหตุ column) for the reason
+  var reason=(S.varSkuNotes[vkey]||'').trim();
+  if(!reason){
+    alert('\u26A0\uFE0F ราคา '+mode+' ไม่ตรงกับประเภทร้านค้า ('+custPT4+')\nกรุณากรอกเหตุผลในช่องหมายเหตุ (ขวาสุด) ก่อนเพิ่มสินค้า');
+    return false;
+  }
+  // Save note as specialReason for the cart item
+  S.varSpecialReason[vkey]=reason;
+  return true;
+}
+function pshAddToCart(pid,label,vkey,qty){
+  var p=PRODUCTS.find(function(x){return x.id===pid;});
+  if(!p) return;
+  var v=p.variants.find(function(x){return x.label===label;});
+  if(!v) return;
+  var mode=S.varModes[vkey]||( (S.selCust&&(S.selCust.priceType||S.selCust.type)||'Dealer').toLowerCase()==='wholesale'?'wholesale':'dealer');
+  var unitPrice=pshGetPrice(pid,label,vkey);
+  // Save mismatch reason for any mode (special OR price tier mismatch)
+  var custPT5=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
+  var isMis5=(custPT5==='Dealer'&&mode==='wholesale')||(custPT5==='Wholesale'&&mode==='dealer');
+  var reasonToSave=S.varSpecialReason[vkey]||'';
+  S.cart.push({
+    pid:pid,name:p.name,emoji:p.emoji,cat:p.cat,
+    variant:label,trCode:v.trCode,barcode:v.barcode,
+    qty:qty,mode:mode,dp:p.dealer,wp:p.wholesale,p50:v.price50,p6:v.price6,unitPrice:unitPrice,
+    specialPrice:mode==='special'?(S.varSpecialPrice[vkey]||null):null,
+    specialReason:reasonToSave,
+    isMismatch:isMis5,
+    skuNote:(S.varSkuNotes[vkey]||''),
+    freeItems:(S.varFreeItems[vkey]?JSON.parse(JSON.stringify(S.varFreeItems[vkey])):[]),
+  });
+  renderCart(); renderPgrid();
+}
+
+
 function filterP(){
   document.getElementById('pClr').classList.toggle('show',document.getElementById('pSearch').value.length>0);
-  renderPgrid();
+  if(renderPgridDebounced) renderPgridDebounced(); else renderPgrid();
 }
 function clearPS(){document.getElementById('pSearch').value='';document.getElementById('pClr').classList.remove('show');renderPgrid();}
+// ═══ FLAT PRODUCT LIST HELPERS ═══
+function toggleProdExpand(el){
+  var pid=el.getAttribute('data-pid');
+  if(!pid) return;
+  var prod=document.getElementById('pfl-'+pid);
+  if(!prod) return;
+  var skus=prod.querySelector('.pfl-skus');
+  var arr=prod.querySelector('.pfl-arrow');
+  if(!skus) return;
+  var open=skus.style.display!=='none';
+  skus.style.display=open?'none':'block';
+  if(arr) arr.textContent=open?'▸':'▾';
+}
+function setPflMode(pid,varLabel,mode){
+  var key=pid+'_'+varLabel;
+  S.varModes[key]=mode;
+  renderPgrid();
+}
+function setPflSpPrice(pid,varLabel,val){
+  S.varSpecialPrice[pid+'_'+varLabel]=parseFloat(val)||null;
+  renderPgrid();
+}
+function setPflSpReason(pid,varLabel,val){
+  S.varSpecialReason[pid+'_'+varLabel]=val;
+}
+function setPflSkuNote(pid,varLabel,val){
+  S.varSkuNotes[pid+'_'+varLabel]=val;
+  // Update cart item note if exists
+  var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===varLabel;});
+  if(ci) ci.skuNote=val;
+}
+function addFreeItem(pid,varLabel,type){
+  var key=pid+'_'+varLabel;
+  if(!S.varFreeItems[key]) S.varFreeItems[key]=[];
+  // Check if same type already exists
+  var existing=S.varFreeItems[key].find(function(f){return f.type===type;});
+  if(existing){existing.qty+=1;}
+  else{S.varFreeItems[key].push({type:type,qty:1});}
+  renderPgrid();
+}
+function adjFreeItem(pid,varLabel,idx,delta){
+  var key=pid+'_'+varLabel;
+  if(!S.varFreeItems[key]||!S.varFreeItems[key][idx]) return;
+  S.varFreeItems[key][idx].qty=Math.max(0,S.varFreeItems[key][idx].qty+delta);
+  if(S.varFreeItems[key][idx].qty===0) S.varFreeItems[key].splice(idx,1);
+  renderPgrid();
+}
+function removeFreeItem(pid,varLabel,idx){
+  var key=pid+'_'+varLabel;
+  if(S.varFreeItems[key]) S.varFreeItems[key].splice(idx,1);
+  renderPgrid();
+}
+function adjPflQty(pid,varLabel,v,delta){
+  var cartItem=S.cart.find(function(c){return c.pid===pid&&c.variant===varLabel;});
+  if(cartItem){
+    cartItem.qty=Math.max(0,cartItem.qty+delta);
+    if(cartItem.qty===0) S.cart=S.cart.filter(function(c){return !(c.pid===pid&&c.variant===varLabel);});
+  } else if(delta>0){
+    addPflToCart(pid,varLabel,v,1);
+    return;
+  }
+  renderCart(); renderPgrid();
+}
+function setPflQty(pid,varLabel,v,val){
+  var qty=Math.max(0,parseInt(val)||0);
+  var cartItem=S.cart.find(function(c){return c.pid===pid&&c.variant===varLabel;});
+  if(qty===0){
+    S.cart=S.cart.filter(function(c){return !(c.pid===pid&&c.variant===varLabel);});
+  } else if(cartItem){
+    cartItem.qty=qty;
+    cartItem.unitPrice=getPflCurrentPrice(pid,varLabel,v);
+  } else {
+    addPflToCart(pid,varLabel,v,qty);
+    return;
+  }
+  renderCart(); renderPgrid();
+}
+function getPflCurrentPrice(pid,varLabel,v){
+  var p=PRODUCTS.find(function(x){return x.id===pid;});
+  if(!p) return 0;
+  var key=pid+'_'+varLabel;
+  var mode=S.varModes[key]||'dealer';
+  if(mode==='dealer') return p.dealer;
+  if(mode==='wholesale') return p.wholesale;
+  if(mode==='p50'&&v&&v.price50!=null) return v.price50;
+  if(mode==='p6'&&v&&v.price6!=null) return v.price6;
+  if(mode==='special') return S.varSpecialPrice[key]||p.dealer;
+  return p.dealer;
+}
+function addPflToCart(pid,varLabel,v,qty){
+  var p=PRODUCTS.find(function(x){return x.id===pid;});
+  if(!p) return;
+  var key=pid+'_'+varLabel;
+  var mode=S.varModes[key]||'dealer';
+  var unitPrice=getPflCurrentPrice(pid,varLabel,v);
+  S.cart.push({
+    pid:pid,name:p.name,emoji:p.emoji,cat:p.cat,
+    variant:varLabel,trCode:v.trCode,barcode:v.barcode,
+    qty:qty,mode:mode,dp:p.dealer,wp:p.wholesale,p50:v.price50,p6:v.price6,unitPrice:unitPrice,
+    specialPrice:mode==='special'?(S.varSpecialPrice[key]||null):null,
+    specialReason:(S.varSpecialReason[key]||''),
+    skuNote:(S.varSkuNotes[key]||''),
+    freeItems:(S.varFreeItems[key]?JSON.parse(JSON.stringify(S.varFreeItems[key])):[]),
+  });
+  renderCart(); renderPgrid();
+}
+
 
 // ═══ VARIANT PICKER ═══
 function tapProd(pid){
@@ -565,48 +1305,79 @@ function confirmVarPick(){
 
 // ═══ CART ═══
 function lineTotal(it){return it.unitPrice*it.qty;}
+
+function syncCartFreeItems(){
+  S.cart.forEach(function(ci){
+    var vkey=ci.pid+'||'+ci.variant;
+    if(S.varFreeItems[vkey]) ci.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
+  });
+}
 function renderCart(){
-  const cc=document.getElementById('cartCard'),ch=document.getElementById('cartHint'),sw=document.getElementById('sumWrap');
+  var cc=document.getElementById('cartCard'),ch=document.getElementById('cartHint'),sw=document.getElementById('sumWrap');
   if(!S.cart.length){cc.style.display='none';ch.style.display='block';sw.style.display='none';return;}
   cc.style.display='block';ch.style.display='none';sw.style.display='block';
   document.getElementById('cartBg').textContent=S.cart.length;
-  document.getElementById('cartItems').innerHTML=S.cart.map((it,idx)=>{
-    const lt=lineTotal(it);
-    const modeLabel=it.mode==='dealer'?'Dealer':it.mode==='wholesale'?'WS':it.mode==='p50'?'50ลัง':it.mode==='p6'?'6ลัง':'⭐ พิเศษ';
-    const modeClass=it.mode==='dealer'?'b-d':it.mode==='wholesale'?'b-ws':it.mode==='p50'?'b-50':it.mode==='p6'?'b-6':'b-sp';
-    return `<div class="citem">
-      <div class="citem-hd">
-        <div class="citem-em">${it.emoji}</div>
-        <div class="citem-info">
-          <div class="citem-name">${it.name}</div>
-          <div style="font-size:11px;color:var(--text2);font-weight:600;">${it.variant}</div>
-          <div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;align-items:center;">
-            ${it.trCode?`<span class="var-sku">TR ${it.trCode}</span>`:''}
-            <span class="b ${modeClass}">${modeLabel}</span>
-            ${it.mode==='special'&&it.specialReason?`<span style="font-size:9px;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:5px;padding:1px 5px;">📝 ${it.specialReason}</span>`:''}
-          </div>
-        </div>
-        <button class="citem-rm" onclick="rmItem(${idx})">×</button>
-      </div>
-      <div class="crow" style="background:var(--surface);border-radius:8px;padding:6px 8px;">
-        <div class="qtyctrl">
-          <button class="qtybtn" onclick="chQty(${idx},-1)">−</button>
-          <input class="qtynum" type="number" min="1" value="${it.qty}" onchange="stQty(${idx},this.value)">
-          <button class="qtybtn" onclick="chQty(${idx},1)">+</button>
-        </div>
-        <span style="flex:1;font-size:12px;color:var(--text2);">฿${it.unitPrice} × ${it.qty} ชิ้น</span>
-        <span style="font-size:13px;font-weight:700;color:var(--pink);">฿${lt.toLocaleString()}</span>
-      </div>
-    </div>`;
+  var cartHtml=S.cart.map(function(it,idx){
+    var lt=lineTotal(it);
+    var modeLabel=it.mode==='dealer'?'Dealer':it.mode==='wholesale'?'WS':it.mode==='p50'?'50ลัง':it.mode==='p6'?'6ลัง':'⭐ พิเศษ';
+    var modeClass=it.mode==='dealer'?'b-d':it.mode==='wholesale'?'b-ws':it.mode==='p50'?'b-50':it.mode==='p6'?'b-6':'b-sp';
+    var freeHtml='';
+    if(it.freeItems&&it.freeItems.length){
+      freeHtml='<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">'
+        +it.freeItems.map(function(fi){
+          return '<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-weight:700;">'
+            +(fi.type==='tester'?'🧪 Tester':'🎁 ของแถม')+' '+fi.qty+' ชิ้น</span>';
+        }).join('')+'</div>';
+    }
+    return '<div class="citem">'
+      +'<div class="citem-hd">'
+      +'<div class="citem-em">'+it.emoji+'</div>'
+      +'<div class="citem-info">'
+      +'<div class="citem-name">'+it.name+'</div>'
+      +'<div style="font-size:11px;color:var(--text2);font-weight:600;">'+it.variant+'</div>'
+      +'<div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;align-items:center;">'
+      +(it.trCode?'<span class="var-sku">TR '+it.trCode+'</span>':'')
+      +'<span class="b '+modeClass+'">'+modeLabel+'</span>'
+      +(it.skuNote?'<span style="font-size:9px;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:5px;padding:1px 5px;">📝 '+it.skuNote+'</span>':'')
+      +'</div>'
+      +freeHtml
+      +'</div>'
+      +'<button class="citem-rm" onclick="rmItem('+idx+')">×</button>'
+      +'</div>'
+      +'<div class="crow" style="background:var(--surface);border-radius:8px;padding:6px 8px;">'
+      +'<div class="qtyctrl">'
+      +'<button class="qtybtn" onclick="chQty('+idx+',-1)">−</button>'
+      +'<input class="qtynum" type="number" min="1" value="'+it.qty+'" onchange="stQty('+idx+',this.value)">'
+      +'<button class="qtybtn" onclick="chQty('+idx+',1)">+</button>'
+      +'</div>'
+      +'<span style="flex:1;font-size:12px;color:var(--text2);">฿'+it.unitPrice+' × '+it.qty+' ชิ้น</span>'
+      +'<span style="font-size:13px;font-weight:700;color:var(--pink);">฿'+lt.toLocaleString()+'</span>'
+      +'</div>'
+      +'</div>';
   }).join('');
+  document.getElementById('cartItems').innerHTML=cartHtml;
   updSum();
+  updateDisc2pctBar();
 }
 function updSum(){
-  document.getElementById('gtotal').textContent=S.cart.reduce((s,i)=>s+lineTotal(i),0).toLocaleString();
-  document.getElementById('tqty').textContent=S.cart.reduce((s,i)=>s+i.qty,0);
+  var subtotal=S.cart.reduce(function(s,i){return s+lineTotal(i);},0);
+  var discAmt=S.billDiscount2pct?Math.round(subtotal*0.02):0;
+  var grandTotal=subtotal-discAmt;
+  document.getElementById('gtotal').textContent=grandTotal.toLocaleString();
+  document.getElementById('tqty').textContent=S.cart.reduce(function(s,i){return s+i.qty;},0);
+  var discRow=document.getElementById('discountRow');
+  if(discRow){
+    if(S.billDiscount2pct&&discAmt>0){
+      discRow.style.display='flex';
+      discRow.innerHTML='<span style="font-size:11px;color:#92400e;font-weight:700;">💳 ส่วนลด 2% ('+S.selCust.creditTerm+')</span>'
+        +'<span style="font-size:12px;font-weight:700;color:#dc2626;">−฿'+discAmt.toLocaleString()+'</span>';
+    } else {
+      discRow.style.display='none';
+    }
+  }
 }
 function rmItem(idx){S.cart.splice(idx,1);renderCart();renderPgrid();}
-function rmProd(pid){S.cart=S.cart.filter(c=>c.pid!==pid);renderCart();renderPgrid();}
+function rmProd(pid){S.cart=S.cart.filter(function(c){return c.pid!==pid;});renderCart();renderPgrid();}
 function chQty(i,d){S.cart[i].qty=Math.max(1,S.cart[i].qty+d);renderCart();}
 function stQty(i,v){S.cart[i].qty=Math.max(1,parseInt(v)||1);renderCart();}
 
@@ -621,6 +1392,8 @@ function saveDraft(){
     ref,status:'draft',custId:S.selCust.id,custName:S.selCust.name,sales:CURRENT_SALES,
     items:JSON.parse(JSON.stringify(S.cart)),total:grand,
     note:document.getElementById('orderNote').value,
+    attachments:S.orderAttachments.map(function(a){return {name:a.name,size:a.size};}),
+    billDiscount2pct:S.billDiscount2pct,
     timestamp:now.toISOString(),
   });
   orderUpdateBadge(); renderOrds();
@@ -629,20 +1402,31 @@ function saveDraft(){
 }
 
 // ═══ CONFIRM ═══
-function openConfirm(){
+function openConfirm(){ syncCartFreeItems();
   if(!S.selCust){alert('กรุณาเลือกลูกค้า');return;}
   if(!S.cart.length){alert('กรุณาเลือกสินค้า');return;}
   const grand=S.cart.reduce((s,i)=>s+lineTotal(i),0);
-  document.getElementById('confContent').innerHTML=`
-    <div class="mrow"><span class="mrl">ร้านค้า</span><span class="mrv">${S.selCust.name}</span></div>
-    <div class="mrow"><span class="mrl">รหัส</span><span class="mrv">#${S.selCust.id}</span></div>
-    <div class="mrow"><span class="mrl">Sales</span><span class="mrv">${CURRENT_SALES}</span></div>
-    <div class="mrow"><span class="mrl">วันที่</span><span class="mrv">${orderDtStr(new Date())}</span></div>
-    <div style="margin:10px 0 5px;font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">รายการ (${S.cart.length} SKU)</div>
-    ${S.cart.map(it=>{const lt=lineTotal(it);const pl=modeLbl(it);
-      return `<div class="mrow"><span class="mrl">${it.emoji} ${it.name}<br><span style="font-size:9px;">${it.variant} · ${pl} × ${it.qty}</span></span><span class="mrv">฿${lt.toLocaleString()}</span></div>`;
-    }).join('')}`;
-  document.getElementById('confTotal').textContent=grand.toLocaleString();
+  var subtotal=S.cart.reduce(function(s,i){return s+lineTotal(i);},0);
+  var discAmt=S.billDiscount2pct?Math.round(subtotal*0.02):0;
+  var attachInfo=S.orderAttachments.length>0?' · 📎 '+S.orderAttachments.length+' ไฟล์':'';
+  var creditTerm=S.selCust&&S.selCust.creditTerm?S.selCust.creditTerm:'—';
+  document.getElementById('confContent').innerHTML=
+    '<div class="mrow"><span class="mrl">ร้านค้า</span><span class="mrv">'+S.selCust.name+'</span></div>'
+    +'<div class="mrow"><span class="mrl">รหัส</span><span class="mrv">'+S.selCust.id+'</span></div>'
+    +'<div class="mrow"><span class="mrl">ประเภทราคา</span><span class="mrv">'+(S.selCust.priceType||S.selCust.type||'—')+'</span></div>'
+    +'<div class="mrow"><span class="mrl">เงื่อนไขเครดิต</span><span class="mrv">'+creditTerm+'</span></div>'
+    +'<div class="mrow"><span class="mrl">Sales</span><span class="mrv">'+CURRENT_SALES+'</span></div>'
+    +'<div class="mrow"><span class="mrl">วันที่</span><span class="mrv">'+orderDtStr(new Date())+attachInfo+'</span></div>'
+    +(discAmt>0?'<div class="mrow" style="background:#fffbeb;"><span class="mrl" style="color:#92400e;">💳 ส่วนลด 2%</span><span class="mrv" style="color:#dc2626;">−฿'+discAmt.toLocaleString()+'</span></div>':'')
+    +'<div style="margin:10px 0 5px;font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">รายการ ('+S.cart.length+' SKU)</div>'
+    +S.cart.map(function(it){
+      var lt=lineTotal(it);
+      var pl=modeLbl(it);
+      var freeStr=it.freeItems&&it.freeItems.length?' + '+it.freeItems.map(function(f){return (f.type==='tester'?'🧪':'🎁')+f.qty;}).join(' '):'';
+      return '<div class="mrow"><span class="mrl">'+it.emoji+' '+it.name+'<br><span style="font-size:9px;">'+it.variant+' · '+pl+' × '+it.qty+freeStr+'</span>'+(it.skuNote?'<br><span style="font-size:9px;color:#92400e;">📝 '+it.skuNote+'</span>':'')+'</span><span class="mrv">฿'+lt.toLocaleString()+'</span></div>';
+    }).join('');
+  var grandAfterDisc=grand-discAmt;
+  document.getElementById('confTotal').textContent=grandAfterDisc.toLocaleString();
   openSheet('confirmSheet');
 }
 function modeLbl(it){
@@ -656,7 +1440,9 @@ function modeLbl(it){
 function doConfirm(){
   const now=new Date();
   const ref='ORD-'+orderFmtD(now)+'-'+String(S.orders.filter(o=>o.status==='confirmed').length+1).padStart(3,'0');
-  const grand=S.cart.reduce((s,i)=>s+lineTotal(i),0);
+  var subtotalDC=S.cart.reduce(function(s,i){return s+lineTotal(i);},0);
+  var discAmtDC=S.billDiscount2pct?Math.round(subtotalDC*0.02):0;
+  const grand=subtotalDC-discAmtDC;
   // Auto-generate SO number (mockup): SO + 9-digit sequence
   var maxSO=260300207;
   S.orders.forEach(function(o){ if(o.soNumber&&o.soNumber.startsWith('SO')){var n=parseInt(o.soNumber.slice(2));if(!isNaN(n)&&n>maxSO)maxSO=n;} });
@@ -666,6 +1452,8 @@ function doConfirm(){
     items:JSON.parse(JSON.stringify(S.cart)),total:grand,
     soNumber:soNumber,
     note:document.getElementById('orderNote').value,
+    attachments:S.orderAttachments.map(function(a){return {name:a.name,size:a.size};}),
+    billDiscount2pct:S.billDiscount2pct,
     timestamp:now.toISOString(),
   };
   S.orders.unshift(order); S.lastOrderRef=ref;
@@ -679,21 +1467,99 @@ function showSuccessPage(order){
   document.getElementById('sRef').textContent=order.ref;
   document.getElementById('sStore').textContent='🏪 '+order.custName;
   document.getElementById('sTime').textContent=orderDtStr(new Date(order.timestamp));
-  document.getElementById('successSummary').innerHTML=`
-    <div class="order-summary-title">รายการสินค้า</div>
-    ${order.items.map(it=>{const lt=lineTotal(it);
-      return `<div class="sum-row">
-        <div class="sum-name">${it.emoji} ${it.name}<span class="sum-var">${it.variant} · ${modeLbl(it)}/ชิ้น</span></div>
-        <div class="sum-price">฿${lt.toLocaleString()}<span>× ${it.qty} ชิ้น</span></div>
-      </div>`;}).join('')}`;
+    document.getElementById('successSummary').innerHTML=
+    '<div class="order-summary-title">รายการสินค้า</div>'
+    +'<div style="overflow-x:auto;border:1.5px solid var(--border);border-radius:10px;margin-bottom:4px;">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:12px;min-width:380px;">'
+    +'<thead><tr style="background:var(--pink-ll);border-bottom:1.5px solid var(--border);">'
+    +'<th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:800;color:var(--text2);width:80px;">TR Code</th>'
+    +'<th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:800;color:var(--text2);">ชื่อสินค้า / SKU</th>'
+    +'<th style="padding:6px 10px;text-align:center;font-size:10px;font-weight:800;color:var(--text2);white-space:nowrap;">ราคา</th>'
+    +'<th style="padding:6px 10px;text-align:center;font-size:10px;font-weight:800;color:var(--text2);">จำนวน</th>'
+    +'<th style="padding:6px 10px;text-align:center;font-size:10px;font-weight:800;color:var(--text2);white-space:nowrap;">Tester/ของแถม</th>'
+    +'<th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:800;color:var(--text2);">รวม</th>'
+    +'</tr></thead><tbody>'
+    +order.items.map(function(it,idx){var lt=lineTotal(it);
+      var modeLabel=it.mode==='dealer'?'D':it.mode==='wholesale'?'WS':it.mode==='p50'?'50ลัง':it.mode==='p6'?'6ลัง':'⭐';
+      var modeColor=it.mode==='dealer'?'background:var(--pink-m);color:#fff;':it.mode==='wholesale'?'background:#059669;color:#fff;':'background:#f59e0b;color:#fff;';
+      var rowBg=idx%2===0?'background:#fff;':'background:var(--surface);';
+      var freeStr=it.freeItems&&it.freeItems.length?it.freeItems.map(function(f){return '<span style="font-size:9px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:1px 5px;font-weight:700;color:#166534;">'+(f.type==='tester'?'🧪':'🎁')+' '+f.qty+'</span>';}).join(' '):''; 
+      return '<tr style="'+rowBg+'border-bottom:1px solid var(--border);">'
+        +'<td style="padding:8px 10px;vertical-align:middle;">'
+          +(it.trCode?'<span style="font-size:14px;font-weight:900;font-family:monospace;color:var(--pink-d);background:var(--pink-ll);padding:3px 8px;border-radius:6px;display:inline-block;">'+it.trCode+'</span>':'<span style="font-size:10px;color:var(--text3);">—</span>')
+        +'</td>'
+        +'<td style="padding:8px 10px;vertical-align:middle;">'
+          +'<div style="font-size:12px;font-weight:700;line-height:1.3;">'+it.emoji+' '+it.name+'</div>'
+          +'<div style="font-size:11px;color:var(--text2);margin-top:1px;">'+it.variant+'</div>'
+          +(it.skuNote?'<div style="font-size:9px;color:#92400e;margin-top:2px;background:#fffbeb;border-radius:4px;padding:1px 6px;display:inline-block;">📝 '+it.skuNote+'</div>':'')
+          +(it.isMismatch&&it.specialReason?'<div style="font-size:9px;color:#7c3aed;margin-top:2px;background:#f5f3ff;border-radius:4px;padding:1px 6px;display:inline-block;">⚠️ ราคาพิเศษ: '+it.specialReason+'</div>':'')
+          +(freeStr?'<div style="margin-top:3px;display:flex;gap:3px;flex-wrap:wrap;">'+freeStr+'</div>':'')
+        +'</td>'
+        +'<td style="padding:8px 10px;text-align:center;vertical-align:middle;white-space:nowrap;">'
+          +'<span style="font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;'+modeColor+'">'+modeLabel+'</span>'
+          +'<div style="font-size:12px;font-weight:700;margin-top:2px;">฿'+it.unitPrice+'</div>'
+        +'</td>'
+        +'<td style="padding:8px 10px;text-align:center;vertical-align:middle;font-size:14px;font-weight:800;">'+it.qty+'</td>'
+        +(function(){
+          var fi2=it.freeItems||[];
+          var total2=fi2.reduce(function(s,f){return s+f.qty;},0);
+          if(!total2) return '<td style="padding:8px 10px;text-align:center;vertical-align:middle;"><span style="color:var(--text3);font-size:9px;">—</span></td>';
+          return '<td style="padding:8px 10px;text-align:center;vertical-align:middle;font-size:13px;font-weight:800;color:#166534;">'+total2+'</td>';
+        })()
+        +'<td style="padding:8px 10px;text-align:right;vertical-align:middle;font-size:13px;font-weight:800;color:var(--pink);white-space:nowrap;">฿'+lt.toLocaleString()+'</td>'
+        +'</tr>';}).join('')
+    +'</tbody></table></div>'
+    +(order.billDiscount2pct?'<div class="sum-row" style="background:#fffbeb;border-radius:6px;padding:4px 8px;"><div class="sum-name" style="color:#92400e;">💳 ส่วนลด 2%</div><div class="sum-price" style="color:#dc2626;">−฿'+Math.round(order.items.reduce(function(s,i){return s+lineTotal(i);},0)*0.02).toLocaleString()+'</div></div>':'');
   document.getElementById('sTotalVal').textContent=order.total.toLocaleString();
 }
 function openReportForLast(){if(S.lastOrderRef)openReport(S.lastOrderRef);}
+
+// ═══ FILE ATTACHMENTS ═══
+function handleOrderAttach(input){
+  if(!input.files||!input.files.length) return;
+  for(var i=0;i<input.files.length;i++){
+    var f=input.files[i];
+    if(S.orderAttachments.length>=5){showToast('แนบได้สูงสุด 5 ไฟล์');break;}
+    S.orderAttachments.push({name:f.name,size:f.size,file:f});
+  }
+  input.value='';
+  renderAttachments();
+}
+function removeAttachment(idx){
+  S.orderAttachments.splice(idx,1);
+  renderAttachments();
+}
+function renderAttachments(){
+  var el=document.getElementById('attList');
+  if(!el) return;
+  el.innerHTML=S.orderAttachments.map(function(a,i){
+    var kb=Math.round(a.size/1024);
+    var icon='📎';
+    if(a.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) icon='🖼️';
+    else if(a.name.match(/\.pdf$/i)) icon='📄';
+    else if(a.name.match(/\.(xlsx|xls|csv)$/i)) icon='📊';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--surface);border:1px solid var(--border);border-radius:7px;margin-top:4px;">'
+      +'<span style="font-size:13px;">'+icon+'</span>'
+      +'<span style="flex:1;font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+a.name+'</span>'
+      +'<span style="font-size:9px;color:var(--text3);">'+kb+'KB</span>'
+      +'<button onclick="removeAttachment('+i+')" style="background:none;border:none;cursor:pointer;color:var(--cancel);font-size:14px;padding:0 2px;line-height:1;">×</button>'
+      +'</div>';
+  }).join('');
+}
+
 function resetOrder(){
   S.cart=[];S.selCust=null;S.lastOrderRef=null;
+  S.varModes={};S.varSelections={};S.varSpecialPrice={};S.varSpecialReason={};
+  S.varSkuNotes={};S.varFreeItems={};S.billDiscount2pct=false;S.orderAttachments=[];
+  S.varMismatch={};
+  S.varSkuNotes={};S.varFreeItems={};S.billDiscount2pct=false;S.orderAttachments=[];
   document.getElementById('formWrap').style.display='block';
   document.getElementById('successSc').classList.remove('show');
-  document.getElementById('cSearch').value='';document.getElementById('pSearch').value='';document.getElementById('orderNote').value='';
+  document.getElementById('cSearch').value='';
+  document.getElementById('pSearch').value='';
+  document.getElementById('orderNote').value='';
+  var attList=document.getElementById('attList');
+  if(attList) attList.innerHTML='';
   S.cat='ทั้งหมด'; buildCats(); renderCusts(); renderCart(); renderPgrid();
 }
 
@@ -716,12 +1582,23 @@ function setOStatus(v,el){
   document.querySelectorAll('#statusChips .chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active'); renderOrds();
 }
+function setSOFilter(v,el){
+  S.soFilter=v;
+  document.querySelectorAll('#soFilterChips .chip').forEach(function(c){
+    c.classList.remove('active');
+  });
+  el.classList.add('active');
+  renderOrds();
+}
 function renderOrds(){
   const q=(document.getElementById('oSearch').value||'').toLowerCase().trim();
   document.getElementById('oClr').classList.toggle('show',q.length>0);
   const now=new Date();
   const filtered=S.orders.filter(o=>{
     const ms=S.statusFilter==='all'||o.status===S.statusFilter;
+    const mso=(S.soFilter==='all')
+      ||(S.soFilter==='no_so'&&(o.status!=='approved'||(o.status==='draft')))
+      ||(S.soFilter==='has_so'&&o.status==='approved');
     const mq=!q||o.custName.toLowerCase().includes(q)||o.ref.toLowerCase().includes(q)||o.custId.includes(q);
     const ts=new Date(o.timestamp);
     const md=(()=>{
@@ -744,7 +1621,7 @@ function renderOrds(){
       }
       return true;
     })();
-    return ms&&mq&&md;
+    return ms&&mq&&md&&mso;
   });
   const rev=filtered.filter(o=>o.status==='confirmed').reduce((s,o)=>s+o.total,0);
   const units=filtered.reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.qty,0),0);
@@ -752,7 +1629,7 @@ function renderOrds(){
   const uniqueCusts=new Set(filtered.map(o=>o.custId)).size;
   document.getElementById('oStats').innerHTML=[
     {l:'ยืนยันแล้ว',v:filtered.filter(o=>o.status==='confirmed').length,c:'var(--pink)'},
-    {l:'Approved',v:filtered.filter(o=>o.status==='approved').length,c:'#6366f1'},
+    {l:'สร้าง SO แล้ว',v:filtered.filter(o=>o.status==='approved').length,c:'#059669'},
     {l:'แบบร่าง',v:drafts,c:'var(--cancel)'},
     {l:'ลูกค้ารวม',v:uniqueCusts,c:'var(--pink-m)'},
     {l:'ยอดรวม',v:'฿'+rev.toLocaleString(),c:'var(--text)'},
@@ -772,7 +1649,7 @@ function renderOrds(){
         <div class="o-amt ${isDraft?'draft-amt':''}">฿${o.total.toLocaleString()}</div>
       </div>
       <div class="otags">
-        ${isDraft?'<span class="b b-draft">✏️ แบบร่าง</span>':'<span class="b b-ok">✓ ยืนยัน</span>'}
+        ${isDraft?'<span class="b b-draft">✏️ แบบร่าง</span>':o.status==='approved'?'<span class="b b-ok" style="background:#d1fae5;color:#065f46;border-color:#6ee7b7;">✅ SO แล้ว</span>':'<span class="b b-ok">✓ ยืนยัน</span>'}
         <span class="b b-sales">${o.sales}</span>
         ${modes.includes('dealer')?'<span class="b b-d">Dealer</span>':''}
         ${modes.includes('wholesale')?'<span class="b b-ws">WS</span>':''}
@@ -805,23 +1682,58 @@ function openDetail(ref){
       ${o.note?`<div class="dmi full"><div class="dmi-lbl">หมายเหตุ</div><div class="dmi-val" style="font-size:11px;">${o.note}</div></div>`:''}
     </div>
     <div style="font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">รายการสินค้า</div>
-    ${o.items.map(it=>{
-      const lt=lineTotal(it);
-      const mb=it.mode==='dealer'?'<span class="b b-d">Dealer</span>':it.mode==='wholesale'?'<span class="b b-ws">WS</span>':it.mode==='p50'?'<span class="b b-50">50ลัง</span>':it.mode==='special'?'<span class="b b-sp">⭐ ราคาพิเศษ</span>':'<span class="b b-6">6ลัง</span>';
-      return `<div class="dprow">
-        <div class="dp-em">${it.emoji}</div>
-        <div class="dp-inf">
-          <div class="dp-name">${it.name}</div>
-          <div class="dp-var">${it.variant}</div>
-          <div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;">
-            ${it.trCode?`<span class="var-sku">TR ${it.trCode}</span>`:''}
-            ${it.barcode?`<span class="var-bc">📦 ${it.barcode}</span>`:''}
-          </div>
-          <div class="dp-pi">${mb} <span style="color:var(--text2);">${modeLbl(it)} × ${it.qty} ชิ้น</span>${it.mode==='special'&&it.specialReason?`<span style="font-size:9px;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:4px;padding:1px 5px;">📝 ${it.specialReason}</span>`:''}</div>
-        </div>
-        <div class="dp-rt"><div class="dp-q">×${it.qty}</div><div class="dp-st">฿${lt.toLocaleString()}</div></div>
-      </div>`;
+    <div style="overflow-x:auto;border:1.5px solid var(--border);border-radius:10px;margin-bottom:4px;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:480px;">
+      <thead><tr style="background:var(--pink-ll);border-bottom:1.5px solid var(--border);">
+        <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:800;color:var(--text2);white-space:nowrap;width:85px;">TR Code</th>
+        <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:800;color:var(--text2);">ชื่อสินค้า / SKU</th>
+        <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:var(--text2);white-space:nowrap;">ราคา/ชิ้น</th>
+        <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:var(--text2);">จำนวน</th>
+        <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:800;color:var(--text2);">รวม</th>
+        <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:var(--text2);white-space:nowrap;">Tester/ของแถม</th>
+        <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:800;color:var(--text2);">หมายเหตุ</th>
+      </tr></thead>
+      <tbody>
+    ${o.items.map(function(it,idx){
+      var lt=lineTotal(it);
+      var modeLabel=it.mode==='dealer'?'D':it.mode==='wholesale'?'WS':it.mode==='p50'?'50ลัง':it.mode==='p6'?'6ลัง':'⭐';
+      var modeColor=it.mode==='dealer'?'background:var(--pink-m);color:#fff;':it.mode==='wholesale'?'background:#059669;color:#fff;':'background:#f59e0b;color:#fff;';
+      var rowBg=idx%2===0?'background:#fff;':'background:var(--surface);';
+      var freeStr=it.freeItems&&it.freeItems.length?it.freeItems.map(function(f){return '<span style="font-size:9px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:1px 5px;font-weight:700;color:#166534;">'+(f.type==='tester'?'🧪':'🎁')+' '+f.qty+'</span>';}).join(' '):'';
+      return '<tr style="'+rowBg+'border-bottom:1px solid var(--border);">'
+        +'<td style="padding:8px 10px;vertical-align:middle;">'
+          +(it.trCode?'<span style="font-size:14px;font-weight:900;font-family:monospace;color:var(--pink-d);background:var(--pink-ll);padding:3px 8px;border-radius:6px;display:inline-block;letter-spacing:0.5px;">'+it.trCode+'</span>':'<span style="font-size:10px;color:var(--text3);">—</span>')
+        +'</td>'
+        +'<td style="padding:8px 10px;vertical-align:middle;">'
+          +'<div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.3;">'+it.emoji+' '+it.name+'</div>'
+          +'<div style="font-size:11px;color:var(--text2);margin-top:2px;">'+it.variant+'</div>'
+          +(it.barcode?'<div style="font-size:9px;color:var(--text3);font-family:monospace;margin-top:1px;">'+it.barcode+'</div>':'')
+          +(it.skuNote?'<div style="font-size:9px;color:#92400e;margin-top:2px;background:#fffbeb;border-radius:4px;padding:1px 6px;display:inline-block;">📝 '+it.skuNote+'</div>':'')
+          +(it.isMismatch&&it.specialReason?'<div style="font-size:9px;color:#7c3aed;margin-top:2px;background:#f5f3ff;border-radius:4px;padding:1px 6px;display:inline-block;">⚠️ ราคาพิเศษ: '+it.specialReason+'</div>':'')
+          +(it.mode==='special'&&it.specialReason&&!it.isMismatch?'<div style="font-size:9px;color:#b45309;margin-top:2px;background:#fffbeb;border-radius:4px;padding:1px 6px;display:inline-block;">⭐ '+it.specialReason+'</div>':'')
+          +(freeStr?'<div style="margin-top:3px;display:flex;gap:3px;flex-wrap:wrap;">'+freeStr+'</div>':'')
+        +'</td>'
+        +'<td style="padding:8px 10px;text-align:center;vertical-align:middle;white-space:nowrap;">'
+          +'<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;'+modeColor+'">'+modeLabel+'</span>'
+          +'<div style="font-size:12px;font-weight:700;color:var(--text);margin-top:3px;">฿'+it.unitPrice+'</div>'
+          +(it.mode==='special'&&it.specialReason?'<div style="font-size:9px;color:#92400e;">'+it.specialReason+'</div>':'')
+        +'</td>'
+        +'<td style="padding:8px 10px;text-align:center;vertical-align:middle;font-size:14px;font-weight:800;color:var(--text);">'+it.qty+'</td>'
+        +'<td style="padding:8px 10px;text-align:right;vertical-align:middle;font-size:13px;font-weight:800;color:var(--pink);white-space:nowrap;">฿'+lt.toLocaleString()+'</td>'
+        +(function(){
+          var fi=it.freeItems||[];
+          var total=fi.reduce(function(s,f){return s+f.qty;},0);
+          if(!total) return '<td style="padding:8px 10px;text-align:center;vertical-align:middle;"><span style="font-size:11px;color:var(--text3);">—</span></td>';
+          return '<td style="padding:8px 10px;text-align:center;vertical-align:middle;font-size:14px;font-weight:800;color:#166534;">'+total+'</td>';
+        })()
+        +'<td style="padding:8px 10px;text-align:left;vertical-align:middle;font-size:11px;color:var(--text2);">'
+          +(it.skuNote?'<span style="display:inline-block;background:#fffbeb;border-radius:4px;padding:1px 6px;color:#92400e;font-weight:600;">📝 '+it.skuNote+'</span>':'<span style="color:var(--text3);">—</span>')
+          +(it.specialReason&&it.isMismatch?'<div style="font-size:9px;color:#7c3aed;background:#f5f3ff;border-radius:4px;padding:1px 6px;margin-top:2px;display:inline-block;">⚠️ '+it.specialReason+'</div>':'')
+        +'</td>'
+        +'</tr>';
     }).join('')}
+      </tbody>
+    </table></div>
     <div class="dtot"><span class="dtot-lbl">ยอดรวม</span><span class="dtot-val">฿${o.total.toLocaleString()}</span></div>
     ${isDraft?`
     <button class="btn btn-p" style="margin-top:14px;margin-bottom:8px;" onclick="confirmDraft('${o.ref}')">
@@ -829,33 +1741,49 @@ function openDetail(ref){
       ยืนยัน Order
     </button>`
     :(o.status==='confirmed'?`
-    <div style="margin-top:14px;margin-bottom:8px;background:#F5F3FF;border:1.5px solid #C4B5FD;border-radius:10px;padding:12px 14px">
-      <div style="font-size:11px;font-weight:700;color:#5B21B6;margin-bottom:6px;display:flex;align-items:center;gap:5px">
-        🔗 SO Reference Number <span style="color:var(--danger);font-size:10px">* บังคับกรอก</span>
+    <div style="margin-top:14px;margin-bottom:10px;background:#F5F3FF;border:1.5px solid #C4B5FD;border-radius:10px;padding:12px 14px">
+      <div style="font-size:11px;font-weight:800;color:#5B21B6;margin-bottom:10px;display:flex;align-items:center;gap:5px">
+        🔗 เลข SO &amp; ST Reference
       </div>
-      <div style="font-size:10.5px;color:#7C3AED;margin-bottom:8px;line-height:1.5">
-        กรอก SO Number จาก ERP เพื่อเชื่อมเอกสาร
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:140px;">
+          <div style="font-size:10px;font-weight:700;color:#7C3AED;margin-bottom:4px;">SO Number <span style="color:var(--danger);">* บังคับกรอก</span></div>
+          <input id="so-ref-input-${o.ref}" type="text" placeholder="เช่น SO260300122"
+            value="${o.soRef||''}"
+            style="width:100%;padding:7px 10px;border:1.5px solid #C4B5FD;border-radius:7px;font-size:13px;font-family:monospace;font-weight:700;color:#1A1A1A;background:#fff;box-sizing:border-box;outline:none;"
+            oninput="soRefInputChange('${o.ref}',this.value)"
+            onfocus="this.style.borderColor='#7C3AED'"
+            onblur="this.style.borderColor='#C4B5FD'">
+          <div id="so-ref-err-${o.ref}" style="display:none;font-size:10px;color:var(--danger);margin-top:3px;font-weight:600;">⚠ กรุณากรอก SO Number</div>
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <div style="font-size:10px;font-weight:700;color:#6366f1;margin-bottom:4px;">ST Reference Number <span style="font-size:9px;color:var(--text3);">(ถ้ามี)</span></div>
+          <input id="st-ref-input-${o.ref}" type="text" placeholder="เช่น ST260300100"
+            value="${o.stRef||''}"
+            style="width:100%;padding:7px 10px;border:1.5px solid #C7D2FE;border-radius:7px;font-size:13px;font-family:monospace;font-weight:700;color:#1A1A1A;background:#fff;box-sizing:border-box;outline:none;"
+            oninput="stRefInputChange('${o.ref}',this.value)"
+            onfocus="this.style.borderColor='#6366f1'"
+            onblur="this.style.borderColor='#C7D2FE'">
+        </div>
       </div>
-      <div style="margin-bottom:8px">
-        ${(function(){var latest=getLatestSORef();return '<div style="font-size:10px;color:var(--text3);margin-bottom:5px">SO ล่าสุดในระบบ (อ้างอิง):</div><span style="font-size:11px;font-family:monospace;font-weight:700;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:3px 10px;cursor:pointer;border:1.5px solid #7C3AED;display:inline-block" onclick="document.getElementById(\'so-ref-input-${o.ref}\').value=\''+latest+'\';soRefInputChange(\'${o.ref}\',\''+latest+'\');">'+latest+'</span>';})()}
-      </div>
-      <input id="so-ref-input-${o.ref}" type="text" placeholder="เช่น SO260300122, SO260300123" 
-        value="${o.soRef||(getLatestSORef())}"
-        style="width:100%;padding:8px 11px;border:1.5px solid #C4B5FD;border-radius:7px;font-size:12px;font-family:monospace;font-weight:600;color:#1A1A1A;background:#fff;box-sizing:border-box;outline:none"
-        oninput="soRefInputChange('${o.ref}',this.value)"
-        onfocus="this.style.borderColor='#7C3AED'" 
-        onblur="this.style.borderColor='#C4B5FD'">
-      <div id="so-ref-err-${o.ref}" style="display:none;font-size:10.5px;color:var(--danger);margin-top:4px;font-weight:600">⚠ กรุณากรอก SO Number ก่อน Approve</div>
     </div>
-    <button class="btn" style="margin-bottom:8px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,.28);" onclick="approveOrder('${o.ref}')">
-      ✅ Approve Order
-    </button>`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button class="btn" style="background:linear-gradient(135deg,#059669,#047857);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.28);padding:10px 22px;font-size:13px;font-weight:800;" onclick="approveOrder('${o.ref}')">
+        ✅ สร้าง Sales Order เสร็จแล้ว
+      </button>
+    </div>`
     :(o.status==='approved'?`
-    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#EEF2FF;border-radius:8px;border:1.5px solid #C7D2FE;margin-top:14px;margin-bottom:8px">
-      <span style="font-size:14px">✅</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:#4338CA">Approved — พร้อมสร้าง SO ใน ERP</div>
-        <div style="font-size:10.5px;color:#6366f1">SO Ref: <span style="font-family:monospace;font-weight:800;color:#3730A3">${o.soRef||'—'}</span></div>
+    <div style="margin-top:14px;margin-bottom:8px;background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:10px;padding:10px 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">✅</span>
+          <div style="font-size:12px;font-weight:800;color:#065F46;">Sales Order สร้างแล้ว</div>
+        </div>
+        <button onclick="editSORef('${o.ref}')" style="padding:5px 14px;border-radius:7px;border:1.5px solid #6EE7B7;background:#fff;cursor:pointer;font-size:11px;font-weight:800;color:#065F46;font-family:inherit;">✏️ แก้ไข</button>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div><span style="font-size:10px;color:#059669;">SO: </span><span style="font-family:monospace;font-size:13px;font-weight:900;color:#047857;">${o.soRef||'—'}</span></div>
+        ${o.stRef?'<div><span style="font-size:10px;color:#6366f1;">ST: </span><span style="font-family:monospace;font-size:13px;font-weight:900;color:#4338CA;">'+o.stRef+'</span></div>':''}
       </div>
     </div>`:''
     )
@@ -879,6 +1807,17 @@ function openDetail(ref){
 }
 function showDelConfirm(ref){document.getElementById('delConf-'+ref).classList.add('show');}
 function hideDelConfirm(ref){document.getElementById('delConf-'+ref).classList.remove('show');}
+function editSORef(ref){
+  var o=S.orders.find(function(x){return x.ref===ref;});
+  if(!o) return;
+  o.status='confirmed';
+  closeSheet('detailSheet');
+  setTimeout(function(){openDetail(ref);},80);
+}
+function stRefInputChange(ref, val){
+  var o=S.orders.find(function(x){return x.ref===ref;}); if(!o) return;
+  o.stRef=val.trim();
+}
 function soRefInputChange(ref, val){
   const o=S.orders.find(x=>x.ref===ref); if(!o) return;
   o.soRef=val.trim();
@@ -941,7 +1880,7 @@ function approveOrder(ref){
   o.status='approved';
   o.approvedAt=new Date().toISOString();
   closeSheet('detailSheet'); orderUpdateBadge(); renderOrds();
-  showToast('✅ Approve Order สำเร็จ — SO: '+soRefVal+' พร้อมสร้างใน ERP');
+  showToast('✅ สร้าง Sales Order เสร็จแล้ว — SO: '+soRefVal+(o.stRef?' | ST: '+o.stRef:''));
 }
 
 function confirmDraft(ref){
