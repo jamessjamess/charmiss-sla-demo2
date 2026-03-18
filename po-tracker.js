@@ -716,12 +716,22 @@ function buildExpandHtml(t){
 }
 
 function buildJourneyRow(t){
-  var v=VENDORS[t.vendor]||{color:'#666',bg:'#eee',logo:'??'};
+  var isTT = t.caseType === 'ORDER';
+  var v = isTT
+    ? {color:'#166534', bg:'#DCFCE7', logo:'TT'}
+    : (VENDORS[t.vendor]||{color:'#666',bg:'#eee',logo:'??'});
   var sla=getSLAStatus(t.startTs,t.status);
   var isStuck=Object.values(t.journey).some(function(s){return s.stuck;});
   var elapsedHrs=Math.floor((Date.now()-t.startTs)/3600000);
   var stuckBadge=isStuck?'<span class="stuck-badge">⚠️ ค้าง</span>':'';
-  // Generate SO number: SO + year(2-digit) + month(2-digit) + sequential from id
+
+  // TT: แสดงชื่อร้านค้า (shopName) แทน "Traditional Trade"
+  var displayName = isTT ? (t.shopName || t.vendor) : t.vendor;
+  var ttTag = isTT
+    ? '<span style="display:inline-block;margin-top:3px;font-size:9px;background:#DCFCE7;color:#166534;border-radius:3px;padding:1px 6px;font-weight:700;border:1px solid #BBF7D0;">Traditional Trade</span>'
+    : '';
+
+  // Generate SO number
   var soDate=new Date(t.startTs);
   var soYear=String(soDate.getFullYear()).slice(-2);
   var soMonth=String(soDate.getMonth()+1).padStart(2,'0');
@@ -730,7 +740,11 @@ function buildJourneyRow(t){
   var mainRow='<tr class="jt-row'+(isStuck?' is-stuck':'')+'" id="jrow-'+t.id+'" onclick="toggleJourneyRow('+t.id+')">'
     +'<td><div style="display:flex;align-items:center;gap:7px">'
     +'<div class="vlogo" style="color:'+v.color+';background:'+v.bg+';width:28px;height:28px;border-radius:7px;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+v.logo+'</div>'
-    +'<div><div style="font-weight:700;font-size:12.5px">'+t.vendor+'</div>'+stuckBadge+'</div>'
+    +'<div>'
+    +'<div style="font-weight:700;font-size:12.5px">'+displayName+'</div>'
+    +ttTag
+    +stuckBadge
+    +'</div>'
     +'</div></td>'
     +'<td><span style="font-family:monospace;font-size:11px;color:var(--text2)">'+(t.poRef||'—')+'</span></td>'
     +'<td><span style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--text)">'+soNum+'</span></td>'
