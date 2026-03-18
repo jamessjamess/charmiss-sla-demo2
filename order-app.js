@@ -242,9 +242,11 @@ S.orders = [
     ref:'ORD-260301-001', status:'confirmed', soNumber:'SO260300201',
     custId:'768', custName:'ชมพู่คอสเมติกส์', sales:'ฝนเทพ',
     items:[
-      {pid:'g_blush',name:'Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'04 Crush Blush',trCode:'16040',barcode:'8857127482248',qty:6,mode:'dealer',dp:60,wp:67,p50:null,p6:null,unitPrice:60},
+      {pid:'g_blush',name:'Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'04 Crush Blush',trCode:'16040',barcode:'8857127482248',qty:6,mode:'dealer',dp:60,wp:67,p50:null,p6:null,unitPrice:60,
+       freeItems:[{type:'tester',qty:1}]},
       {pid:'g_blush',name:'Glowfriend Natural Blush On',emoji:'🌸',cat:'Cheek',variant:'05 Rosy Cheeks',trCode:'16050',barcode:'8857127482255',qty:4,mode:'dealer',dp:60,wp:67,p50:null,p6:null,unitPrice:60},
-      {pid:'g_airykiss',name:'Show Me Your Charm Airy Kiss Tint',emoji:'💋',cat:'Lip',variant:'02 Adore Me',trCode:'33140',barcode:'8857127482316',qty:12,mode:'wholesale',dp:60,wp:67,p50:null,p6:null,unitPrice:67},
+      {pid:'g_airykiss',name:'Show Me Your Charm Airy Kiss Tint',emoji:'💋',cat:'Lip',variant:'02 Adore Me',trCode:'33140',barcode:'8857127482316',qty:12,mode:'wholesale',dp:60,wp:67,p50:null,p6:null,unitPrice:67,
+       freeItems:[{type:'free',qty:2}]},
     ],
     total: 6*60+4*60+12*67, note:'ส่งด่วน กรุณาแพ็คแยกสี',
     timestamp: new Date(Date.now()-2*60*60*1000).toISOString(),
@@ -253,7 +255,8 @@ S.orders = [
     ref:'ORD-260310-002', status:'confirmed', soNumber:'SO260300202',
     custId:'1887', custName:'ไอซี่ บิวตี้ สำนักงานใหญ่', sales:'ฝนเทพ',
     items:[
-      {pid:'g_eyepalette',name:'Glowlogram Eyeshadow Palette',emoji:'🎨',cat:'Eye',variant:'01 Sweet Moments',trCode:'22010',barcode:'8857127482569',qty:4,mode:'dealer',dp:80,wp:90,p50:null,p6:null,unitPrice:80},
+      {pid:'g_eyepalette',name:'Glowlogram Eyeshadow Palette',emoji:'🎨',cat:'Eye',variant:'01 Sweet Moments',trCode:'22010',barcode:'8857127482569',qty:4,mode:'dealer',dp:80,wp:90,p50:null,p6:null,unitPrice:80,
+       freeItems:[{type:'tester',qty:1},{type:'free',qty:1}]},
       {pid:'g_mochiblush',name:'Glowfriend Mochi Blush On',emoji:'🍡',cat:'Cheek',variant:'03 Peach Puff',trCode:'16220',barcode:'8857128879689',qty:6,mode:'dealer',dp:110,wp:120,p50:null,p6:null,unitPrice:110},
       {pid:'g_airykiss',name:'Show Me Your Charm Airy Kiss Tint',emoji:'💋',cat:'Lip',variant:'04 Berry Kiss',trCode:'33160',barcode:'8857127482330',qty:3,mode:'wholesale',dp:60,wp:67,p50:null,p6:null,unitPrice:67},
     ],
@@ -570,7 +573,7 @@ function renderPgrid(){
         +tierBtnHtml('wholesale','WS ฿'+p.wholesale)
         +(any50?tierBtnHtml('p50','50ลัง ฿'+v.price50):'')
         +(any6?tierBtnHtml('p6','6ลัง ฿'+v.price6):'')
-        +tierBtnHtml('special','⭐')
+        +tierBtnHtml('special','ราคาพิเศษ')
         +'</div>';
       // Mismatch check
       var custPT3=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
@@ -581,10 +584,10 @@ function renderPgrid(){
       }
       if(mode==='special'){
         var spVal=(S.varSpecialPrice[vkey]||'');
-        var spReason=(S.varSpecialReason[vkey]||'').replace(/"/g,'&quot;');
-        tierHtml+='<div style="display:flex;gap:3px;margin-top:3px;">'
-          +'<input data-action="sprice" data-vkey="'+vkeyAttr+'" type="number" min="0" placeholder="฿" value="'+spVal+'" style="width:55px;padding:2px 5px;border:1.5px solid #f59e0b;border-radius:5px;font-size:11px;font-family:inherit;">'
-          +'<input data-action="sreason" data-vkey="'+vkeyAttr+'" type="text" placeholder="เหตุผลราคาพิเศษ" value="'+spReason+'" style="flex:1;min-width:60px;padding:2px 5px;border:1.5px solid #f59e0b;border-radius:5px;font-size:11px;font-family:inherit;">'
+        tierHtml+='<div style="display:flex;gap:3px;margin-top:3px;align-items:center;">'
+          +'<span style="font-size:9px;color:#d97706;font-weight:700;white-space:nowrap;">฿ราคา:</span>'
+          +'<input data-action="sprice" data-vkey="'+vkeyAttr+'" type="number" min="0" placeholder="฿" value="'+spVal+'" style="width:65px;padding:2px 5px;border:1.5px solid #f59e0b;border-radius:5px;font-size:11px;font-family:inherit;">'
+          +'<span style="font-size:9px;color:#d97706;">← กรอกเหตุผลในช่องหมายเหตุ →</span>'
           +'</div>';
       }
 
@@ -602,21 +605,33 @@ function renderPgrid(){
         +'<input class="var-qnum psh-qty-input" data-action="setqty" data-vkey="'+vkeyAttr+'" type="number" min="0" value="'+qty+'" style="width:42px;text-align:center;">'
         +'<button class="var-qbtn" data-action="adjqty" data-vkey="'+vkeyAttr+'" data-delta="1">+</button>'
         +'</div>'
-      // ── Note ──
+      // ── Note (ช่องขวาสุด) — บังคับเมื่อ mismatch หรือ special ──
       var skuNote=(S.varSkuNotes[vkey]||'').replace(/"/g,'&quot;');
+      var needsNote = isTierMismatch || (mode==='special');
+      var hasMismatchReason=(S.varSpecialReason[vkey]||'').trim().length>0;
       var mismatchNote=(isTierMismatch&&!hasMismatchReason);
-      var noteBorderColor=mismatchNote?'#dc2626':'var(--border)';
-      var notePlaceholder=isTierMismatch?'* เหตุผลที่ใช้ราคาข้ามประเภท (บังคับ)':'หมายเหตุ SKU...';
-      var noteHtml=(isTierMismatch?'<div style="font-size:9px;color:#92400e;font-weight:700;margin-bottom:2px;">⚠️ บังคับกรอก</div>':'')        +'<input data-action="skunote" data-vkey="'+vkeyAttr+'" type="text" placeholder="'+notePlaceholder+'" value="'+skuNote+'" style="width:100%;min-width:90px;padding:3px 6px;border:1.5px solid '+noteBorderColor+';border-radius:5px;font-size:11px;font-family:inherit;background:'+(mismatchNote?'#fff8f8':'var(--bg)')+';box-sizing:border-box;">';
+      var noteBorderColor=mismatchNote?'#dc2626':needsNote?'#f59e0b':'var(--border)';
+      var notePlaceholder=isTierMismatch
+        ?'* เหตุผลที่ใช้ราคาข้ามประเภท (บังคับ)'
+        :mode==='special'
+          ?'เหตุผลที่ขอราคาพิเศษ...'
+          :'หมายเหตุ SKU...';
+      var noteWarning = mismatchNote
+        ? '<div style="font-size:9px;color:#92400e;font-weight:700;margin-bottom:2px;">⚠️ บังคับกรอก</div>'
+        : (mode==='special'
+            ? '<div style="font-size:9px;color:#d97706;font-weight:700;margin-bottom:2px;">⭐ ราคาพิเศษ</div>'
+            : '');
+      var noteHtml = noteWarning
+        +'<input data-action="skunote" data-vkey="'+vkeyAttr+'" type="text" placeholder="'+notePlaceholder+'" value="'+skuNote+'" style="width:100%;min-width:90px;padding:3px 6px;border:1.5px solid '+noteBorderColor+';border-radius:5px;font-size:11px;font-family:inherit;background:'+(mismatchNote?'#fff8f8':needsNote?'#fffbeb':'var(--bg)')+';box-sizing:border-box;">';
 
       // ── Free/Tester ──
-      // Single ของแถม/Tester qty input
       var freeTotal=(S.varFreeItems[vkey]||[]).reduce(function(s,f){return s+f.qty;},0);
       var freeHtml=
         '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">'
-        +'<button class="var-qbtn psh-free-btn" type="button" data-freevkey="'+vkeyAttr+'" data-freedelta="-1">−</button>'
-        +'<input data-action="setfreetotal" data-vkey="'+vkeyAttr+'" type="number" min="0" value="'+freeTotal+'" placeholder="0" style="width:42px;padding:2px 4px;border:1.5px solid '+(freeTotal>0?'#059669':'var(--border)')+';border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:inherit;background:'+(freeTotal>0?'#f0fdf4':'var(--bg)')+';color:'+(freeTotal>0?'#166534':'var(--text3)')+';transition:all .15s;">'
-        +'<button class="var-qbtn psh-free-btn" type="button" data-freevkey="'+vkeyAttr+'" data-freedelta="1">+</button>'
+        +'<button class="var-qbtn" type="button" data-action="adjfreetotal" data-vkey="'+vkeyAttr+'" data-delta="-1">−</button>'
+        +'<input data-action="setfreetotal" data-vkey="'+vkeyAttr+'" type="number" value="'+freeTotal+'" placeholder="0" style="width:42px;padding:2px 4px;border:1.5px solid '+(freeTotal>0?'#059669':'var(--border)')+';border-radius:6px;font-size:13px;font-weight:700;text-align:center;font-family:inherit;background:'+(freeTotal>0?'#f0fdf4':'var(--bg)')+';color:'+(freeTotal>0?'#166534':'var(--text3)')+';transition:all .15s;">'
+        +'<button class="var-qbtn" type="button" data-action="adjfreetotal" data-vkey="'+vkeyAttr+'" data-delta="1">+</button>'
+        +'</div>';
 
       var rowBg=qty>0?'background:var(--pink-l);':'';
       html+='<tr data-vkey="'+vkeyAttr+'" style="'+rowBg+'">'
@@ -645,37 +660,37 @@ function renderPgrid(){
 }
 
 // ── Central event handler for all psheet interactions ──
-var _pshClickHandler = null;
-var _pshChangeHandler = null;
-var _pshInputHandler = null;
-function attachPsheetHandlers(container){
-  // Remove previous listeners before attaching new ones (prevents double-fire)
-  if(_pshClickHandler)  container.removeEventListener('click',  _pshClickHandler);
-  if(_pshChangeHandler) container.removeEventListener('change', _pshChangeHandler);
-  if(_pshInputHandler)  container.removeEventListener('input',  _pshInputHandler);
-  _pshClickHandler = function(e){
-    var el=e.target.closest('[data-action]');
-    if(!el) return;
-    e.stopPropagation();
-    var action=el.getAttribute('data-action');
-    var vkey=el.getAttribute('data-vkey');
-    if(!vkey) return;
-    var parts=vkey.split('||');
-    var pid=parts[0], label=parts.slice(1).join('||');
+// Attached to DOCUMENT once at startup — never re-attached, zero double-fire risk.
+var _pshHandlerBound = false;
 
+function attachPsheetHandlers(container){
+  // container is passed in but listeners live on document, so re-calls are no-ops
+  if(_pshHandlerBound) return;
+  _pshHandlerBound = true;
+
+  function getPshContainer(){ return document.getElementById('prod-flat-list'); }
+
+  document.addEventListener('click', function(e){
+    var c = getPshContainer();
+    if(!c || !c.contains(e.target)) return;     // ignore clicks outside psheet
+    var el = e.target.closest('[data-action]');
+    if(!el || !c.contains(el)) return;
+    e.stopPropagation();
+    var action = el.getAttribute('data-action');
+    var vkey   = el.getAttribute('data-vkey');
+    if(!vkey) return;
+    var parts = vkey.split('||');
+    var pid   = parts[0], label = parts.slice(1).join('||');
+
+var _freeAdjBusy = false;
     if(action==='setmode'){
       var mode=el.getAttribute('data-mode');
       var custPT2=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
       var isMismatch=(custPT2==='Dealer'&&mode==='wholesale')||(custPT2==='Wholesale'&&mode==='dealer');
       if(isMismatch){
-        // Show inline warning — don't block, but flag it
-        if(!S.varSpecialReason[vkey]){
-          S.varModes[vkey]=mode;
-          S.varMismatch=S.varMismatch||{};
-          S.varMismatch[vkey]=true;
-        } else {
-          S.varModes[vkey]=mode;
-        }
+        S.varModes[vkey]=mode;
+        S.varMismatch=S.varMismatch||{};
+        S.varMismatch[vkey]=true;
       } else {
         S.varModes[vkey]=mode;
         if(S.varMismatch) delete S.varMismatch[vkey];
@@ -684,35 +699,53 @@ function attachPsheetHandlers(container){
     } else if(action==='adjqty'){
       var delta=parseInt(el.getAttribute('data-delta'))||0;
       pshAdjQty(pid,label,vkey,delta);
-    } else if(el.classList&&el.classList.contains('psh-free-btn')){
-      // Free/tester +/- via data attribute (avoids onclick quote issues)
-      var fvkey=el.getAttribute('data-freevkey');
-      var fdeltaF=parseInt(el.getAttribute('data-freedelta'))||0;
-      if(fvkey){
-        e.stopPropagation();
-        pshFreeAdj(fvkey, fdeltaF);
-      }
-      return;
     } else if(action==='adjfreetotal'){
+      if(_freeAdjBusy) return;
+      _freeAdjBusy = true;
+      e.stopImmediatePropagation();
       var fdelta2=parseInt(el.getAttribute('data-delta'))||0;
+      var cc2=getPshContainer();
       if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
       var curTotal=S.varFreeItems[vkey].reduce(function(s,f){return s+f.qty;},0);
       var newTotal=Math.max(0,curTotal+fdelta2);
       S.varFreeItems[vkey]=newTotal>0?[{type:'free',qty:newTotal}]:[];
+
+      // sync to cart item — create ghost item (qty=0) if SKU not yet in cart
       var ci3=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
-      if(ci3) ci3.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
-      // Update input visually — suppress the change event with a flag
-      var inp=el.parentNode.querySelector('input[data-action="setfreetotal"]');
-      if(inp){
-        inp.dataset.suppressChange='1';
-        inp.value=newTotal;
-        inp.style.borderColor=newTotal>0?'#059669':'var(--border)';
-        inp.style.background=newTotal>0?'#f0fdf4':'var(--bg)';
-        inp.style.color=newTotal>0?'#166534':'var(--text3)';
-        setTimeout(function(){inp.dataset.suppressChange='';},0);
+      if(!ci3 && newTotal>0){
+        // สร้าง ghost item ใน cart เพื่อให้แสดงใน ตะกร้า
+        var gp=PRODUCTS.find(function(x){return x.id===pid;});
+        var gv=gp&&gp.variants.find(function(x){return x.label===label;});
+        if(gp&&gv){
+          ci3={pid:pid,name:gp.name,emoji:gp.emoji,cat:gp.cat,
+            variant:label,trCode:gv.trCode,barcode:gv.barcode,
+            qty:0,mode:S.varModes[vkey]||'dealer',
+            dp:gp.dealer,wp:gp.wholesale,p50:gv.price50,p6:gv.price6,
+            unitPrice:gp.dealer,specialPrice:null,specialReason:'',
+            isMismatch:false,skuNote:'',freeItems:[]};
+          S.cart.push(ci3);
+        }
       }
+      if(ci3){
+        ci3.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
+        // ถ้า newTotal=0 และ qty=0 → ลบออกจาก cart
+        if(newTotal===0 && ci3.qty===0){
+          S.cart=S.cart.filter(function(c){return !(c.pid===pid&&c.variant===label);});
+        }
+      }
+      // Update input DOM directly — no re-render of pgrid needed
+      var inp2=cc2&&cc2.querySelector('input[data-action="setfreetotal"][data-vkey="'+vkey+'"]');
+      if(inp2){
+        inp2.dataset.suppressChange='1';
+        inp2.value=newTotal;
+        inp2.style.borderColor=newTotal>0?'#059669':'var(--border)';
+        inp2.style.background=newTotal>0?'#f0fdf4':'var(--bg)';
+        inp2.style.color=newTotal>0?'#166534':'var(--text3)';
+        setTimeout(function(){delete inp2.dataset.suppressChange;},0);
+      }
+      renderCart();
+      setTimeout(function(){_freeAdjBusy=false;},0);
     } else if(action==='addfree'){
-      // legacy — redirect to adjfreetotal logic
       if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
       var exAll=S.varFreeItems[vkey].reduce(function(s,f){return s+f.qty;},0);
       S.varFreeItems[vkey]=[{type:'free',qty:exAll+1}];
@@ -730,11 +763,11 @@ function attachPsheetHandlers(container){
       if(S.varFreeItems[vkey]) S.varFreeItems[vkey].splice(ridx,1);
       renderPgrid();
     }
-  };
-  container.addEventListener('click', _pshClickHandler);
+  });
 
-  // Input handlers (change/input events)
-  _pshChangeHandler = function(e){
+  document.addEventListener('change', function(e){
+    var c=getPshContainer();
+    if(!c||!c.contains(e.target)) return;
     var el=e.target;
     var action=el.getAttribute('data-action');
     var vkey=el.getAttribute('data-vkey');
@@ -744,51 +777,36 @@ function attachPsheetHandlers(container){
 
     if(action==='setqty'){
       pshSetQty(pid,label,vkey,parseInt(el.value)||0);
-    } else if(action==='setfreeqty'){
-      var fidxC=parseInt(el.getAttribute('data-fidx'));
-      var newQty=Math.max(0,parseInt(el.value)||0);
-      if(S.varFreeItems[vkey]&&S.varFreeItems[vkey][fidxC]!==undefined){
-        if(newQty===0){S.varFreeItems[vkey].splice(fidxC,1); renderPgrid();}
-        else{S.varFreeItems[vkey][fidxC].qty=newQty;}
-        var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
-        if(ci) ci.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]||[]));
-      }
-    } else if(action==='setfreetype'||action==='setfreetotal'){
-      if(el.dataset.suppressChange) return;  // suppressed by adjfreetotal button
-      // Single combined ของแถม/Tester qty
+    } else if(action==='setfreetotal'){
+      if(el.dataset.suppressChange) return;
       var newFqty=Math.max(0,parseInt(el.value)||0);
       if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
-      // Store as single entry with type='free'
-      if(newFqty===0){
-        S.varFreeItems[vkey]=[];
-      } else {
-        S.varFreeItems[vkey]=[{type:'free',qty:newFqty}];
-      }
+      S.varFreeItems[vkey]=newFqty>0?[{type:'free',qty:newFqty}]:[];
       var ci2=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
       if(ci2) ci2.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
-      // Re-style input instantly
-      var hasVal=newFqty>0;
-      el.style.borderColor=hasVal?'#059669':'var(--border)';
-      el.style.background=hasVal?'#f0fdf4':'var(--bg)';
-      el.style.color=hasVal?'#166534':'var(--text3)';
+      el.style.borderColor=newFqty>0?'#059669':'var(--border)';
+      el.style.background=newFqty>0?'#f0fdf4':'var(--bg)';
+      el.style.color=newFqty>0?'#166534':'var(--text3)';
     } else if(action==='sprice'){
       S.varSpecialPrice[vkey]=parseFloat(el.value)||null;
-      // update cart if exists
       var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
       if(ci&&ci.mode==='special'){ci.unitPrice=S.varSpecialPrice[vkey]||ci.dp;renderCart();}
     } else if(action==='sreason'){
       S.varSpecialReason[vkey]=el.value;
-      var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
-      if(ci) ci.specialReason=el.value;
     } else if(action==='skunote'){
       S.varSkuNotes[vkey]=el.value;
       var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
       if(ci) ci.skuNote=el.value;
+      var curMode=S.varModes[vkey]||'dealer';
+      var custPT=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
+      var isMM=(custPT==='Dealer'&&curMode==='wholesale')||(custPT==='Wholesale'&&curMode==='dealer');
+      if(curMode==='special'||isMM){ S.varSpecialReason[vkey]=el.value; if(ci) ci.specialReason=el.value; }
     }
-  };
-  container.addEventListener('change', _pshChangeHandler);
-  // Also handle input event for notes (live update without needing blur)
-  _pshInputHandler = function(e){
+  });
+
+  document.addEventListener('input', function(e){
+    var c=getPshContainer();
+    if(!c||!c.contains(e.target)) return;
     var el=e.target;
     var action=el.getAttribute('data-action');
     if(action==='skunote'||action==='sreason'||action==='sprice'){
@@ -800,14 +818,17 @@ function attachPsheetHandlers(container){
         S.varSkuNotes[vkey]=el.value;
         var ci=S.cart.find(function(c){return c.pid===pid&&c.variant===label;});
         if(ci) ci.skuNote=el.value;
-      }else if(action==='sreason'){
+        var curMode=S.varModes[vkey]||'dealer';
+        var custPT2=(S.selCust&&(S.selCust.priceType||S.selCust.type))||'Dealer';
+        var isMM2=(custPT2==='Dealer'&&curMode==='wholesale')||(custPT2==='Wholesale'&&curMode==='dealer');
+        if(curMode==='special'||isMM2){ S.varSpecialReason[vkey]=el.value; if(ci) ci.specialReason=el.value; }
+      } else if(action==='sreason'){
         S.varSpecialReason[vkey]=el.value;
-      }else if(action==='sprice'){
+      } else if(action==='sprice'){
         S.varSpecialPrice[vkey]=parseFloat(el.value)||null;
       }
     }
-  };
-  container.addEventListener('input', _pshInputHandler);
+  });
 }
 
 function pshGetPrice(pid,label,vkey){
@@ -925,25 +946,6 @@ function pshAddToCart(pid,label,vkey,qty){
 }
 
 
-// Global free/tester adj — avoids event delegation double-fire
-function pshFreeAdj(vkey,delta){
-  if(!S.varFreeItems[vkey]) S.varFreeItems[vkey]=[];
-  var cur=S.varFreeItems[vkey].reduce(function(s,f){return s+f.qty;},0);
-  var nv=Math.max(0,cur+delta);
-  S.varFreeItems[vkey]=nv>0?[{type:'free',qty:nv}]:[];
-  var ci=S.cart.find(function(c){return c.pid===vkey.split('||')[0]&&c.variant===vkey.split('||').slice(1).join('||');});
-  if(ci) ci.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
-  // Update DOM directly — no re-render needed
-  var container=document.getElementById('prod-flat-list');
-  if(!container) return;
-  var inp=container.querySelector('input[data-action="setfreetotal"][data-vkey="'+vkey+'"]');
-  if(inp){
-    inp.value=nv;
-    inp.style.borderColor=nv>0?'#059669':'var(--border)';
-    inp.style.background=nv>0?'#f0fdf4':'var(--bg)';
-    inp.style.color=nv>0?'#166534':'var(--text3)';
-  }
-}
 function filterP(){
   document.getElementById('pClr').classList.toggle('show',document.getElementById('pSearch').value.length>0);
   if(renderPgridDebounced) renderPgridDebounced(); else renderPgrid();
@@ -1342,21 +1344,72 @@ function syncCartFreeItems(){
 }
 function renderCart(){
   var cc=document.getElementById('cartCard'),ch=document.getElementById('cartHint'),sw=document.getElementById('sumWrap');
-  if(!S.cart.length){cc.style.display='none';ch.style.display='block';sw.style.display='none';return;}
+
+  // รวม items ที่มี qty>0 หรือ freeItems>0 (syncFreeItems ก่อน)
+  S.cart.forEach(function(ci){
+    var vkey=ci.pid+'||'+ci.variant;
+    if(S.varFreeItems[vkey]) ci.freeItems=JSON.parse(JSON.stringify(S.varFreeItems[vkey]));
+  });
+
+  // items ที่จะแสดงในตะกร้า = qty>0 หรือ freeTotal>0
+  var displayItems=S.cart.filter(function(it){
+    var ft=(it.freeItems||[]).reduce(function(s,f){return s+f.qty;},0);
+    return it.qty>0||ft>0;
+  });
+
+  if(!displayItems.length){cc.style.display='none';ch.style.display='block';sw.style.display='none';return;}
   cc.style.display='block';ch.style.display='none';sw.style.display='block';
+  // badge แสดงเฉพาะ items ที่อยู่ใน S.cart จริง
   document.getElementById('cartBg').textContent=S.cart.length;
-  var cartHtml=S.cart.map(function(it,idx){
+
+  var cartHtml=displayItems.map(function(it){
+    // หา idx จริงใน S.cart สำหรับ chQty/rmItem
+    var idx=S.cart.indexOf(it);
     var lt=lineTotal(it);
+    var freeTotal=(it.freeItems||[]).reduce(function(s,f){return s+f.qty;},0);
     var modeLabel=it.mode==='dealer'?'Dealer':it.mode==='wholesale'?'WS':it.mode==='p50'?'50ลัง':it.mode==='p6'?'6ลัง':'⭐ พิเศษ';
     var modeClass=it.mode==='dealer'?'b-d':it.mode==='wholesale'?'b-ws':it.mode==='p50'?'b-50':it.mode==='p6'?'b-6':'b-sp';
+
+    // ── freeHtml ──
     var freeHtml='';
-    if(it.freeItems&&it.freeItems.length){
-      freeHtml='<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">'
-        +it.freeItems.map(function(fi){
-          return '<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-weight:700;">'
-            +(fi.type==='tester'?'🧪 Tester':'🎁 ของแถม')+' '+fi.qty+' ชิ้น</span>';
-        }).join('')+'</div>';
+    if(freeTotal>0){
+      freeHtml='<div style="display:flex;align-items:center;gap:8px;margin-top:6px;padding:5px 10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;">'
+        +'<span style="font-size:11px;font-weight:800;color:#15803d;background:#dcfce7;border:1px solid #86efac;border-radius:6px;padding:2px 12px;letter-spacing:.2px;">Tester/ของแถม ×'+freeTotal+'</span>'
+        +'<span style="font-size:9.5px;color:#6b7280;margin-left:auto;">ไม่คิดในยอดรวม</span>'
+        +'</div>';
     }
+
+    // ── กรณี qty=0 (ghost item มี freeItems เท่านั้น) ──
+    var isGhost = (it.qty === 0);
+    var priceRow = isGhost
+      ? '<div class="crow" style="background:var(--surface2);border-radius:8px;padding:6px 8px;border:1px dashed var(--border);">'
+          +'<div class="qtyctrl">'
+          +'<button class="qtybtn" style="opacity:.4;cursor:default;">−</button>'
+          +'<span class="qtynum" style="background:transparent;border:none;color:var(--text3);font-size:13px;">0</span>'
+          +'<button class="qtybtn" onclick="chQty('+idx+',1)" title="เพิ่มจำนวนสั่งซื้อ">+</button>'
+          +'</div>'
+          +'<span style="flex:1;font-size:11.5px;color:var(--text3);">฿'+it.unitPrice+' × 0 ชิ้น</span>'
+          +'<span style="font-size:13px;font-weight:700;color:var(--text3);">฿0</span>'
+          +'</div>'
+      : '<div class="crow" style="background:var(--surface);border-radius:8px;padding:6px 8px;">'
+          +'<div class="qtyctrl">'
+          +'<button class="qtybtn" onclick="chQty('+idx+',-1)">−</button>'
+          +'<input class="qtynum" type="number" min="1" value="'+it.qty+'" onchange="stQty('+idx+',this.value)">'
+          +'<button class="qtybtn" onclick="chQty('+idx+',1)">+</button>'
+          +'</div>'
+          +'<span style="flex:1;font-size:12px;color:var(--text2);">฿'+it.unitPrice+' × '+it.qty+' ชิ้น</span>'
+          +'<span style="font-size:13px;font-weight:700;color:var(--pink);">฿'+lt.toLocaleString()+'</span>'
+          +'</div>';
+
+    // ── skuNote row ──
+    var noteHtml='';
+    if(it.skuNote&&it.skuNote.trim()){
+      noteHtml='<div style="display:flex;align-items:flex-start;gap:6px;margin-top:5px;padding:5px 10px;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:8px;">'
+        +'<span style="font-size:10px;font-weight:800;color:#92400e;flex-shrink:0;margin-top:1px;">📝 หมายเหตุ</span>'
+        +'<span style="font-size:11px;color:#78350f;font-weight:600;line-height:1.5;">'+it.skuNote+'</span>'
+        +'</div>';
+    }
+
     return '<div class="citem">'
       +'<div class="citem-hd">'
       +'<div class="citem-em">'+it.emoji+'</div>'
@@ -1365,22 +1418,14 @@ function renderCart(){
       +'<div style="font-size:11px;color:var(--text2);font-weight:600;">'+it.variant+'</div>'
       +'<div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;align-items:center;">'
       +(it.trCode?'<span class="var-sku">TR '+it.trCode+'</span>':'')
-      +'<span class="b '+modeClass+'">'+modeLabel+'</span>'
-      +(it.skuNote?'<span style="font-size:9px;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:5px;padding:1px 5px;">📝 '+it.skuNote+'</span>':'')
+      +(isGhost?'':`<span class="b ${modeClass}">${modeLabel}</span>`)
       +'</div>'
-      +freeHtml
       +'</div>'
       +'<button class="citem-rm" onclick="rmItem('+idx+')">×</button>'
       +'</div>'
-      +'<div class="crow" style="background:var(--surface);border-radius:8px;padding:6px 8px;">'
-      +'<div class="qtyctrl">'
-      +'<button class="qtybtn" onclick="chQty('+idx+',-1)">−</button>'
-      +'<input class="qtynum" type="number" min="1" value="'+it.qty+'" onchange="stQty('+idx+',this.value)">'
-      +'<button class="qtybtn" onclick="chQty('+idx+',1)">+</button>'
-      +'</div>'
-      +'<span style="flex:1;font-size:12px;color:var(--text2);">฿'+it.unitPrice+' × '+it.qty+' ชิ้น</span>'
-      +'<span style="font-size:13px;font-weight:700;color:var(--pink);">฿'+lt.toLocaleString()+'</span>'
-      +'</div>'
+      +priceRow
+      +noteHtml
+      +freeHtml
       +'</div>';
   }).join('');
   document.getElementById('cartItems').innerHTML=cartHtml;
@@ -1406,7 +1451,20 @@ function updSum(){
 }
 function rmItem(idx){S.cart.splice(idx,1);renderCart();renderPgrid();}
 function rmProd(pid){S.cart=S.cart.filter(function(c){return c.pid!==pid;});renderCart();renderPgrid();}
-function chQty(i,d){S.cart[i].qty=Math.max(1,S.cart[i].qty+d);renderCart();}
+function chQty(i,d){
+  var item=S.cart[i];
+  if(!item) return;
+  var newQty=Math.max(0,item.qty+d);
+  if(newQty===0 && (item.freeItems||[]).reduce(function(s,f){return s+f.qty;},0)>0){
+    // มี freeItems → เหลือเป็น ghost แทนที่จะลบ
+    item.qty=0;
+  } else if(newQty===0){
+    S.cart.splice(i,1);
+  } else {
+    item.qty=newQty;
+  }
+  renderCart();
+}
 function stQty(i,v){S.cart[i].qty=Math.max(1,parseInt(v)||1);renderCart();}
 
 // ═══ DRAFT ═══
@@ -1511,7 +1569,7 @@ function showSuccessPage(order){
       var modeLabel=it.mode==='dealer'?'D':it.mode==='wholesale'?'WS':it.mode==='p50'?'50ลัง':it.mode==='p6'?'6ลัง':'⭐';
       var modeColor=it.mode==='dealer'?'background:var(--pink-m);color:#fff;':it.mode==='wholesale'?'background:#059669;color:#fff;':'background:#f59e0b;color:#fff;';
       var rowBg=idx%2===0?'background:#fff;':'background:var(--surface);';
-      var freeStr=it.freeItems&&it.freeItems.length?it.freeItems.map(function(f){return '<span style="font-size:9px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:1px 5px;font-weight:700;color:#166534;">'+(f.type==='tester'?'🧪':'🎁')+' '+f.qty+'</span>';}).join(' '):''; 
+      var freeStr='';
       return '<tr style="'+rowBg+'border-bottom:1px solid var(--border);">'
         +'<td style="padding:8px 10px;vertical-align:middle;">'
           +(it.trCode?'<span style="font-size:14px;font-weight:900;font-family:monospace;color:var(--pink-d);background:var(--pink-ll);padding:3px 8px;border-radius:6px;display:inline-block;">'+it.trCode+'</span>':'<span style="font-size:10px;color:var(--text3);">—</span>')
@@ -1521,7 +1579,6 @@ function showSuccessPage(order){
           +'<div style="font-size:11px;color:var(--text2);margin-top:1px;">'+it.variant+'</div>'
           +(it.skuNote?'<div style="font-size:9px;color:#92400e;margin-top:2px;background:#fffbeb;border-radius:4px;padding:1px 6px;display:inline-block;">📝 '+it.skuNote+'</div>':'')
           +(it.isMismatch&&it.specialReason?'<div style="font-size:9px;color:#7c3aed;margin-top:2px;background:#f5f3ff;border-radius:4px;padding:1px 6px;display:inline-block;">⚠️ ราคาพิเศษ: '+it.specialReason+'</div>':'')
-          +(freeStr?'<div style="margin-top:3px;display:flex;gap:3px;flex-wrap:wrap;">'+freeStr+'</div>':'')
         +'</td>'
         +'<td style="padding:8px 10px;text-align:center;vertical-align:middle;white-space:nowrap;">'
           +'<span style="font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;'+modeColor+'">'+modeLabel+'</span>'
@@ -1607,12 +1664,13 @@ function setDFCustom(){
 }
 function setOStatus(v,el){
   S.statusFilter=v;
-  document.querySelectorAll('#statusChips .chip').forEach(c=>c.classList.remove('active'));
+  // clear only status-type chips (ทั้งหมด/ยืนยันแล้ว/แบบร่าง) — not soFilter chips
+  document.querySelectorAll('.ord-status-chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active'); renderOrds();
 }
 function setSOFilter(v,el){
   S.soFilter=v;
-  document.querySelectorAll('#soFilterChips .chip').forEach(function(c){
+  document.querySelectorAll('.ord-so-chip').forEach(function(c){
     c.classList.remove('active');
   });
   el.classList.add('active');
@@ -1727,7 +1785,7 @@ function openDetail(ref){
       var modeLabel=it.mode==='dealer'?'D':it.mode==='wholesale'?'WS':it.mode==='p50'?'50ลัง':it.mode==='p6'?'6ลัง':'⭐';
       var modeColor=it.mode==='dealer'?'background:var(--pink-m);color:#fff;':it.mode==='wholesale'?'background:#059669;color:#fff;':'background:#f59e0b;color:#fff;';
       var rowBg=idx%2===0?'background:#fff;':'background:var(--surface);';
-      var freeStr=it.freeItems&&it.freeItems.length?it.freeItems.map(function(f){return '<span style="font-size:9px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:1px 5px;font-weight:700;color:#166534;">'+(f.type==='tester'?'🧪':'🎁')+' '+f.qty+'</span>';}).join(' '):'';
+      var freeStr='';
       return '<tr style="'+rowBg+'border-bottom:1px solid var(--border);">'
         +'<td style="padding:8px 10px;vertical-align:middle;">'
           +(it.trCode?'<span style="font-size:14px;font-weight:900;font-family:monospace;color:var(--pink-d);background:var(--pink-ll);padding:3px 8px;border-radius:6px;display:inline-block;letter-spacing:0.5px;">'+it.trCode+'</span>':'<span style="font-size:10px;color:var(--text3);">—</span>')
@@ -1739,7 +1797,6 @@ function openDetail(ref){
           +(it.skuNote?'<div style="font-size:9px;color:#92400e;margin-top:2px;background:#fffbeb;border-radius:4px;padding:1px 6px;display:inline-block;">📝 '+it.skuNote+'</div>':'')
           +(it.isMismatch&&it.specialReason?'<div style="font-size:9px;color:#7c3aed;margin-top:2px;background:#f5f3ff;border-radius:4px;padding:1px 6px;display:inline-block;">⚠️ ราคาพิเศษ: '+it.specialReason+'</div>':'')
           +(it.mode==='special'&&it.specialReason&&!it.isMismatch?'<div style="font-size:9px;color:#b45309;margin-top:2px;background:#fffbeb;border-radius:4px;padding:1px 6px;display:inline-block;">⭐ '+it.specialReason+'</div>':'')
-          +(freeStr?'<div style="margin-top:3px;display:flex;gap:3px;flex-wrap:wrap;">'+freeStr+'</div>':'')
         +'</td>'
         +'<td style="padding:8px 10px;text-align:center;vertical-align:middle;white-space:nowrap;">'
           +'<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;'+modeColor+'">'+modeLabel+'</span>'
@@ -2061,9 +2118,12 @@ function soSetChannel(ch, el) {
     b.style.fontWeight = '600';
   });
   if(el) { el.style.color='var(--pink)'; el.style.borderBottomColor='var(--pink)'; el.style.fontWeight='700'; }
-  // Hide Invoice column when viewing mt-noinv only
+  // Hide Invoice column + print button when viewing mt-noinv only
+  var isMtNoInv = (ch === 'mt-noinv');
   var invoiceHeaderEl = document.getElementById('so-invoice-th');
-  if(invoiceHeaderEl) invoiceHeaderEl.style.display = (ch === 'mt-noinv') ? 'none' : '';
+  if(invoiceHeaderEl) invoiceHeaderEl.style.display = isMtNoInv ? 'none' : '';
+  var invoicePrintBtn = document.getElementById('so-invoice-print-btn');
+  if(invoicePrintBtn) invoicePrintBtn.style.display = isMtNoInv ? 'none' : '';
   soFilter();
 }
 
@@ -2143,7 +2203,10 @@ function soFilter() {
   const from = document.getElementById('soDateFrom').value;
   const to = document.getElementById('soDateTo').value;
   soState.filtered = soState.data.filter(row => {
-    const matchCh = soChannelFilter === 'all' || row.channel === soChannelFilter;
+    const knownChannels = ['mt-inv','mt-noinv','tt'];
+    const matchCh = soChannelFilter === 'all'
+      || (soChannelFilter === 'other' && !knownChannels.includes(row.channel))
+      || row.channel === soChannelFilter;
     const matchQ = !q || row.customer.toLowerCase().includes(q) || row.id.toLowerCase().includes(q) || (row.ref||'').toLowerCase().includes(q);
     const matchFrom = !from || row.date >= from;
     const matchTo = !to || row.date <= to;
@@ -2295,6 +2358,7 @@ function soRender() {
 
     return `<tr class="${rowClass}" data-idx="${i}">
       <td><input type="checkbox" class="so-row-check" data-id="${row.id}" onchange="soToggleRow(this)" ${soState.selected.has(row.id) ? 'checked' : ''}></td>
+      ${reviewCellHtml}
       <td class="so-custname"><div>${row.customer}</div>${chTag}</td>
       <td><span class="so-docnum">${row.id}</span></td>
       <td>${refHtml}</td>
@@ -2302,14 +2366,13 @@ function soRender() {
       <td style="text-align:right;padding-right:16px;"><span class="so-qty">${row.qty.toLocaleString()}</span></td>
       <td style="padding:8px 10px;vertical-align:top;">${poDocHtml}</td>
       <td style="padding:8px 10px;vertical-align:top;">${soDocHtml}</td>
-      ${invoiceDocHtml}
-      <td style="padding:8px 10px;vertical-align:top;">${otherDocHtml}</td>
       <td>
         <button class="so-preview-btn" onclick="soPreview('${row.id}')" title="Preview">
           <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/><rect x="13" y="13" width="6" height="6" rx="1" fill="currentColor" opacity=".2"/><path d="M13 13v6h6"/></svg>
         </button>
       </td>
-      ${reviewCellHtml}
+      ${invoiceDocHtml}
+      <td style="padding:8px 10px;vertical-align:top;">${otherDocHtml}</td>
     </tr>`;
   }).join('');
 }
@@ -2327,6 +2390,25 @@ function soToggleRow(cb) {
   if (cb.checked) soState.selected.add(id); else soState.selected.delete(id);
   const allChecked = soState.filtered.every(r => soState.selected.has(r.id));
   document.getElementById('soCheckAll').checked = allChecked;
+}
+
+function soPrintAllByType(type) {
+  var rows = soState.filtered;
+  var files = [];
+  rows.forEach(function(row) {
+    if (type === 'po' && row.poFile) files.push({id: row.id, file: row.poFile});
+    else if (type === 'so' && row.soFile) files.push({id: row.id, file: row.soFile});
+    else if (type === 'invoice' && row.invoiceFile) files.push({id: row.id, file: row.invoiceFile});
+    else if (type === 'other' && row.otherFiles && row.otherFiles.length) {
+      row.otherFiles.forEach(function(f){ files.push({id: row.id, file: f}); });
+    }
+  });
+  var typeLabel = {po:'ใบ PO', so:'ใบ SO', invoice:'ใบ Invoice', other:'เอกสารอื่นๆ'}[type] || type;
+  if (!files.length) {
+    showToast('⚠️ ไม่มีไฟล์ ' + typeLabel + ' ในรายการที่แสดงอยู่');
+    return;
+  }
+  showToast('🖨️ กำลัง Print ' + typeLabel + ' ' + files.length + ' ไฟล์ จาก ' + rows.length + ' รายการ');
 }
 
 function soPrintSelected() {

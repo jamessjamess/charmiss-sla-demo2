@@ -1054,10 +1054,6 @@ function openTicketModal(id){
         <div class="pf"><label>รับเมื่อ</label><div class="val">${fmtDateTime(t.startTs)}</div></div>
         <div class="pf"><label>Email From</label><div class="val" style="font-size:11px">${t.emailFrom}</div></div>
         <div class="pf"><label>SLA Deadline</label><div class="val"><span class="sla-chip ${sla.cls}">${sla.label}</span></div></div>
-        <div class="pf" style="grid-column:span 3"><label>PO Reference</label><div class="val" style="display:flex;align-items:center;gap:8px;">
-          <span style="font-family:monospace;font-weight:700;color:var(--text);">${t.poRef||'—'}</span>
-          <button onclick="editPoRef(${t.id})" style="font-size:10px;padding:2px 10px;border:1.5px solid var(--pink-m);border-radius:5px;background:var(--pink-ll);color:var(--pink-d);cursor:pointer;font-family:inherit;font-weight:700;">✏️ แก้ไข</button>
-        </div></div>
         <div class="pf" style="grid-column:span 3"><label>Ticket Status</label><div class="val">${{
           'pending_att':'<span class="badge b-pending-att"><span class="bdot"></span>📎 รอแนบไฟล์เพิ่ม — รอ PIC Download/Upload</span>',
           'received':'<span class="badge b-received"><span class="bdot"></span>📥 รอกดรับงาน PO — ยังไม่ได้ตรวจรับ</span>',
@@ -1122,15 +1118,29 @@ function editPoRef(tid){
   var t=TICKETS.find(function(x){return x.id===tid;});
   if(!t) return;
   var newRef=prompt('แก้ไข PO Reference Number:', t.poRef||'');
-  if(newRef===null) return;  // cancelled
+  if(newRef===null) return;
   newRef=newRef.trim();
   if(!newRef){showToast('⚠️ PO Ref ต้องไม่ว่าง'); return;}
   t.poRef=newRef;
-  // Also update all attachments that used the old poRef
   if(t.attachments) t.attachments.forEach(function(a){ if(!a.poRef||a.poRef===t.poRef) a.poRef=newRef; });
   showToast('✅ แก้ไข PO Ref เป็น '+newRef+' แล้ว');
   openTicketModal(tid);
   renderTickets();
+}
+
+function editAttPoRef(tid, attIdx, ev){
+  if(ev) ev.stopPropagation();
+  var t=TICKETS.find(function(x){return x.id===tid;});
+  if(!t||!t.attachments||!t.attachments[attIdx]) return;
+  var att=t.attachments[attIdx];
+  var cur=att.poRef||t.poRef||'';
+  var val=prompt('แก้ไข PO Ref สำหรับไฟล์: '+att.name, cur);
+  if(val===null) return;
+  val=val.trim();
+  if(!val){showToast('⚠️ PO Ref ต้องไม่ว่าง'); return;}
+  att.poRef=val;
+  showToast('✅ อัปเดต PO Ref \u2192 '+val+' ('+att.name+')');
+  openTicketModal(tid);
 }
 
 // ─── CONFIRM / CANCEL ───
@@ -1406,7 +1416,10 @@ function buildAttSubTasks(t){
       +(rowState==='approved'?'<div style="font-size:10px;color:var(--success)">✓ Approved PO แล้ว</div>'
         :rowState==='accepted'?'<div style="font-size:10px;color:var(--success)">✓ รับงานโดย '+acceptedBy+' แล้ว</div>'
         :rowState==='rejected'?'<div style="font-size:10px;color:#EF4444">🚫 ไม่รับงานนี้</div>'
-        :'<div style="font-size:10.5px;color:var(--pink-d);font-family:monospace">PO Ref: '+(att.poRef||t.poRef)+'</div>'
+        :'<div style="display:flex;align-items:center;gap:5px;margin-top:1px">'
+            +'<span style="font-size:10px;color:var(--pink-d);font-family:monospace">PO Ref: '+(att.poRef||t.poRef||'—')+'</span>'
+            +'<button onclick="editAttPoRef('+t.id+','+origIdx+',event)" title="แก้ไข PO Ref" style="font-size:9px;padding:1px 6px;border:1px solid var(--pink-m);border-radius:5px;background:var(--pink-ll);color:var(--pink-d);cursor:pointer;font-family:inherit;font-weight:700;line-height:1.6;flex-shrink:0">✏️</button>'
+          +'</div>'
       )
     +'</div>'
     +timerBadge(t.startTs,isOver)+' '+slaChip()
@@ -1606,7 +1619,10 @@ function buildUploadSubPanel(t){
         +(rowState==='accepted'?'<div style="font-size:10px;color:var(--success);">✓ รับงานโดย '+(att.acceptedBy||'')+'</div>'
           :rowState==='approved'?'<div style="font-size:10px;color:var(--success);">✓ Approved PO แล้ว</div>'
           :rowState==='rejected'?'<div style="font-size:10px;color:#EF4444;">🚫 ไม่รับงานนี้</div>'
-          :'<div style="font-size:10px;color:var(--pink-d);font-family:monospace;">PO Ref: '+(att.poRef||t.poRef)+'</div>')
+          :'<div style="display:flex;align-items:center;gap:5px;margin-top:1px;">'
+            +'<span style="font-size:10px;color:var(--pink-d);font-family:monospace;">PO Ref: '+(att.poRef||t.poRef||'—')+'</span>'
+            +'<button onclick="editAttPoRef('+t.id+','+origIdx+',event)" title="แก้ไข PO Ref" style="font-size:9px;padding:1px 6px;border:1px solid var(--pink-m);border-radius:5px;background:var(--pink-ll);color:var(--pink-d);cursor:pointer;font-family:inherit;font-weight:700;line-height:1.6;flex-shrink:0;">✏️</button>'
+          +'</div>')
         +'</div>';
       // Action buttons per row
       if(!isApproved){
