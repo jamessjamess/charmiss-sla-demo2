@@ -58,7 +58,7 @@ const now=Date.now();
 // Tickets now include journey stages
 const TICKETS=[
   {id:1,vendor:'Beautrium',subject:'[BEAUTRIUM] Purchase Order (PO)',poRef:'BT-PO-20250805-001',
-   caseType:'A',procStatus:'received',
+   caseType:'A',procStatus:'verified',
    attachments:[{name:'POW2S-2603-0026.pdf',url:'#',poRef:'POW2S-2603-0026',ext:'pdf'},{name:'Product_List_Aug.xlsx',url:'#',poRef:'BT-PO-20250805-001',ext:'xlsx'}],
    status:'pending',startTs:now-5.5*3600000,cancelReason:'',emailFrom:'Peerada_Bo@thebeautrium.com',
    emailBody:'เรียน บริษัทคู่ค้า\nบิวเทรี่ยมขอนำส่งใบสั่งซื้อ (PO) รายละเอียดดังเอกสารแนบ รบกวนตรวจสอบรายการสินค้า และขอความร่วมมือแจ้งรายการสินค้าที่ขาดส่ง กลับให้ทางบิวเทรี่ยมด้วยค่ะ',
@@ -192,7 +192,7 @@ const TICKETS=[
    currentStage:'open_so'},
 
   // ── Traditional Trade (Order-sourced, แสดงใน SLA Journey เท่านั้น) ──
-  {id:20,vendor:'Traditional Trade',subject:'Order: สร้าง Order — ร้านทองแสงหล้า',poRef:'ORD-260311-001',
+  {id:20,vendor:'Traditional Trade',shopName:'ร้านทองแสงหล้า',subject:'Order: สร้าง Order — ร้านทองแสงหล้า',poRef:'ORD-260311-001',
    caseType:'ORDER',procStatus:'approved',
    attachments:[],
    status:'pending',startTs:now-2*24*3600000+3*3600000,cancelReason:'',emailFrom:'system@charmiss.internal',
@@ -209,7 +209,7 @@ const TICKETS=[
    },
    currentStage:'doc_wh',stuckReason:''},
 
-  {id:21,vendor:'Traditional Trade',subject:'Order: สร้าง Order — ร้านมณีเภสัช',poRef:'ORD-260310-002',
+  {id:21,vendor:'Traditional Trade',shopName:'ร้านมณีเภสัช',subject:'Order: สร้าง Order — ร้านมณีเภสัช',poRef:'ORD-260310-002',
    caseType:'ORDER',procStatus:'verified',
    attachments:[],
    status:'pending',startTs:now-1*24*3600000+1*3600000,cancelReason:'',emailFrom:'system@charmiss.internal',
@@ -291,7 +291,7 @@ const TICKETS=[
    currentStage:'open_so'},
 
   // ─── MOCKUP: Traditional Trade ค้างทุก Stage ───
-  {id:120,vendor:'Traditional Trade',subject:'[MOCKUP] ORD-TT-001 — ค้างที่ Approve Order',poRef:'ORD-TT-MOCK-001',
+  {id:120,vendor:'Traditional Trade',shopName:'แฮร์บิวตี้',subject:'[MOCKUP] ORD-TT-001 — ค้างที่ Approve Order',poRef:'ORD-TT-MOCK-001',
    caseType:'ORDER',procStatus:'verified',
    _isMockup:true,stuckReason:'✍️ Order รอ Approve จาก Manager — Sales Manager ลาป่วย ค้างอยู่ 28 ชั่วโมง',
    attachments:[],status:'pending',startTs:now-28*3600000,risk:'high',cancelReason:'',emailFrom:'system@charmiss.internal',
@@ -299,7 +299,7 @@ const TICKETS=[
    journey:{po:{done:true,ts:now-28*3600000,stuck:false},approve_po:{done:false,ts:null,stuck:true},open_so:{done:false,ts:null,stuck:false},approve_so:{done:false,ts:null,stuck:false},doc_wh:{done:false,ts:null,stuck:false},delivery:{done:false,ts:null,stuck:false},delivered:{done:false,ts:null,stuck:false}},
    currentStage:'approve_po',stuckReason:'รอ Approve Order จาก Sales Manager'},
 
-  {id:121,vendor:'Traditional Trade',subject:'[MOCKUP] ORD-TT-002 — ค้างที่ เปิด SO',poRef:'ORD-TT-MOCK-002',
+  {id:121,vendor:'Traditional Trade',shopName:'ดาวบิวตี้',subject:'[MOCKUP] ORD-TT-002 — ค้างที่ เปิด SO',poRef:'ORD-TT-MOCK-002',
    caseType:'ORDER',procStatus:'approved',
    _isMockup:true,stuckReason:'📋 Approved แล้ว แต่ ERP ยังไม่ได้เปิด SO — ติดต่อทีม Ops แล้ว รอดำเนินการ 18 ชั่วโมง',
    attachments:[],status:'pending',startTs:now-50*3600000,risk:'med',cancelReason:'',emailFrom:'system@charmiss.internal',
@@ -307,7 +307,7 @@ const TICKETS=[
    journey:{po:{done:true,ts:now-50*3600000,stuck:false},approve_po:{done:true,ts:now-48*3600000,stuck:false},open_so:{done:false,ts:null,stuck:true},approve_so:{done:false,ts:null,stuck:false},doc_wh:{done:false,ts:null,stuck:false},delivery:{done:false,ts:null,stuck:false},delivered:{done:false,ts:null,stuck:false}},
    currentStage:'open_so',stuckReason:'ERP ยังไม่ได้เปิด SO — ค้างอยู่ 18 ชั่วโมง'},
 
-  {id:122,vendor:'Traditional Trade',subject:'[MOCKUP] ORD-TT-003 — ค้างที่ จัดส่ง',poRef:'ORD-TT-MOCK-003',
+  {id:122,vendor:'Traditional Trade',shopName:'น้ำหวานบิวตี้',subject:'[MOCKUP] ORD-TT-003 — ค้างที่ จัดส่ง',poRef:'ORD-TT-MOCK-003',
    caseType:'ORDER',procStatus:'approved',
    _isMockup:true,stuckReason:'🚚 สินค้าพร้อมส่งแล้ว แต่ Logistics ยังไม่มารับ — รถขนส่งเต็ม รอรอบถัดไป 2 วัน',
    attachments:[],status:'pending',startTs:now-96*3600000,risk:'low',cancelReason:'',emailFrom:'system@charmiss.internal',

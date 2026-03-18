@@ -121,136 +121,18 @@ let curPOCaseFilter='all',curPOProcFilter='all',curChannelFilter='all';
 let vendorRules=[...Object.entries(VENDORS).map(([name,v])=>({name,email:v.email,subject:v.subject,slaNote:v.slaNote,deliveryNote:v.deliveryNote,portal:v.portal,active:true}))];
 
 
-// ─── DASHBOARD PIE CHART ─────────────────────────────
-// 4 statuses matching PO Ticket tabs
-function renderDashPie(){
-  var total=TICKETS.filter(function(t){return !t._isMockup;}).length;
-  var counts={
-    pending_att: TICKETS.filter(function(t){return !t._isMockup&&t.procStatus==='pending_att';}).length,
-    received:    TICKETS.filter(function(t){return !t._isMockup&&(t.procStatus==='received'||t.procStatus==='escalated');}).length,
-    verified:    TICKETS.filter(function(t){return !t._isMockup&&t.procStatus==='verified';}).length,
-    approved:    TICKETS.filter(function(t){return !t._isMockup&&t.procStatus==='approved';}).length,
-    rejected:    TICKETS.filter(function(t){return !t._isMockup&&(t.procStatus==='rejected'||t.status==='canceled');}).length,
-  };
-  var segments=[
-    {key:'pending_att', label:'📎 รอแนบไฟล์เพิ่ม',  color:'#F59E0B', count:counts.pending_att},
-    {key:'received',    label:'📥 รอกดรับงาน PO',    color:'#0EA5E9', count:counts.received},
-    {key:'verified',    label:'🔍 รอ Approve PO',     color:'#8B5CF6', count:counts.verified},
-    {key:'approved',    label:'✅ Approved PO แล้ว',  color:'#10B981', count:counts.approved},
-    {key:'rejected',    label:'🚫 ยกเลิกแล้ว',        color:'#EF4444', count:counts.rejected},
-  ];
-  // Circumference of r=15.5 circle ≈ 97.39
-  var C=2*Math.PI*15.5;
-  var svgEl=document.getElementById('dashPieSvg');
-  var legEl=document.getElementById('dashPieLegend');
-  var totEl=document.getElementById('dashPieTotal');
-  if(!svgEl||!legEl) return;
-  // Remove old segments
-  var oldSegs=svgEl.getElementsByClassName('pie-seg');while(oldSegs.length>0){oldSegs[0].parentNode.removeChild(oldSegs[0]);}
-  if(totEl) totEl.textContent=total;
-  var offset=0;
-  var legHtml='';
-  segments.forEach(function(seg){
-    if(seg.count<=0){
-      legHtml+='<div class="dleg-item"><span class="dleg-dot" style="background:'+seg.color+';opacity:.3"></span><span class="dleg-label" style="opacity:.45">'+seg.label+'</span><span class="dleg-val" style="opacity:.45">0</span></div>';
-      return;
-    }
-    var arc=total>0?(seg.count/total)*C:0;
-    var gap=C-arc;
-    var circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    circle.setAttribute('cx','18'); circle.setAttribute('cy','18'); circle.setAttribute('r','15.5');
-    circle.setAttribute('fill','none'); circle.setAttribute('stroke',seg.color);
-    circle.setAttribute('stroke-width','3.5');
-    circle.setAttribute('stroke-dasharray',arc.toFixed(2)+' '+gap.toFixed(2));
-    circle.setAttribute('stroke-dashoffset',(C/4-offset).toFixed(2));
-    circle.setAttribute('stroke-linecap','round');
-    circle.classList.add('pie-seg');
-    circle.style.cursor='pointer';
-    circle.setAttribute('onclick',"setPOFilter('"+seg.key+"',document.querySelector('.potab[data-filter=\'"+seg.key+"\']'));gotoView('po-tickets')");
-    circle.setAttribute('title',seg.label+': '+seg.count);
-    svgEl.appendChild(circle);
-    offset+=arc;
-    legHtml+='<div class="dleg-item" style="cursor:pointer" onclick="gotoView(\'po-tickets\');setPOFilter(\''+seg.key+'\',null);">'
-      +'<span class="dleg-dot" style="background:'+seg.color+'"></span>'
-      +'<span class="dleg-label">'+seg.label+'</span>'
-      +'<span class="dleg-val">'+seg.count+'</span></div>';
-  });
-  legEl.innerHTML=legHtml;
-}
-
-// ─── DASHBOARD PIPELINE (7 stages, dynamic from TICKETS) ───
-function renderDashPipeline(){
-  var el=document.getElementById('dashPipeline');
-  if(!el) return;
-  var real=TICKETS.filter(function(t){return !t._isMockup && t.status!=='canceled';});
-  var stageConfig=[
-    {key:'po',        label:'เปิด PO/<br>Order',   bg:'#F0FDF4', color:'#16A34A'},
-    {key:'approve_po',label:'Appv PO/<br>Order',   bg:'#EDE9FE', color:'#7C3AED'},
-    {key:'open_so',   label:'เปิด SO',              bg:'#DBEAFE', color:'#1D4ED8'},
-    {key:'approve_so',label:'Appv SO/<br>Invoice',  bg:'#FEF3C7', color:'#B45309'},
-    {key:'doc_wh',    label:'ส่งเอกสาร<br>ให้คลัง', bg:'#FEE2E2', color:'#DC2626'},
-    {key:'delivery',  label:'จัดส่ง<br>(Delivery)', bg:'#E0F2FE', color:'#0284C7'},
-    {key:'delivered', label:'จัดส่ง<br>สำเร็จ',     bg:'var(--success-bg)', color:'var(--success)'},
-  ];
-  var html='';
-  for(var i=0;i<stageConfig.length;i++){
-    var sc=stageConfig[i];
-    var isLast=(i===stageConfig.length-1);
-    // Count tickets currently AT this stage (not done past it)
-    var cnt=real.filter(function(t){return t.currentStage===sc.key && !t.journey[sc.key].done;}).length;
-    // Special for 'po': count where po is done but nothing further
-    if(sc.key==='po') cnt=real.filter(function(t){return t.currentStage==='po';}).length;
-    html+='<div style="flex:1;background:'+sc.bg+';display:flex;flex-direction:column;align-items:center;justify-content:center;'+(isLast?'':'border-right:1px solid var(--border);')+'padding:4px 3px;cursor:pointer" onclick="gotoView(\'sla-journey\')" title="'+sc.label.replace(/<br>/g,' ')+'">'
-      +'<div style="font-size:20px;font-weight:800;color:'+sc.color+';line-height:1">'+cnt+'</div>'
-      +'<div style="font-size:9px;color:'+sc.color+';font-weight:600;text-align:center;line-height:1.3;margin-top:3px">'+sc.label+'</div>'
-      +'</div>';
-  }
-  el.innerHTML=html;
-}
-
-// ─── DASHBOARD SO CHANNEL (dynamic from TICKETS) ───
-function renderDashSOChannel(){
-  var el=document.getElementById('dashSOChannelContent');
-  if(!el) return;
-  var real=TICKETS.filter(function(t){return !t._isMockup;});
-  // MT มี Invoice = non-ORDER caseType, has 'approve_so' done (Invoice exists)
-  var mtInv=real.filter(function(t){return t.caseType!=='ORDER' && t.journey && t.journey.approve_so && t.journey.approve_so.done;});
-  // MT ไม่มี Invoice = non-ORDER, no approve_so done yet but status != canceled
-  var mtNoInv=real.filter(function(t){return t.caseType!=='ORDER' && t.status!=='canceled' && !(t.journey && t.journey.approve_so && t.journey.approve_so.done);});
-  // TT = ORDER type
-  var tt=real.filter(function(t){return t.caseType==='ORDER' && t.status!=='canceled';});
-  var total=mtInv.length+mtNoInv.length+tt.length;
-  var maxCount=Math.max(mtInv.length,mtNoInv.length,tt.length,1);
-  var maxBarH=64;
-  function bar(count,bg,color,label){
-    var h=Math.max(4,Math.round((count/maxCount)*maxBarH));
-    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">'
-      +'<div style="font-size:14px;font-weight:700;color:'+color+'">'+count+'</div>'
-      +'<div style="width:100%;display:flex;align-items:flex-end;height:'+maxBarH+'px">'
-      +'<div style="width:100%;height:'+h+'px;background:'+bg+';border-radius:4px 4px 0 0"></div>'
-      +'</div>'
-      +'<div style="font-size:9.5px;font-weight:600;color:'+color+';text-align:center;line-height:1.3">'+label+'</div>'
-      +'</div>';
-  }
-  el.innerHTML='<div style="display:flex;align-items:flex-end;gap:10px">'
-    +bar(mtInv.length,'#DBEAFE','#1D4ED8','MT มี<br>Invoice')
-    +bar(mtNoInv.length,'#EDE9FE','#7C3AED','MT ไม่มี<br>Invoice')
-    +bar(tt.length,'#D1FAE5','#059669','TT')
-    +'</div>'
-    +'<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
-    +'<div style="font-size:11px;color:var(--text2)">รวม SO: <strong>'+total+'</strong> ใบ</div>'
-    +'</div>';
-}
+// ─── DASHBOARD (moved to dashboard.js) ───────────────────────
+// These are thin shims — actual logic lives in dashboard.js
+// renderDashPie / renderDashPipeline / renderDashSOChannel / renderVendorSummary
+// are all defined in dashboard.js and called via renderDashboard()
 
 // ─── INIT ───
 curPOMainTab='inbox';curPOFilter='all_inbox';renderPOSubTabs();
 renderTickets();
 renderJourney();
-renderDashPipeline();
-renderDashSOChannel();
-renderVendorSummary();
-renderAdminTable();
+renderDashboard();
 renderVendorRules();
+renderAdminTable();
 renderNotifications('all');
 
 // ─── LIVE DURATION COUNTER (อัปเดตทุก 30 วินาที) ───
@@ -318,38 +200,8 @@ function setVsDate(days,el){
   renderVendorSummary();
 }
 
-// ─── DASHBOARD BREACH CHART ───
-function renderDashBreachChart() {
-  var el = document.getElementById('dashBreachChart');
-  if(!el) return;
-  var weeks = [
-    {w:'W38',breach:3,ontime:8},
-    {w:'W39',breach:1,ontime:11},
-    {w:'W40',breach:4,ontime:7},
-    {w:'W41',breach:2,ontime:9},
-    {w:'W42',breach:0,ontime:12},
-    {w:'W43',breach:5,ontime:6},
-    {w:'W44',breach:1,ontime:10},
-  ];
-  var maxTotal = Math.max.apply(null, weeks.map(function(w){return w.breach+w.ontime;}));
-  var h = 100;
-  el.innerHTML = weeks.map(function(w) {
-    var breachH = Math.round((w.breach/(maxTotal||1))*h);
-    var ontimeH = Math.round((w.ontime/(maxTotal||1))*h);
-    return '<div class="bar-grp" style="gap:2px;justify-content:flex-end;flex:1">'
-      + '<div class="bar-val" style="font-size:9px">' + (w.breach>0?'<span style="color:var(--danger);font-weight:700">'+w.breach+'</span>':'<span style="color:var(--text3)">'+w.breach+'</span>') + '</div>'
-      + '<div style="width:100%;display:flex;flex-direction:column;gap:1px;align-items:stretch">'
-        + '<div style="background:var(--danger);height:'+breachH+'px;border-radius:3px 3px 0 0;opacity:0.85;min-height:'+(w.breach>0?'3':'0')+'px"></div>'
-        + '<div style="background:var(--success);height:'+ontimeH+'px;opacity:0.75;min-height:'+(w.ontime>0?'3':'0')+'px"></div>'
-      + '</div>'
-      + '<div style="font-size:9.5px;color:var(--text3);font-weight:600;margin-top:3px">'+w.w+'</div>'
-      + '</div>';
-  }).join('');
-}
-
-// ─── VENDOR SUMMARY ───
+// ─── VENDOR SUMMARY (stub — moved to dashboard.js) ───
 function renderVendorSummary(){
-  // kept as stub — vendor summary table removed from dashboard
   var tbody = document.getElementById('vendor-summary-tbody');
   if(tbody) tbody.innerHTML = '';
 }
@@ -851,7 +703,10 @@ function buildExpandHtml(t){
     +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">'
     +'<div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;text-transform:uppercase">สรุป</div>'
     +'<div style="font-size:12.5px;font-weight:700;margin-bottom:4px">'+t.vendor+'</div>'
-    +'<div style="font-family:monospace;font-size:11px;color:var(--text2);margin-bottom:12px">'+(t.poRef||'—')+'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
+    +'<span style="font-family:monospace;font-size:11px;color:var(--text2);">'+(t.poRef||'—')+'</span>'
+    +'<button onclick="editPoRef('+t.id+')" style="font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;">✏️ แก้ไข PO Ref</button>'
+    +'</div>'
     +'<div style="font-size:10.5px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">⏱ เวลาทั้งหมดที่ใช้</div>'
     +(function(){var ms=elapsedMs;var totalMin=Math.floor(ms/60000);var h=Math.floor(totalMin/60);var d=Math.floor(h/24);var hR=h%24;var mR=totalMin%60;var ds=d>0?(d+' วัน '+hR+' ชม.'):h>0?(h+' ชม. '+mR+' น.'):(totalMin+' น.');var ec=d>=3?'var(--danger)':d>=1?'var(--warn)':'var(--success)';return '<div style="font-size:24px;font-weight:900;font-family:monospace;color:'+ec+';line-height:1.1;margin-bottom:3px">'+ds+'</div>'+(d>0?'<div style="font-size:9.5px;color:var(--text3);font-family:monospace;margin-bottom:10px">'+fmt(elapsed)+'</div>':'<div style="margin-bottom:10px"></div>');})()
     +'<div style="margin-bottom:12px"><span class="sla-chip '+sla.cls+'">'
@@ -1013,7 +868,7 @@ function renderTickets(){
   }
   // Zone filter (main tab)
   if(curPOMainTab==='inbox'){
-    data=data.filter(function(t){return t.procStatus==='pending_att'||t.procStatus==='received'||t.procStatus==='escalated';});
+    data=data.filter(function(t){return t.procStatus==='pending_att'||t.procStatus==='received'||t.procStatus==='escalated'||t.procStatus==='verified';});
   } else if(curPOMainTab==='approve'){
     data=data.filter(function(t){return t.procStatus==='verified'||t.procStatus==='approved';});
   } else if(curPOMainTab==='done'){
@@ -1065,11 +920,14 @@ function renderTickets(){
       if(f==='all')btn.innerHTML='ทั้งหมด <span style="font-family:monospace">('+cntAll+')</span>';
       else if(f==='pending_att')btn.innerHTML='📎 รอแนบไฟล์ <span style="font-family:monospace">('+cntPendAtt+')</span>';
       else if(f==='received')btn.innerHTML='📥 รอรับงาน <span style="font-family:monospace">('+cntReceived+')</span>';
-      else if(f==='verified')btn.innerHTML='🔍 รอ Approve <span style="font-family:monospace">('+cntVerified+')</span>';
+      else if(f==='verified')btn.innerHTML='🔍 รอ Approve PO <span style="font-family:monospace">('+cntVerified+')</span>';
       else if(f==='approved')btn.innerHTML='✅ Approved <span style="font-family:monospace">('+cntApproved+')</span>';
       else if(f==='confirmed')btn.innerHTML='☑️ Confirmed <span style="font-family:monospace">('+cntConfirmed+')</span>';
       else if(f==='rejected')btn.innerHTML='🚫 ยกเลิกแล้ว <span style="font-family:monospace">('+cntRejected+')</span>';
     });
+    // sync the duplicate verified badge in Group 1
+    var viExt=document.getElementById('cnt-verified-inbox');
+    if(viExt) viExt.textContent='('+cntVerified+')';
   }
 
   document.getElementById('ticket-tbody').innerHTML=data.map(function(t){
@@ -1125,7 +983,7 @@ function renderTickets(){
       +'<td style="white-space:nowrap;min-width:140px">'+actionHtml+'</td>'
       +'</tr>';
   }).join('');
-  updatePOMainTabCounts();renderDashPipeline();renderDashSOChannel();if(document.getElementById('dashPieSvg')) renderDashPie();renderDashBreachChart();
+  updatePOMainTabCounts();
 }
 
 // ─── TICKET MODAL ───
@@ -1182,6 +1040,10 @@ function openTicketModal(id){
         <div class="pf"><label>รับเมื่อ</label><div class="val">${fmtDateTime(t.startTs)}</div></div>
         <div class="pf"><label>Email From</label><div class="val" style="font-size:11px">${t.emailFrom}</div></div>
         <div class="pf"><label>SLA Deadline</label><div class="val"><span class="sla-chip ${sla.cls}">${sla.label}</span></div></div>
+        <div class="pf" style="grid-column:span 3"><label>PO Reference</label><div class="val" style="display:flex;align-items:center;gap:8px;">
+          <span style="font-family:monospace;font-weight:700;color:var(--text);">${t.poRef||'—'}</span>
+          <button onclick="editPoRef(${t.id})" style="font-size:10px;padding:2px 10px;border:1.5px solid var(--pink-m);border-radius:5px;background:var(--pink-ll);color:var(--pink-d);cursor:pointer;font-family:inherit;font-weight:700;">✏️ แก้ไข</button>
+        </div></div>
         <div class="pf" style="grid-column:span 3"><label>Ticket Status</label><div class="val">${{
           'pending_att':'<span class="badge b-pending-att"><span class="bdot"></span>📎 รอแนบไฟล์เพิ่ม — รอ PIC Download/Upload</span>',
           'received':'<span class="badge b-received"><span class="bdot"></span>📥 รอกดรับงาน PO — ยังไม่ได้ตรวจรับ</span>',
@@ -1241,6 +1103,21 @@ function openTicketModal(id){
   document.getElementById('overlay').classList.add('open');
 }
 function closeModal(){document.getElementById('overlay').classList.remove('open');}
+
+function editPoRef(tid){
+  var t=TICKETS.find(function(x){return x.id===tid;});
+  if(!t) return;
+  var newRef=prompt('แก้ไข PO Reference Number:', t.poRef||'');
+  if(newRef===null) return;  // cancelled
+  newRef=newRef.trim();
+  if(!newRef){showToast('⚠️ PO Ref ต้องไม่ว่าง'); return;}
+  t.poRef=newRef;
+  // Also update all attachments that used the old poRef
+  if(t.attachments) t.attachments.forEach(function(a){ if(!a.poRef||a.poRef===t.poRef) a.poRef=newRef; });
+  showToast('✅ แก้ไข PO Ref เป็น '+newRef+' แล้ว');
+  openTicketModal(tid);
+  renderTickets();
+}
 
 // ─── CONFIRM / CANCEL ───
 
@@ -1741,7 +1618,7 @@ function buildUploadSubPanel(t){
     +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
     +'<div>'
     +'<div style="font-size:11.5px;font-weight:700;color:var(--text2);">📎 Upload ไฟล์ → สร้าง Sub-task อัตโนมัติ</div>'
-    +'<div style="font-size:10px;color:var(--text3);margin-top:2px;">รองรับ PDF, Excel (.xlsx/.xls), CSV, RTF · กรณีได้รับ ZIP กรุณาแตกไฟล์เองก่อน แล้ว Upload ทีละไฟล์</div>'
+    +'<div style="font-size:10px;color:var(--text3);margin-top:2px;">รองรับ PDF, Excel (.xlsx/.xls), CSV, RTF · เลือกหลายไฟล์พร้อมกันได้ · กรณีได้รับ ZIP กรุณาแตกไฟล์ก่อน แล้ว Upload</div>'
     +'</div>'
     +'<label style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:var(--pink);color:#fff;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;">'
     +'📂 เลือกไฟล์'
@@ -1853,7 +1730,7 @@ function confirmTicket(id,ev){
   t.currentStage='approve_po';
   // Mark only first stage done
   t.journey.po={done:true,ts:t.acceptedAt,stuck:false};
-  renderDashPie();renderDashBreachChart();renderDashPipeline();renderDashSOChannel();renderTickets();renderJourney();renderVendorSummary();renderAdminTable();
+  renderDashboard();renderTickets();renderJourney();renderAdminTable();
   showToast('📥 กดรับงานแล้ว — ' + t.vendor + ' · ' + fmtDateTime(t.acceptedAt));
 }
 
@@ -1891,7 +1768,7 @@ function doCancel(){
   if(!sel){showToast('⚠️ กรุณาเลือกเหตุผล');return;}
   const t=TICKETS.find(x=>x.id===cancelPendingId);
   if(t){t.status='canceled';t.procStatus='rejected';t.cancelReason=sel.value;t.canceledAt=Date.now();t.currentStage='canceled';}
-  renderDashPie();renderDashBreachChart();renderDashPipeline();renderDashSOChannel();renderTickets();renderJourney();renderVendorSummary();renderAdminTable();
+  renderDashboard();renderTickets();renderJourney();renderAdminTable();
   closeCancelModal();
   showToast('🚫 ยกเลิก PO เรียบร้อย — เหตุผล: '+sel.value);
 }

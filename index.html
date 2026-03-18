@@ -159,44 +159,22 @@
     <!-- ════════ DASHBOARD ════════ -->
     <div class="view active" id="view-dashboard">
 
-      <!-- Stats -->
-      <div class="stats-row">
-        <div class="stat-card" onclick="gotoView('po-tickets')" style="cursor:pointer">
-          <div class="stat-hdr">
-            <span class="stat-lbl">PO Tickets วันนี้</span>
-            <div class="stat-ico" style="background:var(--pink-l);color:var(--pink)">🎫</div>
-          </div>
-          <div class="stat-val">8</div>
-          <div class="stat-sub warn">4 รอดำเนินการ</div>
-        </div>
-        <div class="stat-card" onclick="gotoView('sla-journey')" style="cursor:pointer">
-          <div class="stat-hdr">
-            <span class="stat-lbl">ค้างอยู่ใน Process</span>
-            <div class="stat-ico" style="background:#EDE9FE;color:#7C3AED">⚠️</div>
-          </div>
-          <div class="stat-val" style="color:#7C3AED">3</div>
-          <div class="stat-sub warn">ใกล้เกิน SLA</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-hdr">
-            <span class="stat-lbl">Confirmed วันนี้</span>
-            <div class="stat-ico" style="background:var(--success-bg);color:var(--success)">✅</div>
-          </div>
-          <div class="stat-val" style="color:var(--success)">2</div>
-          <div class="stat-sub ok">ดำเนินการแล้ว</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-hdr">
-            <span class="stat-lbl">ยกเลิก / ไม่เกี่ยวข้อง</span>
-            <div class="stat-ico" style="background:var(--gray-bg);color:var(--gray)">🚫</div>
-          </div>
-          <div class="stat-val" style="color:var(--gray)">2</div>
-          <div class="stat-sub">จัดการแล้ว</div>
-        </div>
+      <!-- KPI Stat Cards (dynamic) -->
+      <div class="stats-row" id="dashStatCards">
+        <!-- rendered by renderDashStatCards() -->
       </div>
 
-      <!-- Charts -->
-      <div class="chart-row" style="grid-template-columns:minmax(280px,1fr) 2fr">
+      <!-- KPI Meters: SLA Rate / Completion / Avg Time / Stuck -->
+      <div class="chart-card" style="margin-bottom:14px;padding:14px 18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="chart-title" style="margin:0">📊 KPI Overview</div>
+          <span style="font-size:10.5px;color:var(--text3)">อัปเดตแบบ Real-time</span>
+        </div>
+        <div id="dashKPIMeters"><!-- rendered by renderDashKPIMeters() --></div>
+      </div>
+
+      <!-- Charts Row 1: Pie + Pipeline -->
+      <div class="chart-row" style="grid-template-columns:minmax(280px,1fr) 2fr;margin-bottom:14px">
         <div class="chart-card" style="min-height:200px">
           <div class="chart-title">PO ตามสถานะ</div>
           <div class="chart-sub">สัดส่วน Ticket แยกตาม procStatus</div>
@@ -220,26 +198,27 @@
         </div>
       </div>
 
-      <!-- ── Dashboard Lower: SLA Trend (full width) + Sales Order Channel ── -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <!-- Charts Row 2: SLA Trend + SO Channel -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px">
 
-        <!-- SLA Weekly Trend (bar chart) — full card -->
-        <div class="chart-card" style="grid-column:1/-1">
+        <!-- SLA Weekly Trend -->
+        <div class="chart-card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
             <div class="chart-title">📉 SLA รายสัปดาห์</div>
             <span style="font-size:10.5px;color:var(--text3)">7 สัปดาห์ล่าสุด</span>
           </div>
-          <div class="chart-sub">จำนวน Ticket ที่เกิน SLA แยกตามสัปดาห์</div>
-          <div class="bar-chart" style="margin-top:14px;height:120px" id="dashBreachChart">
-            <!-- rendered by JS -->
+          <div class="chart-sub">Breach count (แดง) + On-time rate (%) ต่อสัปดาห์</div>
+          <div class="bar-chart" style="margin-top:14px;height:140px" id="dashBreachChart">
+            <!-- rendered by renderDashBreachChart() -->
           </div>
           <div style="display:flex;gap:14px;margin-top:10px;font-size:10.5px">
             <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--danger);display:inline-block"></span> SLA Breach</span>
             <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:var(--success);display:inline-block"></span> On-time</span>
+            <span style="color:var(--text3);font-size:10px">% = On-time rate ใต้แต่ละบาร์</span>
           </div>
         </div>
 
-        <!-- Sales Order Volume by Channel — rendered by JS -->
+        <!-- SO Channel -->
         <div class="chart-card" id="dashSOChannelCard">
           <div class="chart-title">📊 Sales Order แยก Channel</div>
           <div class="chart-sub">จำนวน SO ในระบบ แยกตาม Channel</div>
@@ -376,7 +355,8 @@
               <div class="po-tabs" style="border-color:var(--pink-m)">
                 <button class="potab active" data-filter="all" onclick="setPOFilter('all',this)" style="font-size:11.5px">ทั้งหมด <span style="font-family:monospace" id="cnt-all"></span></button>
                 <button class="potab" data-filter="pending_att" onclick="setPOFilter('pending_att',this)" style="font-size:11.5px">📎 รอแนบไฟล์ <span style="font-family:monospace" id="cnt-pending-att"></span></button>
-                <button class="potab" data-filter="received" onclick="setPOFilter('received',this)" style="font-size:11.5px">📥 รอกดรับงาน <span style="font-family:monospace" id="cnt-received"></span></button>
+                <button class="potab" data-filter="received" onclick="setPOFilter('received',this)" style="font-size:11.5px">📥 รอรับงาน <span style="font-family:monospace" id="cnt-received"></span></button>
+                <button class="potab" data-filter="verified" onclick="setPOFilter('verified',this)" style="font-size:11.5px;color:#7C3AED">🔍 รอ Approve PO <span style="font-family:monospace" id="cnt-verified-inbox"></span></button>
               </div>
               <span style="font-size:14px;color:var(--text3)">›</span>
               <!-- Group 2: อยู่ระหว่างดำเนินการ -->
@@ -661,6 +641,16 @@
               <button onclick="soApplyFilter()" style="padding:5px 14px;background:var(--pink);color:#fff;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Apply</button>
             </div>
           </div>
+          <!-- Review filter chips -->
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px;">
+            <span style="font-size:11.5px;font-weight:700;color:var(--text3)">🔍 ตรวจสอบ:</span>
+            <button class="so-review-chip active" onclick="soSetReviewFilter('all',this)"
+              style="font-size:11.5px;padding:4px 13px;border:1.5px solid var(--pink);border-radius:16px;background:var(--pink);color:#fff;cursor:pointer;font-family:inherit;font-weight:700;transition:all .15s;">ทั้งหมด</button>
+            <button class="so-review-chip" onclick="soSetReviewFilter('reviewed',this)"
+              style="font-size:11.5px;padding:4px 13px;border:1.5px solid var(--border);border-radius:16px;background:var(--surface2);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;">✅ ตรวจสอบแล้ว</button>
+            <button class="so-review-chip" onclick="soSetReviewFilter('pending',this)"
+              style="font-size:11.5px;padding:4px 13px;border:1.5px solid var(--border);border-radius:16px;background:var(--surface2);color:var(--text2);cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;">⏳ รอการตรวจสอบ</button>
+          </div>
           <div class="so-search-wrap" style="flex:1;min-width:220px;">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="text" class="so-search" id="soSearch" placeholder="Search : Customer Name, Document Number, Reference" oninput="soFilter()">
@@ -690,15 +680,17 @@
             <thead>
               <tr>
                 <th style="width:34px"><input type="checkbox" id="soCheckAll" onchange="soToggleAll(this)"></th>
-                <th>STATUS</th>
                 <th>CUSTOMER NAME</th>
                 <th>DOCUMENT NUMBER</th>
                 <th>REFERENCE</th>
                 <th>ISSUE DATE</th>
-                <th style="text-align:right;padding-right:24px">ORDER QTY (PCS)</th>
-                <th>PRINT STATUS</th>
-                <th>เอกสารใบ PO</th>
+                <th style="text-align:right;padding-right:16px">ORDER QTY (PCS)</th>
+                <th style="color:#1D4ED8">📄 ใบ PO</th>
+                <th style="color:#0369A1">📄 ใบ SO</th>
+                <th style="color:#B45309" id="so-invoice-th">📄 ใบ Invoice</th>
+                <th style="color:#6D28D9">📎 เอกสารอื่นๆ</th>
                 <th>PREVIEW</th>
+                <th>ตรวจสอบ</th>
               </tr>
             </thead>
             <tbody id="soTableBody">
@@ -1021,6 +1013,7 @@
 
 <!-- 1. ข้อมูลหลัก (แก้ที่นี่เพื่ออัปเดต สินค้า / ลูกค้า / Vendor) -->
 <script src="data.js"></script>
+<script src="dashboard.js"></script>
 <script src="po-tracker.js"></script>
 <script src="order-app.js"></script>
 <script src="auth.js"></script>

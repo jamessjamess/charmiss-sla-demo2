@@ -1671,7 +1671,7 @@ function renderOrds(){
     const modes=[...new Set(o.items.map(i=>i.mode))];
     return `<div class="ocard ${isDraft?'is-draft':''}" onclick="openDetail('${o.ref}')">
       <div class="ocard-top">
-        <div style="min-width:0;"><div class="o-store">${o.custName}</div><div class="o-id">${o.ref}</div>
+        <div style="min-width:0;flex:1;"><div class="o-store">${o.custName}</div><div class="o-id">${o.ref}</div>
         ${(!isDraft&&o.soNumber)?`<div style="font-size:11px;font-family:monospace;font-weight:700;color:#7C3AED;margin-top:2px;letter-spacing:.3px">📄 ${o.soNumber}</div>`:''}
         </div>
         <div class="o-amt ${isDraft?'draft-amt':''}">฿${o.total.toLocaleString()}</div>
@@ -2000,36 +2000,37 @@ function orderDtStr(d){return d.toLocaleDateString('th-TH',{day:'numeric',month:
 // ──────────────────────────────────────────────────────
 const SO_MOCK = [
   // ── MT มี Invoice (Watsons, Eveandboy, Beautrium, CJ, 24Shopping with PO ref) ──
-  { id:'SO260300098', ref:'22940194',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-10', qty:60,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/11, 11:51', poFile:'Watson_PO_22940194.pdf' },
-  { id:'SO260300099', ref:'POD260135171',  customer:'EVEANDBOY CO., LTD สาขาที่ 1',           date:'2026-03-10', qty:72,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/10, 19:29', poFile:'Eveandboy_POD260135171.pdf' },
-  { id:'SO260300100', ref:'POD260135168',  customer:'EVEANDBOY CO., LTD สาขาที่ 2',           date:'2026-03-10', qty:60,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/10, 19:29', poFile:'Eveandboy_POD260135168.pdf' },
-  { id:'SO260300101', ref:'POD260135166',  customer:'EVEANDBOY CO., LTD สาขาที่ 3',           date:'2026-03-10', qty:144,  channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/10, 19:29', poFile:'Eveandboy_POD260135166.pdf' },
-  { id:'SO260300102', ref:'POD260135165',  customer:'EVEANDBOY CO., LTD สาขาที่ 4',           date:'2026-03-10', qty:132,  channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/10, 19:29', poFile:'Eveandboy_POD260135165.pdf' },
-  { id:'SO260300103', ref:'BT-PO-20250805-001', customer:'บริษัท บิวเทรียม จำกัด',           date:'2026-03-10', qty:96,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/10, 14:20', poFile:'Beautrium_BT-PO.pdf' },
-  { id:'SO260300104', ref:'PO2026020200019', customer:'บริษัท มัลตี้ บิวตี้ จำกัด',          date:'2026-03-09', qty:288,  channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/09, 16:45', poFile:'Multy_PO2026020200019.pdf' },
-  { id:'SO260300097', ref:'-',             customer:'บริษัท ชุติมา คอนเนค จำกัด',             date:'2026-03-10', qty:120,  channel:'mt-inv',   status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:null },
-  { id:'SO260300105', ref:'22940195',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-08', qty:480,  channel:'mt-inv',   status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'Watson_PO_22940195.pdf' },
-  { id:'SO260300106', ref:'4003280436',    customer:'บริษัท ซี.เจ. เอ็กซ์เพรส กรุ๊ป จำกัด', date:'2026-03-07', qty:432,  channel:'mt-inv',   status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'CJ_PO_4003280436.pdf' },
-  // ── MT ไม่มี Invoice (no PO ref / internal SO) ──
-  { id:'SO260300001', ref:'-',             customer:'บริษัท ซี.เจ. เอ็กซ์เพรส กรุ๊ป จำกัด', date:'2026-03-03', qty:432,  channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'INT_PO_SO260300001.pdf', poFileType:'internal' },
-  { id:'SO260300002', ref:'-',             customer:'บริษัท ซี.เจ. เอ็กซ์เพรส กรุ๊ป จำกัด', date:'2026-03-03', qty:576,  channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'INT_PO_SO260300002.pdf', poFileType:'internal' },
-  { id:'SO260300003', ref:'-',             customer:'บริษัท ทเวนตี้ไฟร์ ช้อปปิ้ง จำกัด',    date:'2026-03-06', qty:12,   channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'INT_PO_SO260300003.pdf', poFileType:'internal' },
-  { id:'SO260300004', ref:'SO260300017',   customer:'บริษัท ทเวนตี้ไฟร์ ช้อปปิ้ง จำกัด',    date:'2026-03-06', qty:720,  channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:null },
-  { id:'SO260300005', ref:'SO260300018',   customer:'บริษัท ทเวนตี้ไฟร์ ช้อปปิ้ง จำกัด',    date:'2026-03-06', qty:1080, channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:null },
-  { id:'SO260300008', ref:'-',             customer:'น้ำหวานบิวตี้',                           date:'2026-03-04', qty:85,   channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'INT_PO_SO260300008.pdf', poFileType:'internal' },
-  { id:'ST260300009', ref:'SO260300021',   customer:'น้ำหวานบิวตี้',                           date:'2026-03-04', qty:7,    channel:'mt-noinv', status:'ok',   printStatus:null,         reviewer:'koranit', reviewDate:'2026/03/05, 09:30', poFile:null },
-  { id:'SO260300013', ref:'22912054',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-02', qty:624,  channel:'mt-noinv', status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/04, 08:22', poFile:null },
-  { id:'SO260300014', ref:'22912055',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-02', qty:120,  channel:'mt-noinv', status:'edit', printStatus:null,         reviewer:'koranit', reviewDate:'2026/03/04, 08:22', poFile:null },
-  { id:'SO260300015', ref:'22911880',      customer:'941 estore-eDC Wangnoi',                  date:'2026-03-02', qty:34,   channel:'mt-noinv', status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/04, 08:33', poFile:null },
-  // ── Traditional Trade (ร้านค้า TT) — Document Number มาจาก ERP ขึ้นต้นด้วย SO ──
-  { id:'SO260311201', ref:'TT-260311-001', customer:'ร้านทองแสงหล้า',                     date:'2026-03-11', qty:22,   channel:'tt',       status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'TT_SO260311201.pdf' },
-  { id:'SO260310202', ref:'TT-260310-002', customer:'ร้านมณีเภสัช',                        date:'2026-03-10', qty:18,   channel:'tt',       status:'wait', printStatus:null,         reviewer:null,      reviewDate:null, poFile:'TT_SO260310202.pdf' },
-  { id:'SO260308203', ref:'TT-260308-003', customer:'ร้านชัยพรมงคล',                       date:'2026-03-08', qty:35,   channel:'tt',       status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/09, 10:15', poFile:'TT_SO260308203.pdf' },
-  { id:'SO260305204', ref:'TT-260305-004', customer:'ร้านสิริโอสถ',                         date:'2026-03-05', qty:12,   channel:'tt',       status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/06, 14:20', poFile:'TT_SO260305204.pdf' },
-  { id:'SO260303205', ref:'TT-260303-005', customer:'ร้านบิวตี้พลัส จ.เชียงใหม่',          date:'2026-03-03', qty:48,   channel:'tt',       status:'edit', printStatus:null,         reviewer:'koranit', reviewDate:'2026/03/04, 09:00', poFile:'TT_SO260303205.pdf' },
+  { id:'SO260300098', ref:'22940194',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-18', qty:60,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/19, 11:51', poFile:'Watson_PO_22940194.pdf',        soFile:'Watson_SO260300098.pdf',    invoiceFile:'Watson_INV_22940194.pdf',    otherFiles:['Watson_ใบปะหน้า_22940194.pdf'] },
+  { id:'SO260300099', ref:'POD260135171',  customer:'EVEANDBOY CO., LTD สาขาที่ 1',           date:'2026-03-18', qty:72,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/18, 19:29', poFile:'Eveandboy_POD260135171.pdf',    soFile:'Eveandboy_SO260300099.pdf', invoiceFile:'Eveandboy_INV_POD135171.pdf', otherFiles:[] },
+  { id:'SO260300100', ref:'POD260135168',  customer:'EVEANDBOY CO., LTD สาขาที่ 2',           date:'2026-03-18', qty:60,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/18, 19:29', poFile:'Eveandboy_POD260135168.pdf',    soFile:'Eveandboy_SO260300100.pdf', invoiceFile:null,                          otherFiles:[] },
+  { id:'SO260300101', ref:'POD260135166',  customer:'EVEANDBOY CO., LTD สาขาที่ 3',           date:'2026-03-18', qty:144,  channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/18, 19:29', poFile:'Eveandboy_POD260135166.pdf',    soFile:null,                        invoiceFile:null,                          otherFiles:[] },
+  { id:'SO260300102', ref:'POD260135165',  customer:'EVEANDBOY CO., LTD สาขาที่ 4',           date:'2026-03-18', qty:132,  channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/18, 19:29', poFile:'Eveandboy_POD260135165.pdf',    soFile:null,                        invoiceFile:null,                          otherFiles:[] },
+  { id:'SO260300103', ref:'BT-PO-20250805-001', customer:'บริษัท บิวเทรียม จำกัด',           date:'2026-03-18', qty:96,   channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/18, 14:20', poFile:'Beautrium_BT-PO.pdf',           soFile:'Beautrium_SO260300103.pdf', invoiceFile:'Beautrium_INV_BT-PO.pdf',    otherFiles:['Beautrium_ใบปะหน้า.pdf'] },
+  { id:'SO260300104', ref:'PO2026020200019', customer:'บริษัท มัลตี้ บิวตี้ จำกัด',          date:'2026-03-17', qty:288,  channel:'mt-inv',   status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/17, 16:45', poFile:'Multy_PO2026020200019.pdf',     soFile:null,                        invoiceFile:null,                          otherFiles:[] },
+  { id:'SO260300097', ref:'-',             customer:'บริษัท ชุติมา คอนเนค จำกัด',             date:'2026-03-18', qty:120,  channel:'mt-inv',   status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:null,                            soFile:null,                        invoiceFile:null,                          otherFiles:[] },
+  { id:'SO260300105', ref:'22940195',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-16', qty:480,  channel:'mt-inv',   status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'Watson_PO_22940195.pdf',        soFile:null,                        invoiceFile:null,                          otherFiles:[] },
+  { id:'SO260300106', ref:'4003280436',    customer:'บริษัท ซี.เจ. เอ็กซ์เพรส กรุ๊ป จำกัด', date:'2026-03-15', qty:432,  channel:'mt-inv',   status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'CJ_PO_4003280436.pdf',          soFile:null,                        invoiceFile:null,                          otherFiles:[] },
+  // ── MT ไม่มี Invoice (no PO ref / internal SO) — NO invoiceFile column ──
+  { id:'SO260300001', ref:'-',             customer:'บริษัท ซี.เจ. เอ็กซ์เพรส กรุ๊ป จำกัด', date:'2026-03-11', qty:432,  channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'INT_PO_SO260300001.pdf', poFileType:'internal', soFile:null, otherFiles:[] },
+  { id:'SO260300002', ref:'-',             customer:'บริษัท ซี.เจ. เอ็กซ์เพรส กรุ๊ป จำกัด', date:'2026-03-11', qty:576,  channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'INT_PO_SO260300002.pdf', poFileType:'internal', soFile:null, otherFiles:[] },
+  { id:'SO260300003', ref:'-',             customer:'บริษัท ทเวนตี้ไฟร์ ช้อปปิ้ง จำกัด',    date:'2026-03-14', qty:12,   channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'INT_PO_SO260300003.pdf', poFileType:'internal', soFile:null, otherFiles:[] },
+  { id:'SO260300004', ref:'SO260300017',   customer:'บริษัท ทเวนตี้ไฟร์ ช้อปปิ้ง จำกัด',    date:'2026-03-14', qty:720,  channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:null,                                           soFile:null, otherFiles:[] },
+  { id:'SO260300005', ref:'SO260300018',   customer:'บริษัท ทเวนตี้ไฟร์ ช้อปปิ้ง จำกัด',    date:'2026-03-14', qty:1080, channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:null,                                           soFile:null, otherFiles:[] },
+  { id:'SO260300008', ref:'-',             customer:'น้ำหวานบิวตี้',                           date:'2026-03-12', qty:85,   channel:'mt-noinv', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'INT_PO_SO260300008.pdf', poFileType:'internal', soFile:null, otherFiles:[] },
+  { id:'ST260300009', ref:'SO260300021',   customer:'น้ำหวานบิวตี้',                           date:'2026-03-12', qty:7,    channel:'mt-noinv', status:'ok',   printStatus:null,         reviewer:'koranit', reviewDate:'2026/03/13, 09:30', poFile:null,                                          soFile:'NamWan_SO260300021.pdf', otherFiles:['NamWan_ใบปะหน้า.pdf'] },
+  { id:'SO260300013', ref:'22912054',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-10', qty:624,  channel:'mt-noinv', status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/12, 08:22', poFile:null,                                          soFile:'Watson_SO260300013.pdf', otherFiles:[] },
+  { id:'SO260300014', ref:'22912055',      customer:'บริษัท เซ็นทรัล วัตสัน จำกัด',         date:'2026-03-10', qty:120,  channel:'mt-noinv', status:'edit', printStatus:null,         reviewer:'koranit', reviewDate:'2026/03/12, 08:22', poFile:null,                                          soFile:null,                     otherFiles:[] },
+  { id:'SO260300015', ref:'22911880',      customer:'941 estore-eDC Wangnoi',                  date:'2026-03-10', qty:34,   channel:'mt-noinv', status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/12, 08:33', poFile:null,                                          soFile:'Wangnoi_SO260300015.pdf', otherFiles:[] },
+  // ── Traditional Trade ──
+  { id:'SO260311201', ref:'TT-260311-001', customer:'ร้านทองแสงหล้า',                     date:'2026-03-19', qty:22,   channel:'tt', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'TT_SO260311201.pdf',    soFile:null,                          invoiceFile:null, otherFiles:[] },
+  { id:'SO260310202', ref:'TT-260310-002', customer:'ร้านมณีเภสัช',                        date:'2026-03-18', qty:18,   channel:'tt', status:'wait', printStatus:null,         reviewer:null,      reviewDate:null,             poFile:'TT_SO260310202.pdf',    soFile:null,                          invoiceFile:null, otherFiles:[] },
+  { id:'SO260308203', ref:'TT-260308-003', customer:'ร้านชัยพรมงคล',                       date:'2026-03-16', qty:35,   channel:'tt', status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/17, 10:15', poFile:'TT_SO260308203.pdf',  soFile:'TT_SO260308203_doc.pdf',    invoiceFile:'TT_INV_260308203.pdf', otherFiles:['TT_ใบปะหน้า_260308203.pdf'] },
+  { id:'SO260305204', ref:'TT-260305-004', customer:'ร้านสิริโอสถ',                         date:'2026-03-13', qty:12,   channel:'tt', status:'ok',   printStatus:'พิมพ์แล้ว', reviewer:'koranit', reviewDate:'2026/03/14, 14:20', poFile:'TT_SO260305204.pdf',  soFile:'TT_SO260305204_doc.pdf',    invoiceFile:null, otherFiles:[] },
+  { id:'SO260303205', ref:'TT-260303-005', customer:'ร้านบิวตี้พลัส จ.เชียงใหม่',          date:'2026-03-11', qty:48,   channel:'tt', status:'edit', printStatus:null,         reviewer:'koranit', reviewDate:'2026/03/12, 09:00', poFile:'TT_SO260303205.pdf',  soFile:null,                          invoiceFile:null, otherFiles:[] },
 ];
 
 let soChannelFilter = 'all';
+let soReviewFilter = 'all';  // 'all' | 'reviewed' | 'pending'
 
 // ─── State ───
 const soState = {
@@ -2060,6 +2061,46 @@ function soSetChannel(ch, el) {
     b.style.fontWeight = '600';
   });
   if(el) { el.style.color='var(--pink)'; el.style.borderBottomColor='var(--pink)'; el.style.fontWeight='700'; }
+  // Hide Invoice column when viewing mt-noinv only
+  var invoiceHeaderEl = document.getElementById('so-invoice-th');
+  if(invoiceHeaderEl) invoiceHeaderEl.style.display = (ch === 'mt-noinv') ? 'none' : '';
+  soFilter();
+}
+
+function soSetReviewFilter(v, el) {
+  soReviewFilter = v;
+  document.querySelectorAll('.so-review-chip').forEach(function(c) {
+    c.classList.remove('active');
+    c.style.background = 'var(--surface2)';
+    c.style.color = 'var(--text2)';
+    c.style.borderColor = 'var(--border)';
+  });
+  if(el) {
+    el.classList.add('active');
+    if(v === 'reviewed') { el.style.background='#ECFDF5'; el.style.color='#065F46'; el.style.borderColor='#6EE7B7'; }
+    else if(v === 'pending') { el.style.background='#FEF3C7'; el.style.color='#92400E'; el.style.borderColor='#FCD34D'; }
+    else { el.style.background='var(--pink)'; el.style.color='#fff'; el.style.borderColor='var(--pink)'; }
+  }
+  soFilter();
+}
+
+function soMarkReviewed(id, ev) {
+  if(ev) ev.stopPropagation();
+  var row = soState.data.find(function(r){ return r.id === id; });
+  if(!row) return;
+  if(row.status === 'ok' || row.status === 'edit') {
+    // toggle back to wait
+    row.status = 'wait';
+    row.reviewer = null;
+    row.reviewDate = null;
+    showToast('↩️ ยกเลิกตรวจสอบ — ' + id);
+  } else {
+    row.status = 'ok';
+    row.reviewer = (typeof CURRENT_SALES !== 'undefined' ? CURRENT_SALES : 'ฝนเทพ');
+    var now = new Date();
+    row.reviewDate = now.toLocaleDateString('th-TH', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'/') + ', ' + now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    showToast('✅ ตรวจสอบแล้ว — ' + id + ' โดย ' + row.reviewer);
+  }
   soFilter();
 }
 
@@ -2106,11 +2147,84 @@ function soFilter() {
     const matchQ = !q || row.customer.toLowerCase().includes(q) || row.id.toLowerCase().includes(q) || (row.ref||'').toLowerCase().includes(q);
     const matchFrom = !from || row.date >= from;
     const matchTo = !to || row.date <= to;
-    return matchCh && matchQ && matchFrom && matchTo;
+    const isReviewed = row.status === 'ok' || row.status === 'edit';
+    const matchRev = soReviewFilter === 'all'
+      || (soReviewFilter === 'reviewed' && isReviewed)
+      || (soReviewFilter === 'pending' && !isReviewed);
+    return matchCh && matchQ && matchFrom && matchTo && matchRev;
   });
   soState.selected = new Set();
   document.getElementById('soCheckAll').checked = false;
   soRender();
+}
+
+// ── Document cell helpers ──
+function soDocCell(soId, fieldKey, filename, color, bgColor, borderColor, label, printFn) {
+  const safeId = soId.replace(/[^a-zA-Z0-9]/g,'_');
+  if (filename) {
+    const short = filename.length > 16 ? filename.slice(0,16)+'…' : filename;
+    return `<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;">
+      <button onclick="${printFn}('${soId}','${filename}')"
+        style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1.5px solid ${borderColor};border-radius:5px;background:${bgColor};color:${color};font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;max-width:150px;"
+        onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" title="${filename}">
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        ${short}
+      </button>
+    </div>`;
+  }
+  // No file → upload button
+  return `<div>
+    <label style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1.5px dashed var(--border);border-radius:5px;background:var(--surface2);color:var(--text3);font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;"
+      onmouseover="this.style.borderColor='${color}';this.style.color='${color}'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'"
+      title="Upload ${label}">
+      <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Upload
+      <input type="file" accept=".pdf,.xlsx,.xls,.doc,.docx,.jpg,.png" style="display:none" onchange="soHandleUpload('${soId}','${fieldKey}',this)">
+    </label>
+  </div>`;
+}
+
+function soOtherFilesCell(soId, files) {
+  const safeId = soId.replace(/[^a-zA-Z0-9]/g,'_');
+  const filesArr = files || [];
+  let html = '<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;">';
+  filesArr.forEach(function(f) {
+    const short = f.length > 14 ? f.slice(0,14)+'…' : f;
+    html += `<button onclick="soPrintDoc('${soId}','${f}')"
+      style="display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border:1.5px solid #E9D5FF;border-radius:5px;background:#F5F3FF;color:#6D28D9;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;"
+      onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" title="${f}">
+      <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      ${short}</button>`;
+  });
+  // + upload more
+  html += `<label style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border:1.5px dashed #DDD6FE;border-radius:5px;background:#F5F3FF;color:#7C3AED;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;"
+    onmouseover="this.style.borderColor='#7C3AED'" onmouseout="this.style.borderColor='#DDD6FE'" title="Upload เพิ่ม">
+    <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    ${filesArr.length > 0 ? '+ เพิ่ม' : 'Upload'}
+    <input type="file" accept=".pdf,.xlsx,.xls,.doc,.docx,.jpg,.png" style="display:none" onchange="soHandleUpload('${soId}','other',this)">
+  </label>`;
+  html += '</div>';
+  return html;
+}
+
+function soHandleUpload(soId, fieldKey, input) {
+  if (!input.files || !input.files.length) return;
+  const file = input.files[0];
+  const row = soState.data.find(function(r){ return r.id === soId; });
+  if (!row) return;
+  if (fieldKey === 'other') {
+    if (!row.otherFiles) row.otherFiles = [];
+    row.otherFiles.push(file.name);
+  } else {
+    row[fieldKey] = file.name;
+  }
+  input.value = '';
+  showToast('✅ Upload สำเร็จ: ' + file.name);
+  soRender();
+}
+
+function soPrintDoc(soId, filename) {
+  showToast('🖨️ กำลังพิมพ์: ' + filename);
 }
 
 function soRender() {
@@ -2118,42 +2232,37 @@ function soRender() {
   document.getElementById('soCount').textContent = 'Number of Sales Order: ' + soState.filtered.length;
 
   if (!soState.filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="11"><div class="so-empty"><div class="so-empty-ico">📋</div><div class="so-empty-txt">ไม่พบข้อมูล Sales Order</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12"><div class="so-empty"><div class="so-empty-ico">📋</div><div class="so-empty-txt">ไม่พบข้อมูล Sales Order</div></div></td></tr>';
     return;
   }
 
   tbody.innerHTML = soState.filtered.map((row, i) => {
     const isOk = row.status === 'ok';
     const isEdit = row.status === 'edit';
-    const rowClass = isOk ? 'so-row-confirmed' : '';
+    const rowClass = (isOk || isEdit) ? 'so-row-confirmed' : '';
+    const isMtNoInv = row.channel === 'mt-noinv';
 
-    let statusHtml;
-    if (isOk) {
-      statusHtml = `<div class="so-status-wrap">
-        <span class="so-status so-status-ok">
-          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          ตรวจสอบแล้ว
-        </span>
-        ${row.reviewer ? `<div class="so-status-sub">${row.reviewer}<br>${row.reviewDate}</div>` : ''}
-      </div>`;
-    } else if (isEdit) {
-      statusHtml = `<div class="so-status-wrap">
-        <span class="so-status so-status-edit">
-          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          มีการแก้ไข
-        </span>
-        ${row.reviewer ? `<div class="so-status-sub">${row.reviewer}<br>${row.reviewDate}</div>` : ''}
-      </div>`;
-    } else {
-      statusHtml = `<span class="so-status so-status-wait">
-        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        รอตรวจสอบ
-      </span>`;
-    }
-
-    const printHtml = row.printStatus
-      ? `<span class="so-print-ok"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> ${row.printStatus}</span>`
-      : `<span class="so-print-none">-</span>`;
+    // Review action cell
+    const reviewCellHtml = (isOk || isEdit)
+      ? `<td style="white-space:nowrap;padding:8px 10px;vertical-align:top;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+            <button onclick="soMarkReviewed('${row.id}',event)"
+              style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:800;color:#065F46;white-space:nowrap;"
+              onmouseover="this.style.background='#D1FAE5'" onmouseout="this.style.background='#ECFDF5'">
+              <svg width="12" height="12" fill="none" stroke="#059669" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              ตรวจสอบแล้ว
+            </button>
+            ${row.reviewer ? `<div style="font-size:9.5px;color:var(--text3);padding-left:2px;line-height:1.4">${row.reviewer}<br>${row.reviewDate}</div>` : ''}
+          </div>
+        </td>`
+      : `<td style="white-space:nowrap;padding:8px 10px;vertical-align:top;">
+          <button onclick="soMarkReviewed('${row.id}',event)"
+            style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;color:var(--text2);white-space:nowrap;"
+            onmouseover="this.style.background='#ECFDF5';this.style.borderColor='#6EE7B7';this.style.color='#065F46'" onmouseout="this.style.background='var(--surface2)';this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            ตรวจสอบ
+          </button>
+        </td>`;
 
     const refHtml = row.ref && row.ref !== '-' ? `<span class="so-ref">${row.ref}</span>` : `<span class="so-print-none">-</span>`;
 
@@ -2164,48 +2273,43 @@ function soRender() {
       ? '<span style="font-size:9px;background:#dcfce7;color:#166534;border-radius:3px;padding:1px 5px;font-weight:700;display:inline-block;margin-bottom:2px">TT</span>'
       : '<span style="font-size:9px;background:#f3f4f6;color:#6b7280;border-radius:3px;padding:1px 5px;font-weight:700;display:inline-block;margin-bottom:2px">MT</span>';
 
-    // PO document cell — mt-noinv gets internal PO print button
+    // ── 4 document columns ──
+    // 1. ใบ PO
     let poDocHtml;
-    if (row.channel === 'mt-noinv') {
-      if (row.poFile && row.poFileType === 'internal') {
-        // Internal PO document - mockup print button
-        poDocHtml = `<button onclick="soPrintInternalPO('${row.id}')" title="ปริ้น ใบสั่งซื้อภายใน"
-             style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:1.5px solid #BBF7D0;border-radius:5px;background:#F0FDF4;color:#166534;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"
-             onmouseover="this.style.background='#DCFCE7'" onmouseout="this.style.background='#F0FDF4'">
-            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            🖨 ปริ้น ใบ PO
-          </button>`;
-      } else {
-        poDocHtml = '<span style="color:var(--text3);font-size:11px">—</span>';
-      }
-    } else if (row.poFile) {
-      poDocHtml = `<button onclick="soPrintPO('${row.id}','${row.poFile}')" title="พิมพ์ใบ PO: ${row.poFile}"
-           style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:1.5px solid #BFDBFE;border-radius:5px;background:#EFF6FF;color:#1D4ED8;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"
-           onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#EFF6FF'">
-          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          ${row.poFile.slice(0,18)}${row.poFile.length>18?'…':''}
-        </button>`;
+    if (isMtNoInv && row.poFile && row.poFileType === 'internal') {
+      poDocHtml = soDocCell(row.id,'poFile',row.poFile,'#166534','#F0FDF4','#BBF7D0','ใบ PO','soPrintDoc');
     } else {
-      poDocHtml = '<span style="color:var(--text3);font-size:11px">—</span>';
+      poDocHtml = soDocCell(row.id,'poFile',row.poFile,'#1D4ED8','#EFF6FF','#BFDBFE','ใบ PO','soPrintDoc');
     }
 
-    // Upload cell removed (WMS API integration handled backend)
+    // 2. ใบ SO
+    const soDocHtml = soDocCell(row.id,'soFile',row.soFile,'#0369A1','#F0F9FF','#BAE6FD','ใบ SO','soPrintDoc');
+
+    // 3. ใบ Invoice (mt-noinv ไม่มี — ซ่อน td ด้วยเมื่อ filter mt-noinv)
+    const invoiceDocHtml = isMtNoInv
+      ? `<td style="padding:8px 10px;vertical-align:top;${soChannelFilter==='mt-noinv'?'display:none;':''}"><span style="color:var(--text3);font-size:11px">—</span></td>`
+      : `<td style="padding:8px 10px;vertical-align:top;">${soDocCell(row.id,'invoiceFile',row.invoiceFile,'#B45309','#FFFBEB','#FDE68A','ใบ Invoice','soPrintDoc')}</td>`;
+
+    // 4. เอกสารอื่นๆ
+    const otherDocHtml = soOtherFilesCell(row.id, row.otherFiles);
 
     return `<tr class="${rowClass}" data-idx="${i}">
       <td><input type="checkbox" class="so-row-check" data-id="${row.id}" onchange="soToggleRow(this)" ${soState.selected.has(row.id) ? 'checked' : ''}></td>
-      <td>${statusHtml}</td>
       <td class="so-custname"><div>${row.customer}</div>${chTag}</td>
       <td><span class="so-docnum">${row.id}</span></td>
       <td>${refHtml}</td>
       <td class="so-date-cell">${row.date}</td>
-      <td style="text-align:right; padding-right:24px;"><span class="so-qty">${row.qty.toLocaleString()}</span></td>
-      <td>${printHtml}</td>
-      <td style="white-space:nowrap">${poDocHtml}</td>
+      <td style="text-align:right;padding-right:16px;"><span class="so-qty">${row.qty.toLocaleString()}</span></td>
+      <td style="padding:8px 10px;vertical-align:top;">${poDocHtml}</td>
+      <td style="padding:8px 10px;vertical-align:top;">${soDocHtml}</td>
+      ${invoiceDocHtml}
+      <td style="padding:8px 10px;vertical-align:top;">${otherDocHtml}</td>
       <td>
         <button class="so-preview-btn" onclick="soPreview('${row.id}')" title="Preview">
           <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/><rect x="13" y="13" width="6" height="6" rx="1" fill="currentColor" opacity=".2"/><path d="M13 13v6h6"/></svg>
         </button>
       </td>
+      ${reviewCellHtml}
     </tr>`;
   }).join('');
 }
